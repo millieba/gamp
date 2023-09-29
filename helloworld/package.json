@@ -12,6 +12,15 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "helloWorld.view",
+          "name": "Hello World"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "helloworld.helloWorld",
