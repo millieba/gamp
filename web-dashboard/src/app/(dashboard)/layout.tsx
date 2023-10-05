@@ -7,8 +7,13 @@ export default function DashboardLayout({
 }) {
     return (
         <section>
-            <SideNavBar />
-            {children}
+            <div className="flex gap-4">
+                <SideNavBar />
+                <main className="pt-6">
+                    {children}
+                </main>
+            </div>
+
         </section>
     )
 }
