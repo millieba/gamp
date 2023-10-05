@@ -2,17 +2,17 @@ import Link from 'next/link';
 
 const SideNavBar = () => {
     return (
-        <div>
-            <Link href="/">
+        <div className="bg-gray-800 flex flex-col p-4">
+            <Link href="/" className="text-white text-xl mb-4 hover:text-blue-500">
                 Home
             </Link>
-            <Link href="/badges">
+            <Link href="/badges" className="text-white text-xl mb-4 hover:text-blue-500">
                 Badges
             </Link>
-            <Link href="/stats">
+            <Link href="/stats" className="text-white text-xl mb-4 hover:text-blue-500">
                 Stats
             </Link>
-            <Link href="/settings">
+            <Link href="/settings" className="text-white text-xl mb-4 hover:text-blue-500">
                 Settings
             </Link>
         </div>

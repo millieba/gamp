@@ -1,5 +1,5 @@
-const BadgesPage = () => {    
-    return <div>Badges</div>
+const BadgesPage = () => {
+    return <h1 className="text-2xl">Badges</h1>
 }
 
 export default BadgesPage;
