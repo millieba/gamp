@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "masters_db_connection",
+            "database": "masters_db",
+            "username": "postgres"
+        }
+    ]
+}
