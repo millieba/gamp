@@ -1,6 +1,6 @@
 # Web Dashboard
-## Install dependencies
-- Navigate to the `web-dashboard` folder
+## Prerequisites and dependencies
+- All commands are executed from the `web-dashboard` folder if nothing else is specified
 - Run `pnpm i`
 - Make sure your system has PostgreSQL version 16 installed
   
@@ -32,6 +32,7 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 ![](img/github_reg_oauth.png)
 
 ## Create .env files
+### .env
 - First, create a `.env` file in the `web-dashboard` folder:
 ```
 # Environment variables declared in this file are automatically made available to Prisma
@@ -44,7 +45,9 @@ DATABASE_URL="postgresql://postgres:verySecretPasswordHere@localhost:5432/master
 ```
 - Modify the code above with the correct user (default user, `postgres`), correct password (placeholder, but the password for your default user) and database name (`masters_db`) 
 
-- Then create a `.env.local` file in the `web-dashboard` folder:
+### .env.local
+- Create a secret using the following command in Git Bash: `openssl rand -base64 32`
+- Then create a `.env.local` file in the `web-dashboard` folder where you paste the generated key along with the GitHub client secret and client id:
 ```
 NEXTAUTH_SECRET=YourSecretKeyHere_NoNeedForQuotationMarksOrAnything
 GITHUB_SECRET=ClientSecretFromOAuthAppSetupOnGitHub
