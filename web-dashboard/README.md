@@ -1,8 +1,8 @@
 # Web Dashboard
 ## Prerequisites and dependencies
-- All commands are executed from the `web-dashboard` folder if nothing else is specified
-- Run `pnpm i`
-- Make sure your system has PostgreSQL version 16 installed
+- All commands should be executed from the `web-dashboard` folder unless otherwise specified.
+- Run `pnpm i` to install project dependencies.
+- Make sure your system has PostgreSQL version 16 installed.
   
 ## Setup database
 You will need to set up a local PostgreSQL 16 database to run this project.
@@ -20,14 +20,14 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 ![](img/sqltools_masters_db.png)
 
 ## Migrate
-- Run `pnpm exec prisma migrate dev`. 
+- Run `pnpm exec prisma migrate dev`
 	- This command will interpret the Prisma schema file, generate SQL commands based on it, and execute a migration to ensure our database matches the Prisma schema. It will also generate a Prisma client that matches the current schema.
 	- If there were any changes in the schema file since the last migration, Prisma would create a new migration. However, since the latest migration is already pushed to Git, this command will likely just apply that existing migration to your local database.
   
 ## Register new OAuth app on GitHub
-- Go to https://github.com/settings/developers
+- Go to https://github.com/settings/developers.
 - Set "Homepage URL" and "Authorization callback URL" to `http://localhost:3000`
-- Copy the client id and client secret, keep them somewhere safe for later
+- Copy the client id and client secret, keep them somewhere safe for later.
 
 ![](img/github_reg_oauth.png)
 
@@ -43,10 +43,10 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 
 DATABASE_URL="postgresql://postgres:verySecretPasswordHere@localhost:5432/masters_db?schema=public"
 ```
-- Modify the code above with the correct user (default user, `postgres`), correct password (placeholder, but the password for your default user) and database name (`masters_db`) 
+- Modify the code above with the correct user (default user, `postgres`), correct password (placeholder, but the password for your default user) and database name (`masters_db`).
 
 ### .env.local
-- Create a secret using the following command in Git Bash: `openssl rand -base64 32`
+- Generate a secret key using the following command in Git Bash: `openssl rand -base64 32`
 - Then create a `.env.local` file in the `web-dashboard` folder where you paste the generated key along with the GitHub client secret and client id:
 ```
 NEXTAUTH_SECRET=YourSecretKeyHere_NoNeedForQuotationMarksOrAnything
