@@ -6,7 +6,7 @@ const HomePage = async () => {
   return (
     <>
       <h1 className="text-2xl">Home</h1>
-      <h2 className="text-xl">Welcome {JSON.stringify(session)}</h2>
+      <h2 className="text-xl">Welcome, {session?.user?.name}!</h2>
     </>
   )
 }
