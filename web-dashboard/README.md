@@ -1,14 +1,14 @@
 # Web Dashboard
-
 ## Install dependencies
 - Navigate to the `web-dashboard` folder
 - Run `pnpm i`
+- Make sure your system has PostgreSQL version 16 installed
   
 ## Setup database
-- Started with database. This is to avoid refactoring later. We might want to save preferences + calculations.
-  
+You will need to set up a local PostgreSQL 16 database to run this project.
+
 ### Create database
-- Used PGAdmin4: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
+- I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
 	- Default options, database name: `masters_db` on default user, `postgres`
   
 ### Connect to database in VS Code

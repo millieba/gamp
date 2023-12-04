@@ -4,9 +4,9 @@
 - https://www.youtube.com/watch?v=w2h54xz6Ndw&t=1850s&ab_channel=DaveGray
 - https://github.com/hexrcs/prisma-next-auth
 ## Setup database
-- Started with database. This is to avoid refactoring later. We might want to save preferences + calculations.
+You will need to set up a local PostgreSQL 16 database to run this project.
 ### Create database
-- Used PGAdmin4: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
+- I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
 	- Default options, database name: `masters_db` on default user, `postgres`
 ### Connect to database in VS Code
 - This is so we can easily inspect the database to see that everything looks as expected. It is not really part of the "functionality", it is just helpful for development.
