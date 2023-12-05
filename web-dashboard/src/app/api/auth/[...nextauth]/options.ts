@@ -1,4 +1,4 @@
-import type { NextAuthOptions, TokenSet } from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
 import GitHubProvider from 'next-auth/providers/github'
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from '@/utils/prisma'
@@ -42,22 +42,15 @@ export const options: NextAuthOptions = {
                     const resObject = Object.fromEntries(resParams);
 
                     console.log("Response Object:", resObject)
-                    const resJSON = await response.json();
-                    console.log("Response JSON:", resJSON);
-
-                    const tokens: TokenSet = await response.json();
-                    console.log("Tokens:", tokens);
-
-                    if (!response.ok) throw tokens;
 
                     // Check if tokens.expires_in is a number before using it
-                    let expiresIn = typeof tokens.expires_at === 'number' ? tokens.expires_at : 0;
+                    let expiresIn = typeof resObject.expires_at === 'number' ? resObject.expires_at : 0;
 
                     await prisma.account.update({
                         data: {
-                            access_token: tokens.access_token,
+                            access_token: resObject.access_token,
                             expires_at: Math.floor(Date.now() / 1000 + expiresIn),
-                            refresh_token: tokens.refresh_token ?? github.refresh_token,
+                            refresh_token: resObject.refresh_token ?? github.refresh_token,
                         },
                         where: {
                             provider_providerAccountId: {
