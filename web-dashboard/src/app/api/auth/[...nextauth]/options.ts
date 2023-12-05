@@ -18,23 +18,26 @@ export const options: NextAuthOptions = {
             });
             // check if github.expires_at is null before continuing
             if (!github.expires_at) return session;
+            console.log("Used later: ", process.env.GITHUB_ID, process.env.GITHUB_SECRET, github.refresh_token, github.expires_at);
+
             if (github.expires_at * 1000 < Date.now()) {
                 // If the access token has expired, try to refresh it
                 try {
                     const response = await fetch("https://github.com/login/oauth/access_token", {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            client_id: process.env.GITHUB_CLIENT_ID, // Adjusted environment variable
-                            client_secret: process.env.GITHUB_CLIENT_SECRET, // Adjusted environment variable
+                            client_id: process.env.GITHUB_ID, // Adjusted environment variable
+                            client_secret: process.env.GITHUB_SECRET, // Adjusted environment variable
                             grant_type: "refresh_token",
                             refresh_token: github.refresh_token,
                         }),
                         method: "POST",
                     });
 
-                    console.log("Response from refresh token", response);
+                    console.log("Refreshing a user access token with a refresh token:", response.status, response.statusText);
 
                     const tokens: TokenSet = await response.json();
+                    console.log("Tokens:", tokens);
 
                     if (!response.ok) throw tokens;
 
