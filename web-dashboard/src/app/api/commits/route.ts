@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import { Octokit } from "octokit";
+import { Octokit } from "@octokit/rest";
+import { PrismaClient } from '@prisma/client';
 
 export const GET = async () => {
+  const prisma = new PrismaClient();
+  const accounts = await prisma.account.findMany();
+
   const octokit = new Octokit({
-    auth: process.env.GITHUB_AUTH_TOKEN,
+    auth: accounts[0].access_token,
   });
 
   try {
-    const commits = await octokit.request("GET /repos/{owner}/{repo}/commits", {
-      owner: "karenvi",
-      repo: "it3023-statistics"
+    const commits = await octokit.request("GET /user/{owner}/repos", {
+      owner: accounts[0].providerAccountId,
     });
 
     return NextResponse.json({ commits }, { status: 200 });
@@ -17,5 +20,3 @@ export const GET = async () => {
     return NextResponse.json({ error }, { status: 500 });
   }
 };
-
-
