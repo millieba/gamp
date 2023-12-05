@@ -13,10 +13,10 @@ export const options: NextAuthOptions = {
     ],
     callbacks: {
         async session({ session, user }) {
-            const [github] = await prisma.account.findMany({ // Updated provider to GitHub
-                where: { userId: user.id, provider: "github" }, // Updated provider to GitHub
+            const [github] = await prisma.account.findMany({
+                where: { userId: user.id, provider: "github" },
             });
-            // check if github.expires_at is null before continuing
+            // check if github.expires_at is null before continuing, TODO: handle properly
             if (!github.expires_at) return session;
             console.log("Used later: ", process.env.GITHUB_ID, process.env.GITHUB_SECRET, github.refresh_token, github.expires_at);
 
@@ -24,17 +24,26 @@ export const options: NextAuthOptions = {
                 // If the access token has expired, try to refresh it
                 try {
                     const response = await fetch("https://github.com/login/oauth/access_token", {
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            client_id: process.env.GITHUB_ID, // Adjusted environment variable
-                            client_secret: process.env.GITHUB_SECRET, // Adjusted environment variable
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({
+                            client_id: process.env.GITHUB_ID as string,
+                            client_secret: process.env.GITHUB_SECRET as string,
                             grant_type: "refresh_token",
-                            refresh_token: github.refresh_token,
+                            refresh_token: github.refresh_token as string,
                         }),
                         method: "POST",
                     });
 
                     console.log("Refreshing a user access token with a refresh token:", response.status, response.statusText);
+                    console.log(response)
+
+                    const resText = await response.text();
+                    const resParams = new URLSearchParams(resText);
+                    const resObject = Object.fromEntries(resParams);
+
+                    console.log("Response Object:", resObject)
+                    const resJSON = await response.json();
+                    console.log("Response JSON:", resJSON);
 
                     const tokens: TokenSet = await response.json();
                     console.log("Tokens:", tokens);
