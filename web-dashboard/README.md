@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Web Dashboard
+## Prerequisites and dependencies
+- All commands should be executed from the `web-dashboard` folder unless otherwise specified.
+- Run `pnpm i` to install project dependencies.
+- Make sure your system has PostgreSQL version 16 installed.
+  
+## Setup database
+You will need to set up a local PostgreSQL 16 database to run this project.
 
-## Getting Started
+### Create database
+- I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
+	- Default options, database name: `masters_db` on default user, `postgres`
+  
+### Connect to database in VS Code
+- This is so we can easily inspect the database to see that everything looks as expected. It is not really part of the "functionality", it is just helpful for development.
+- Download "SQLTools" extension, search for `mtxr.sqltools`
+- Make sure to also install the SQLTools PostgreSQL/Cockroach Driver, can be found by searching for `mtxr.sqltools-driver-pg`
 
-First, run the development server:
+- Click the "Add New Connection" and save a new PostgreSQL connection:
+![](img/sqltools_masters_db.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Register new OAuth app on GitHub
+- Go to https://github.com/settings/developers.
+- Set "Homepage URL" and "Authorization callback URL" to `http://localhost:3000`
+- Copy the client id and client secret, keep them somewhere safe for later.
+
+![](img/github_reg_oauth.png)
+
+## Create .env files
+### .env
+- First, create a `.env` file in the `web-dashboard` folder:
+```
+# Environment variables declared in this file are automatically made available to Prisma
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL="postgresql://postgres:verySecretPasswordHere@localhost:5432/masters_db?schema=public"
+```
+- Modify the code above with the correct user (default user, `postgres`), correct password (placeholder, but the password for your default user) and database name (`masters_db`).
+
+### .env.local
+- Generate a secret key using the following command in Git Bash: `openssl rand -base64 32`
+- Then create a `.env.local` file in the `web-dashboard` folder where you paste the generated key along with the GitHub client secret and client id:
+```
+NEXTAUTH_SECRET=YourSecretKeyHere_NoNeedForQuotationMarksOrAnything
+GITHUB_SECRET=ClientSecretFromOAuthAppSetupOnGitHub
+GITHUB_ID=ClientIDFromOAuthAppSetupOnGitHub
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Migrate
+- Run `pnpm exec prisma migrate dev`
+	- This command will interpret the Prisma schema file, generate SQL commands based on it, and execute a migration to ensure our database matches the Prisma schema. It will also generate a Prisma client that matches the current schema.
+	- If there were any changes in the schema file since the last migration, Prisma would create a new migration. However, since the latest migration is already pushed to Git, this command will likely just apply that existing migration to your local database.
+  
+## Test login
+- Start development server by running `pnpm dev`
+- Visit http://localhost:3000/api/auth/signin. 
+- A "Sign in with GitHub" button should appear. Clicking the button and signing in should redirect you to http://localhost:3000, where the heading should say e.g. "Welcome, Jane Doe!"
