@@ -18,7 +18,6 @@ export const options: NextAuthOptions = {
             });
             // check if github.expires_at is null before continuing, TODO: handle properly
             if (!github.expires_at) return session;
-            console.log("Used later: ", process.env.GITHUB_ID, process.env.GITHUB_SECRET, github.refresh_token, github.expires_at);
 
             if (github.expires_at * 1000 < Date.now()) {
                 // If the access token has expired, try to refresh it
@@ -35,7 +34,6 @@ export const options: NextAuthOptions = {
                     });
 
                     console.log("Refreshing a user access token with a refresh token:", response.status, response.statusText);
-                    console.log(response)
 
                     const resText = await response.text();
                     const resParams = new URLSearchParams(resText);
@@ -43,8 +41,8 @@ export const options: NextAuthOptions = {
 
                     console.log("Response Object:", resObject)
 
-                    // Check if tokens.expires_in is a number before using it
-                    let expiresIn = typeof resObject.expires_at === 'number' ? resObject.expires_at : 0;
+                    // If the expires_in is a string, parse it into an integer
+                    const expiresIn = typeof resObject.expires_in === "string" ? parseInt(resObject.expires_in) : resObject.expires_in;
 
                     await prisma.account.update({
                         data: {
