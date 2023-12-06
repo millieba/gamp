@@ -11,11 +11,11 @@ export const GET = async () => {
   });
 
   try {
-    const commits = await octokit.request("GET /user/{owner}/repos", {
+    const repos = await octokit.request("GET /user/{owner}/repos", {
       owner: accounts[0].providerAccountId,
     });
+    return NextResponse.json({ repos: repos }, { status: 200 });
 
-    return NextResponse.json({ commits }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }
