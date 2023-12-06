@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
-import { PrismaClient } from '@prisma/client';
+import prisma from "@/utils/prisma";
 
 export const GET = async () => {
-  const prisma = new PrismaClient();
   const accounts = await prisma.account.findMany();
 
   const octokit = new Octokit({
