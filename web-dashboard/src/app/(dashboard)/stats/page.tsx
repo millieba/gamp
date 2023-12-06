@@ -1,5 +1,4 @@
 "use client"
-import { get } from "http";
 import { useEffect, useState } from "react";
 
 const StatsPage = () => {
@@ -29,14 +28,13 @@ const StatsPage = () => {
             Stats
         </h1>
         <div>
-            {fetchedData &&
         <ul>
           {fetchedData.repos?.data.map((repo: any) => (
             <li key={repo.id}>
               <p>Repository Name: {repo.name}</p>
             </li>
           ))}
-        </ul>}
+        </ul>
         </div>
         </>
     );
