@@ -19,12 +19,14 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 - Click the "Add New Connection" and save a new PostgreSQL connection:
 ![](img/sqltools_masters_db.png)
 
-## Register new OAuth app on GitHub
-- Go to https://github.com/settings/developers.
-- Set "Homepage URL" and "Authorization callback URL" to `http://localhost:3000`
+## Register new GitHub app
+- Go to https://github.com/settings/apps/new
+- Set "Homepage URL" and "Callback URL" to `http://localhost:3000`
+- Select the "Expire user authorization tokens" and "Request user authorization (OAuth) during installation" options, and unselect the "Active" option under the "Webhook" heading. Webhooks can be configured later.
+- Grant the permissions required by your app before clicking "Create GitHub App". These permissions can be updated later, so just choose what you know you need for now.
 - Copy the client id and client secret, keep them somewhere safe for later.
 
-![](img/github_reg_oauth.png)
+![](img/github_reg_app.png)
 
 ## Create .env files
 ### .env
