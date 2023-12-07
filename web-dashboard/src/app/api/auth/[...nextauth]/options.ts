@@ -1,4 +1,4 @@
-import type { NextAuthOptions } from 'next-auth'
+import type { NextAuthOptions, User } from 'next-auth'
 import GitHubProvider from 'next-auth/providers/github'
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from '@/utils/prisma'
@@ -19,7 +19,7 @@ export const options: NextAuthOptions = {
             // check if github.expires_at is null before continuing, TODO: handle properly
             if (!github.expires_at) return session;
 
-            if (github.expires_at * 1000 < Date.now()) {
+            if (github?.expires_at * 1000 < Date.now()) {
                 // If the access token has expired, try to refresh it
                 try {
                     const response = await fetch("https://github.com/login/oauth/access_token", {
@@ -62,12 +62,20 @@ export const options: NextAuthOptions = {
                     session.error = "RefreshAccessTokenError";
                 }
             }
+
+            session.user.userId = user.id; // Add userId to the session object
             return session;
         },
     },
 }
+
 declare module "next-auth" {
+    interface ExtendedUser extends User { // Any extra fields we want to pass to the session object
+        userId?: string;
+    }
+
     interface Session {
-        error?: "RefreshAccessTokenError"
+        error?: "RefreshAccessTokenError";
+        user: ExtendedUser;
     }
 }

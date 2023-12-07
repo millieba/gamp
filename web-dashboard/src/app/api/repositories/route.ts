@@ -11,22 +11,17 @@ export const GET = async () => {
     return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
   }
 
-  const loggedInAccount = await prisma.user.findUnique({
-    where: { email: session?.user?.email },
-    include: {
-      accounts: {
-        where: { provider: 'github' }, // Only include accounts where provider is 'github'
-      }
-    },
+  const loggedInAccount = await prisma.account.findFirst({
+    where: { userId: session?.user?.userId, provider: "github" },
   });
 
   const octokit = new Octokit({
-    auth: loggedInAccount?.accounts[0].access_token // We can safely assume that the first account is the GitHub account, since we filtered for it in the query above
+    auth: loggedInAccount?.access_token
   });
 
   try {
     const repos = await octokit.request("GET /user/{owner}/repos", {
-      owner: loggedInAccount?.accounts[0].providerAccountId,
+      owner: loggedInAccount?.providerAccountId,
     });
     return NextResponse.json({ repos: repos }, { status: 200 });
 
