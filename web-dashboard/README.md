@@ -10,14 +10,6 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 ### Create database
 - I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
 	- Default options, database name: `masters_db` on default user, `postgres`
-  
-### Connect to database in VS Code
-- This is so we can easily inspect the database to see that everything looks as expected. It is not really part of the "functionality", it is just helpful for development.
-- Download "SQLTools" extension, search for `mtxr.sqltools`
-- Make sure to also install the SQLTools PostgreSQL/Cockroach Driver, can be found by searching for `mtxr.sqltools-driver-pg`
-
-- Click the "Add New Connection" and save a new PostgreSQL connection:
-![](img/sqltools_masters_db.png)
 
 ## Register new GitHub app
 - Go to https://github.com/settings/apps/new
