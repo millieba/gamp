@@ -1,10 +1,7 @@
 # Karen & Millie's Preparatory Project
 ## Running the web dashboard
 1. Ensure that your system has Node.js and pnpm before proceeding, e.g. by checking their versions, `node -v` and `pnpm -v`. If you don't have pnpm, install it by running `npm install -g pnpm`. For Node.js installation, refer to https://nodejs.org.
-2. Open a terminal window, navigate to the folder *web-dashboard* and install project dependencies by running: `pnpm i`.
-3. Run the development server: `pnpm dev`.
-4. Access the web dashboard at http://localhost:3000.
-
+2. Complete the instructions [here](https://github.com/millieba/master-preparatory-project/tree/main/web-dashboard#readme)
 
 ## Running the VS Code extension
 1. Open a terminal window, navigate to the *helloworld* folder and install project dependencies by running `pnpm i`.
