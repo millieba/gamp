@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@octokit/graphql": "^7.0.2",
     "@octokit/rest": "^20.0.2",
     "next": "13.5.4",
     "octokit": "^3.1.1",
