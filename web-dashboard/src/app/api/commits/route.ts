@@ -4,7 +4,7 @@ import prisma from "@/utils/prisma";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 
-// NOTE: This will only work if the user has installed the GitHub app (i.e. not only signed in with GitHub)
+// NOTE if using GitHub apps: this will only work if the user has installed the GitHub app (i.e. not only signed in with GitHub)
 // See https://github.com/orgs/community/discussions/48102 for details
 export const GET = async () => {
     try {
@@ -20,7 +20,7 @@ export const GET = async () => {
 
         console.log(loggedInAccount?.access_token)
         const octokit = new Octokit({
-            auth: loggedInAccount?.access_token,
+            auth: `token ${loggedInAccount?.access_token}`,
         });
 
         // Get GitHub username

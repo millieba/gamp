@@ -24,7 +24,6 @@ export const GET = async () => {
   const graphqlWithAuth = graphql.defaults({
     headers: {
       authorization: `token ${loggedInAccount?.access_token}`,
-      // authorization: `token ${process.env.GITHUB_ACCESS_TOKEN}`,
     },
   });
 

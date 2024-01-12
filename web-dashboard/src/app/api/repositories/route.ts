@@ -16,8 +16,7 @@ export const GET = async () => {
   });
 
   const octokit = new Octokit({
-    auth: loggedInAccount?.access_token,
-    // auth: `token ${process.env.GITHUB_ACCESS_TOKEN}`,
+    auth: `token ${loggedInAccount?.access_token}`,
   });
 
   try {
