@@ -3,12 +3,14 @@ import { graphql } from '@octokit/graphql';
 import { options } from '../auth/[...nextauth]/options';
 import prisma from '@/utils/prisma';
 import { NextResponse } from 'next/server';
-import comparer from '@/utils/comparer';
+import { Organizations, Repositories } from '@/utils/types';
 
-interface Repository { nameWithOwner: string; }
-interface Repositories { nodes: Repository[]; }
-interface Viewer { repositories: Repositories; }
-interface QueryResult { viewer: Viewer; }
+interface QueryResult {
+  viewer: {
+    organizations: Organizations;
+    repositories: Repositories;
+  }
+}
 
 export const GET = async () => {
   const session = await getServerSession(options)
@@ -28,22 +30,39 @@ export const GET = async () => {
   });
 
   const query = `
-  query {
-      viewer {
-        repositories(first: 100, affiliations: [OWNER, COLLABORATOR]) {
-          nodes {
-            nameWithOwner
+  query getAllRepos {
+    viewer {
+      organizations(first: 100) {
+        nodes {
+          repositories(first: 100) {
+            nodes {
+              owner {
+                login
+              }
+              name
+            }
           }
         }
       }
-    }`;
+      repositories(first: 100) {
+        nodes {
+          owner {
+            login
+          }
+          name
+        }
+      }
+    }
+  }
+  `;
 
   try {
     const result = await graphqlWithAuth<QueryResult>(query);
-    const { viewer } = result;
-    comparer(viewer.repositories.nodes);
+    const orgRepos = result.viewer.organizations.nodes.flatMap(org => org.repositories.nodes);
+    const userRepos = result.viewer.repositories.nodes;
+    const allRepos = [...orgRepos, ...userRepos].map(repo => ({ owner: repo.owner.login, name: repo.name }));
 
-    return NextResponse.json({ repos: viewer.repositories.nodes }, { status: 200 });
+    return NextResponse.json({ repos: allRepos }, { status: 200 });
   }
   catch (error) {
     console.error(error);
