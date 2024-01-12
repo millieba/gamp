@@ -52,9 +52,18 @@ export const GET = async () => {
     },
   });
 
+  // Get the logged in user's username
+  const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`
+    query {
+      viewer {
+        login
+      }
+    }
+  `)).viewer.login;
+
   const query = `
     query {
-      user(login: "millieba") {
+      user(login: "${username}") {
         name
         contributionsCollection {
           contributionCalendar {
@@ -76,7 +85,7 @@ export const GET = async () => {
   `;
 
   try {
-    const result = await graphqlWithAuth<QueryResult>(query);
+    const result = await graphqlWithAuth<QueryResult>(query, { username });
     const { user } = result;
 
     return NextResponse.json({ contributions: user.contributionsCollection }, { status: 200 });
