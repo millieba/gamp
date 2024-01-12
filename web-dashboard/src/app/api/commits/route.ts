@@ -4,8 +4,6 @@ import prisma from "@/utils/prisma";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 
-// NOTE if using GitHub apps: this will only work if the user has installed the GitHub app (i.e. not only signed in with GitHub)
-// See https://github.com/orgs/community/discussions/48102 for details
 export const GET = async () => {
     try {
         const session = await getServerSession(options);
@@ -18,7 +16,6 @@ export const GET = async () => {
             where: { userId: session?.user?.userId, provider: "github" },
         });
 
-        console.log(loggedInAccount?.access_token)
         const octokit = new Octokit({
             auth: `token ${loggedInAccount?.access_token}`,
         });
@@ -44,6 +41,18 @@ export const GET = async () => {
             hasNextPage = commits.headers.link?.includes('rel="next"') || false;
             page++;
         }
+
+        allCommits = allCommits.map((commit) => ({
+            committer: {
+                date: commit.commit.committer.date,
+                email: commit.commit.committer.email,
+                name: commit.commit.committer.name,
+            },
+            repositoryName: commit.repository.name,
+            date: commit.commit.author.date,
+            message: commit.commit.message,
+        }));
+
 
         return NextResponse.json({ repos: allCommits }, { status: 200 });
     } catch (error) {

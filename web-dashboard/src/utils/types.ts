@@ -3,6 +3,18 @@ export interface RepositoryDetails {
     description: string;
 }
 
+export interface User {
+    date: string;
+    email: string;
+    name: string;
+}
+
+export interface Commit {
+    committer?: User;
+    repositoryName: string;
+    date: string;
+    message: string;
+}
 
 // GraphQL types
 export interface Owner {
