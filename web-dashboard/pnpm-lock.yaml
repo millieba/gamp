@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@octokit/graphql':
+    specifier: ^7.0.2
+    version: 7.0.2
   '@octokit/rest':
     specifier: ^20.0.2
     version: 20.0.2

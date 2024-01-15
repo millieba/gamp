@@ -16,11 +16,11 @@ export const GET = async () => {
   });
 
   const octokit = new Octokit({
-    auth: loggedInAccount?.access_token
+    auth: `token ${loggedInAccount?.access_token}`,
   });
 
   try {
-    const repos = await octokit.request("GET /user/{owner}/repos", {
+    const repos = await octokit.request("GET /user/repos", {
       owner: loggedInAccount?.providerAccountId,
     });
     return NextResponse.json({ repos: repos }, { status: 200 });
