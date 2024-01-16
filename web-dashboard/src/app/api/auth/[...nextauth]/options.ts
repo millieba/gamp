@@ -21,7 +21,6 @@ async function deleteTokenFromGitHub(accessToken: string, clientId: string, clie
         }),
     });
 
-    // Handle the response as needed
     if (!response.ok) {
         const errorMessage = `Failed to delete token from GitHub. Status: ${response.status}, ${response.statusText}`;
         console.error(errorMessage);
