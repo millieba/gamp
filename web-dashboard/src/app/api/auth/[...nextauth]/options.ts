@@ -26,7 +26,6 @@ async function deleteTokenFromGitHub(accessToken: string, clientId: string, clie
         console.error(errorMessage);
     } else {
         console.log("Token deleted successfully");
-        // Redirect the user to the login page
     }
 }
 
@@ -54,7 +53,7 @@ export const options: NextAuthOptions = {
             // Check if github.expires_at is null before continuing, TODO: handle properly
             if (!githubAccount.expires_at) return session;
 
-            if (githubAccount.expires_at * 1000 < Date.now()) {
+            if (githubAccount.expires_at * 1000 < Date.now() && session.error !== "RefreshAccessTokenError") {
                 try {
                     console.log("Deleting access token", githubAccount.access_token);
                     // Delete the access token from GitHub
