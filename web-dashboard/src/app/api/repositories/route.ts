@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
 import prisma from "@/utils/prisma";
-import { isAuthenticated } from "@/utils/auth";
+import { getSession } from "@/utils/session";
 import { Session } from "next-auth";
 
 export const GET = async (request: Request) => {
-  const session = await isAuthenticated();
-
-  return session.authenticated
-    ? await fetchRepos(session.session)
-    : NextResponse.redirect(`${process.env.NEXTAUTH_URL}/api/auth/signin`);
+  const session = await getSession();
+  return fetchRepos(session);
 };
 
 async function fetchRepos(session: Session | null) {
