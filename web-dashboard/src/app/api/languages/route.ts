@@ -108,9 +108,9 @@ export const GET = async () => {
     const result = await graphqlWithAuth<QueryResult>(query, { username });
     const { user } = result;
 
-    return NextResponse.json({ contributions: user }, { status: 200 });
+    return NextResponse.json({ languages: user }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'An error occurred while fetching contributions' }, { status: 500 });
+    return NextResponse.json({ error: 'An error occurred while fetching languages' }, { status: 500 });
   }
 };
