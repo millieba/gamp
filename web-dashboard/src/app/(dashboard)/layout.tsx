@@ -1,5 +1,5 @@
 "use client";
-import SideNavBar from "@/components/atoms/SideNavBar";
+import SideNavBar from "@/components/molecules/SideNavBar";
 import { Providers } from './providers';
 
 export default function DashboardLayout({
