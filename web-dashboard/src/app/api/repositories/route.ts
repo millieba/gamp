@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
 import prisma from "@/utils/prisma";
-import { getServerSession } from "next-auth";
-import { options } from "../auth/[...nextauth]/options";
+import { isAuthenticated } from "@/utils/auth";
+import { Session } from "next-auth";
 
-export const GET = async () => {
-  const session = await getServerSession(options)
+export const GET = async (request: Request) => {
+  const session = await isAuthenticated();
 
-  if (!session || !session.user || !session.user.email) {
-    return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
-  }
+  return session.authenticated
+    ? await fetchRepos(session.session)
+    : NextResponse.redirect(`${process.env.NEXTAUTH_URL}/api/auth/signin`);
+};
 
+async function fetchRepos(session: Session | null) {
   const loggedInAccount = await prisma.account.findFirst({
     where: { userId: session?.user?.userId, provider: "github" },
   });
@@ -28,4 +30,4 @@ export const GET = async () => {
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }
-};
+}

@@ -34,6 +34,8 @@ export const options: NextAuthOptions = {
     adapter: adapter,
     providers: [
         GitHubProvider({
+            id: "github",
+            name: "GitHub",
             clientId: process.env.GITHUB_ID as string,
             clientSecret: process.env.GITHUB_SECRET as string,
             authorization: {
@@ -79,7 +81,7 @@ export const options: NextAuthOptions = {
                     const userFromDatabase = await adapter.getUser(user.id);
 
                     // Calculate the expires_at value
-                    const expires_at = Math.floor(Date.now() / 1000) + 120; // Set expiry to 2 minutes from now
+                    const expires_at = Math.floor(Date.now() / 1000) + 3600; // Set expiry to 1 hour
 
                     if (userFromDatabase) {
                         await prisma.account.upsert({
