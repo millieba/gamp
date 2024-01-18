@@ -1,5 +1,5 @@
-import ProfilePicture from "./ProfilePicture";
-import NavItems from "./NavItems";
+import ProfilePicture from "../atoms/ProfilePicture";
+import NavItems from "../atoms/NavItems";
 
 const SideNavBar = () => {
 
