@@ -82,22 +82,22 @@ export const options: NextAuthOptions = {
                     // In our app, one user can have many accounts, but one account can only belong to one user
                     // So the first time a user signs in, we need to first create the user and then the account
 
-                    const existingUser = await prisma.user.findUnique({ // Check if the user already exists
+                    await prisma.user.upsert({ // Upsert the user (update if it exists, otherwise create)
                         where: { id: user.id },
+                        update: {
+                            name: user.name,
+                            email: user.email,
+                            image: user.image,
+                        },
+                        create: {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            image: user.image,
+                        },
                     });
 
-                    if (!existingUser) { // If the user does not exist, create it
-                        await prisma.user.create({
-                            data: {
-                                id: user.id,
-                                name: user.name,
-                                email: user.email,
-                                image: user.image,
-                            },
-                        });
-                    }
-
-                    await prisma.account.upsert({ // Now that we know the user exists, we can upsert the account (update if it exists, otherwise create)
+                    await prisma.account.upsert({ // Now that we know the user exists, we can upsert the account
                         where: {
                             provider_providerAccountId: {
                                 provider: account.provider,
