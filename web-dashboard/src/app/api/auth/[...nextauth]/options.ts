@@ -25,7 +25,7 @@ async function deleteTokenFromGitHub(accessToken: string, clientId: string, clie
         const errorMessage = `Failed to delete token from GitHub. Status: ${response.status}, ${response.statusText}`;
         console.error(errorMessage);
     } else {
-        console.log("Token deleted successfully");
+        console.log("Token deleted successfully!");
     }
 }
 
@@ -75,42 +75,57 @@ export const options: NextAuthOptions = {
             return session;
         },
         async signIn({ user, account }) {
-            if (user && account && adapter && adapter.getUser) {
+            const expires_at = Math.floor(Date.now() / 1000) + 3600; // Set access token to expire in 1 hour
+
+            if (user && account && adapter) {
                 try {
-                    const userFromDatabase = await adapter.getUser(user.id);
+                    // In our app, one user can have many accounts, but one account can only belong to one user
+                    // So the first time a user signs in, we need to first create the user and then the account
 
-                    // Calculate the expires_at value
-                    const expires_at = Math.floor(Date.now() / 1000) + 3600; // Set expiry to 1 hour
+                    const existingUser = await prisma.user.findUnique({ // Check if the user already exists
+                        where: { id: user.id },
+                    });
 
-                    if (userFromDatabase) {
-                        await prisma.account.upsert({
-                            where: {
-                                provider_providerAccountId: {
-                                    provider: account.provider,
-                                    providerAccountId: account.providerAccountId,
-                                },
-                            },
-                            update: {
-                                access_token: account.access_token,
-                                expires_at: expires_at,
-                                id_token: account.id_token,
-                                session_state: account.session_state,
-                                scope: account.scope,
-                            },
-                            create: {
-                                type: 'oauth',
-                                access_token: account.access_token,
-                                expires_at: expires_at,
-                                id_token: account.id_token,
-                                session_state: account.session_state,
-                                scope: account.scope,
-                                provider: account.provider,
-                                providerAccountId: account.providerAccountId,
-                                userId: user.id,
+                    if (!existingUser) { // If the user does not exist, create it
+                        await prisma.user.create({
+                            data: {
+                                id: user.id,
+                                name: user.name,
+                                email: user.email,
+                                image: user.image,
                             },
                         });
                     }
-                } catch (err) {
+
+                    await prisma.account.upsert({ // Now that we know the user exists, we can upsert the account (update if it exists, otherwise create)
+                        where: {
+                            provider_providerAccountId: {
+                                provider: account.provider,
+                                providerAccountId: account.providerAccountId,
+                            },
+                        },
+                        update: {
+                            access_token: account.access_token,
+                            expires_at: expires_at,
+                            id_token: account.id_token,
+                            session_state: account.session_state,
+                            scope: account.scope,
+                        },
+                        create: {
+                            type: 'oauth',
+                            access_token: account.access_token,
+                            expires_at: expires_at,
+                            id_token: account.id_token,
+                            session_state: account.session_state,
+                            scope: account.scope,
+                            provider: account.provider,
+                            providerAccountId: account.providerAccountId,
+                            userId: user.id,
+                        },
+                    });
+
+                }
+                catch (err) {
                     if (err instanceof Error) {
                         console.error(err.message);
                     }
