@@ -1,19 +1,24 @@
-import SideNavBar from "@/components/molecules/SideNavBar"
+"use client";
+import SideNavBar from "@/components/molecules/SideNavBar";
+import { Providers } from './providers';
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    return (
-        <section>
-            <div className="flex gap-4">
-                <SideNavBar />
-                <main className="pt-6">
-                    {children}
-                </main>
-            </div>
 
-        </section>
+
+    return (
+        <Providers>
+            <section>
+                <div className="flex gap-4">
+                    <SideNavBar />
+                    <main className="pt-6">
+                        {children}
+                    </main>
+                </div>
+            </section>
+        </Providers>
     )
 }

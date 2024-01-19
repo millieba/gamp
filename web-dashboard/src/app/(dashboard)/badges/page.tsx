@@ -1,9 +1,18 @@
 "use client";
 import OwlBadge from "./SVG/Night_Owl_Badge.svg";
 import GoldMedal from "./SVG/Gold_Medal_Badge.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 const BadgesPage = () => {
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") {
+      signOut();
+    }
+  }, [session, status]);
+
   const [sizeOwl, setSizeOwl] = useState("150");
   const [sizeMedal, setSizeMedal] = useState("150");
 

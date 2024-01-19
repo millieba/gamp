@@ -2,10 +2,18 @@
 import StatBox from "@/components/atoms/StatBox";
 import { useEffect, useState } from "react";
 import { RepositoryDetails } from "@/utils/types";
+import { signOut, useSession } from "next-auth/react";
 
 const StatsPage = () => {
   const [fetchedData, setFetchedData] = useState<RepositoryDetails[]>();
   const [error, setError] = useState<Boolean>(false);
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") {
+      signOut();
+    }
+  }, [session, status]);
 
   useEffect(() => {
     const getData = async () => {
@@ -37,8 +45,7 @@ const StatsPage = () => {
     <>
       <h1 className="text-2xl">Stats</h1>
       <p>
-        Below the public repositories that you own (either created or forked),
-        or starred are displayed. You have {numberOfRepos} public repositories.
+        You have access to {numberOfRepos} repositories on GitHub.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:px-4">
         {fetchedData.map((repo: { name: string, description: string }) => (

@@ -1,21 +1,21 @@
-import { getServerSession } from "next-auth";
-import { options } from "@/app/api/auth/[...nextauth]/options";
+import { useSession } from "next-auth/react";
 
-const ProfilePicture = async () => {
-  const session = await getServerSession(options);
+const ProfilePicture = () => {
+  const { data: session, status } = useSession();
+
   return (
     <div className="flex flex-col items-center">
-      {session?.user?.image ? (
-        <img
-          src={session?.user?.image}
-          alt="Github profile picture"
-          className="rounded-full w-24 h-24 mt-9 shadow-sm"
-        />
-      ) : (
-        "No photo available"
-      )}
-<span className="text-lg font-semibold mt-3">{session?.user?.name}</span>
-<span className="text-sm font-medium italic mt-2">Budding learner</span>
+      {session?.user?.image
+        ? (
+          <img
+            src={session?.user?.image}
+            alt="Github profile picture"
+            className="rounded-full w-24 h-24 mt-9 shadow-sm"
+          />)
+        : (
+          "No photo available")}
+      <span className="text-lg font-semibold mt-3">{session?.user?.name}</span>
+      <span className="text-sm font-medium italic mt-2">Budding learner</span>
       <div className="flex justify-between w-full mt-2">
         <span className="text-sm font-medium">2</span>
         <span className="text-sm font-medium">3</span>
