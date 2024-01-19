@@ -50,20 +50,19 @@ export const options: NextAuthOptions = {
                 where: { userId: user.id, provider: "github" },
             });
 
-            // Check if github.expires_at is null before continuing, TODO: handle properly
+            // If there is no expires_at field, return the session as is (no need to check if the token is expired)
             if (!githubAccount.expires_at) return session;
 
             if (githubAccount.expires_at * 1000 < Date.now() && session.error !== "RefreshAccessTokenError") {
                 try {
                     console.log("Deleting access token", githubAccount.access_token);
-                    // Delete the access token from GitHub
                     await deleteTokenFromGitHub(
                         githubAccount.access_token as string,
                         process.env.GITHUB_ID as string,
                         process.env.GITHUB_SECRET as string
                     );
 
-                    // Force the user to re-authenticate to get a new token
+                    // Setting the session error will trigger sign out which will redirect the user to the sign in page to refresh the access token
                     session.error = "RefreshAccessTokenError";
                 } catch (error) {
                     console.error("Error deleting access token", error);
