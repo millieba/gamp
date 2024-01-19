@@ -1,6 +1,4 @@
 "use client";
-import { SignOutButton } from "@/components/AuthButtons";
-import { getSession } from "@/utils/session";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
 
@@ -17,7 +15,6 @@ const HomePage = () => {
     <>
       <h1 className="text-2xl">Home</h1>
       <h2 className="text-xl">{`Welcome, ${session?.user?.name}!`}</h2>
-      <SignOutButton />
     </>
   )
 }
