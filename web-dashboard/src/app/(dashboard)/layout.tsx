@@ -1,4 +1,4 @@
-import SideNavBar from "@/components/atoms/SideNavBar"
+import SideNavBar from "@/components/molecules/SideNavBar"
 
 export default function DashboardLayout({
     children,
