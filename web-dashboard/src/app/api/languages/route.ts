@@ -4,13 +4,34 @@ import { options } from '../auth/[...nextauth]/options';
 import prisma from '@/utils/prisma';
 import { NextResponse } from 'next/server';
 
-interface User {
-    name: string;
+export interface PageInfo {
+  endCursor: string | null;
+  hasNextPage: boolean;
 }
 
-interface QueryResult {
-    user: User;
+export interface QueryResult {
+  user: {
+    repositories: {
+      nodes: {
+        owner: {
+          login: string;
+        };
+        name: string;
+        languages: {
+          edges: {
+            size: number;
+            node: {
+              name: string;
+            };
+          }[];
+          pageInfo: PageInfo;
+        };
+      }[];
+      pageInfo: PageInfo;
+    };
+  };
 }
+
 
 export const GET = async () => {
   const session = await getServerSession(options)
@@ -38,49 +59,83 @@ export const GET = async () => {
     }
   `)).viewer.login;
 
-  const query = `
+  // const query = `
+  // query {
+  //   user(login: "${username}") {
+  //     organizations(first: 10) {
+  //       totalCount
+  //       nodes {
+  //         repositories(first: 100) {
+  //           totalCount
+  //           nodes {
+  //             owner {
+  //               login
+  //             }
+  //             name
+  //             languages(first: 100) {
+  //               totalCount
+  //               totalSize
+  //               edges {
+  //                 size
+  //                 node {
+  //                   name
+  //                 }
+  //               }
+  //               pageInfo {
+  //                 endCursor
+  //                 hasNextPage
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //       pageInfo {
+  //         endCursor
+  //         hasNextPage
+  //       }
+  //     }
+  //     repositories(first: 100) {
+  //       totalCount
+  //       nodes {
+  //         owner {
+  //           login
+  //         }
+  //         name
+  //         languages(first: 100) {
+  //           totalCount
+  //           totalSize
+  //           edges {
+  //             size
+  //             node {
+  //               name
+  //             }
+  //           }
+  //           pageInfo {
+  //             endCursor
+  //             hasNextPage
+  //           }
+  //         }
+  //       }
+  //       pageInfo {
+  //         endCursor
+  //         hasNextPage
+  //       }
+  //     }
+  //   }
+  // }
+  // `;
+
+    const query = `
   query {
     user(login: "${username}") {
-      organizations(first: 10) {
-        totalCount
-        nodes {
-          repositories(first: 100) {
-            totalCount
-            nodes {
-              owner {
-                login
-              }
-              name
-              languages(first: 100) {
-                totalCount
-                totalSize
-                edges {
-                  size
-                  node {
-                    name
-                  }
-                }
-                pageInfo {
-                  endCursor
-                  hasNextPage
-                }
-              }
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-      repositories(first: 100) {
+      repositories(first: 3) {
         totalCount
         nodes {
           owner {
             login
           }
           name
-          languages(first: 100) {
+          languages(first: 2) {
             totalCount
             totalSize
             edges {
