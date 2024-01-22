@@ -50,7 +50,6 @@ export const GET = async () => {
     },
   });
 
-  // Get the logged in user's username
   const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`
     query {
       viewer {
@@ -58,72 +57,6 @@ export const GET = async () => {
       }
     }
   `)).viewer.login;
-
-  // const query = `
-  // query {
-  //   user(login: "${username}") {
-  //     organizations(first: 10) {
-  //       totalCount
-  //       nodes {
-  //         repositories(first: 100) {
-  //           totalCount
-  //           nodes {
-  //             owner {
-  //               login
-  //             }
-  //             name
-  //             languages(first: 100) {
-  //               totalCount
-  //               totalSize
-  //               edges {
-  //                 size
-  //                 node {
-  //                   name
-  //                 }
-  //               }
-  //               pageInfo {
-  //                 endCursor
-  //                 hasNextPage
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //       pageInfo {
-  //         endCursor
-  //         hasNextPage
-  //       }
-  //     }
-  //     repositories(first: 100) {
-  //       totalCount
-  //       nodes {
-  //         owner {
-  //           login
-  //         }
-  //         name
-  //         languages(first: 100) {
-  //           totalCount
-  //           totalSize
-  //           edges {
-  //             size
-  //             node {
-  //               name
-  //             }
-  //           }
-  //           pageInfo {
-  //             endCursor
-  //             hasNextPage
-  //           }
-  //         }
-  //       }
-  //       pageInfo {
-  //         endCursor
-  //         hasNextPage
-  //       }
-  //     }
-  //   }
-  // }
-  // `;
 
     const query = `
   query {
