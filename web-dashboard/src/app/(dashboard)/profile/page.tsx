@@ -6,26 +6,34 @@ const ProfilePage = () => {
   const [languages, setLanguages] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/languages/");
-        const data = await response.json();
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/languages/");
+      const data = await response.json();
 
-        if (response.ok) {
-          console.log(data.languages);
-          setLanguages(data.languages);
-        } else {
-          setError(data.error);
-        }
-      } catch (error) {
-        console.error("An error occurred while fetching data:", error);
-        setError("An error occurred while fetching data");
+      if (response.ok) {
+        console.log(data.languages);
+        setLanguages(data.languages);
+      } else {
+        setError(data.error);
       }
-    };
+    } catch (error) {
+      console.error("An error occurred while fetching data:", error);
+      setError("An error occurred while fetching data");
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const loadMore = () => {
+    const hasNextPage = languages?.repositories?.pageInfo?.hasNextPage;
+    const endCursor = languages?.repositories?.pageInfo?.endCursor;
+    if (hasNextPage && endCursor) {
+      fetchData();
+    }
+  };
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -34,7 +42,7 @@ const ProfilePage = () => {
   if (
     !languages ||
     !languages.repositories ||
-    languages.repositories.nodes.length === 0
+    languages.repositories.edges.length === 0
   ) {
     return <div>No repositories available</div>;
   }
@@ -45,34 +53,39 @@ const ProfilePage = () => {
     <div>
       <h1 className="text-2xl">Profile</h1>
       <ul>
-        {languages.repositories.nodes.map((repository: any, index: number) => (
-          <li key={index}>
-            <div>
-              Repository: {repository.name}, Owner: {repository.owner.login}
-            </div>
-            {repository.languages.edges.length > 0 && (
-              <ul>
-                {repository.languages.edges.map((language: any) => (
-                  <li key={language.node.name}>
-                    Language: {language.node.name}, Size: {language.size}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {repository.languages.pageInfo?.hasNextPage ? (
+        {languages.repositories.edges.map(
+          (
+            edge: any,
+            index: number // Updated to use edges
+          ) => (
+            <li key={index}>
+              <div>
+                Repository: {edge.node.name}, Owner: {edge.node.owner.login}
+              </div>
+              {edge.node.languages.edges.length > 0 && (
+                <ul>
+                  {edge.node.languages.edges.map((language: any) => (
+                    <li key={language.node.name}>
+                      Language: {language.node.name}, Size: {language.size}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {edge.node.languages.pageInfo?.hasNextPage ? (
                 <p>
                   Yes, there are more languages to display for this repository
                 </p>
               ) : (
                 <p>No more languages for this repository</p>
               )}
-          </li>
-        ))}
+            </li>
+          )
+        )}
       </ul>
       {repositoriesPageInfo?.hasNextPage ? (
-        <button>Load more</button>
+        <button onClick={loadMore}>Load more</button>
       ) : (
-        <p>thats about that :D</p>
+        <p>That's about it :D</p>
       )}
     </div>
   );

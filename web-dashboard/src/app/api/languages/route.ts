@@ -58,28 +58,29 @@ export const GET = async () => {
     }
   `)).viewer.login;
 
-    const query = `
-  query {
+  const query = `
+  query($afterCursorRepositories: String) {
     user(login: "${username}") {
-      repositories(first: 3) {
-        totalCount
-        nodes {
-          owner {
-            login
-          }
-          name
-          languages(first: 2) {
-            totalCount
-            totalSize
-            edges {
-              size
-              node {
-                name
-              }
+      repositories(first: 2, after: $afterCursorRepositories) {
+        edges {
+          node {
+            owner {
+              login
             }
-            pageInfo {
-              endCursor
-              hasNextPage
+            name
+            languages(first: 2) {
+              totalCount
+              totalSize
+              edges {
+                size
+                node {
+                  name
+                }
+              }
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
             }
           }
         }
@@ -90,10 +91,13 @@ export const GET = async () => {
       }
     }
   }
-  `;
+`;
 
   try {
-    const result = await graphqlWithAuth<QueryResult>(query, { username });
+    const result = await graphqlWithAuth<QueryResult>(query, { 
+      username,
+      afterCursorRepositories: "Y3Vyc29yOnYyOpHOIKM3ww==",
+    });
     const { user } = result;
 
     return NextResponse.json({ languages: user }, { status: 200 });
