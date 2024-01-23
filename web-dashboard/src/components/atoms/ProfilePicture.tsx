@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
@@ -21,12 +22,17 @@ const ProfilePicture = () => {
         <span className="text-sm font-medium">3</span>
       </div>
 
-      <div className="w-full bg-DarkNeutral350 rounded-full h-2.5 mb-4">
+      <div className="w-full bg-DarkNeutral350 rounded-full h-2.5 mb-12">
         <div className="bg-Magenta600 h-2.5 rounded-full w-1/2"></div>
         <span className="text-xs font-medium">
           You need 499XP to reach level 3!
         </span>
       </div>
+
+      <button className="flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full bg-Magenta600 hover:bg-pink-600 hover:rounded-full">
+        <ArrowPathIcon className="text-DarkNeutral1100 h-4 w-4 mr-2" />
+        Sync
+      </button>
     </div>
   );
 };
