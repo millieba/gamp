@@ -10,7 +10,7 @@ async function main() {
             name: "Commit Climber",
             description: "Earned by making 10 commits in total.",
             points: 1000,
-            image: "",
+            image: "/badges/Gold_Medal_Badge.svg", // Image is in public/badges
             type: "commit",
             threshold: 10,
         },
@@ -25,7 +25,7 @@ async function main() {
             name: "Commit Challenger",
             description: "Earned by making 100 commits in total.",
             points: 2000,
-            image: "",
+            image: "/badges/Gold_Medal_Badge.svg",
             type: "commit",
             threshold: 100,
         },

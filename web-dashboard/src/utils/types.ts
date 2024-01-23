@@ -16,6 +16,17 @@ export interface Commit {
     message: string;
 }
 
+export interface Badge {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    points: number;
+    type: string;
+    threshold: number;
+  }
+
+
 // GraphQL types
 export interface Owner {
     login: string;
