@@ -75,8 +75,8 @@ const BadgesPage = () => {
           <svg width={sizeMedal} height={sizeMedal} viewBox="0 0 950 900">
             <GoldMedal />
           </svg>
-          {(badges && !isLoading) && (
-            <img src={badges.badges[0].image} alt="Badge" width={sizeMedal} height={sizeMedal} />)}
+          {/* {(badges && !isLoading) && (
+            <img src={badges.badges[0].image} alt="Badge" width={sizeMedal} height={sizeMedal} />)} */}
           <p className="ml-6">Gold Medal</p>
         </div>
       </div>

@@ -6,12 +6,12 @@ async function main() {
         where: { name: "Commit Climber" },
         update: {},
         create: {
-            id: "cc-10", // cc = commit count, 10 = threshold
+            id: "cc-10", // cc = commits count, 10 = threshold
             name: "Commit Climber",
             description: "Earned by making 10 commits in total.",
             points: 1000,
             image: "/badges/Gold_Medal_Badge.svg", // Image is in public/badges
-            type: "commit",
+            type: "commits_count",
             threshold: 10,
         },
     });
@@ -26,10 +26,25 @@ async function main() {
             description: "Earned by making 100 commits in total.",
             points: 2000,
             image: "/badges/Gold_Medal_Badge.svg",
-            type: "commit",
+            type: "commits_count",
             threshold: 100,
         },
     });
+
+    await prisma.badge.upsert({
+        where: { name: "Commit Champion" },
+        update: {},
+        create: {
+            id: "cc-1000",
+            name: "Commit Champion",
+            description: "Earned by making 1000 commits in total.",
+            points: 5000,
+            image: "/badges/Gold_Medal_Badge.svg",
+            type: "commits_count",
+            threshold: 1000,
+        },
+    });
+
     console.log("Created badge Commit Challenger");
 }
 
