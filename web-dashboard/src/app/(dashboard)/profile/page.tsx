@@ -1,6 +1,22 @@
 "use client";
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { QueryResult } from "@/app/api/languages/route";
+=======
+import { useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
+
+const ProfilePage = () => {
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+        if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") {
+            signOut();
+        }
+    }, [session, status]);
+    return <h1 className="text-2xl">Profile</h1>
+}
+>>>>>>> 9df5bcbe5f9ca561681effa9d510688d6d45bd0e
 
 const ProfilePage = () => {
   const [languages, setLanguages] = useState<QueryResult | null>(null);
