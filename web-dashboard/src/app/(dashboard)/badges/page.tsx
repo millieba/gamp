@@ -12,6 +12,13 @@ async function getBadges() {
   }
   return res.json();
 }
+async function sync() {
+  const res = await fetch("/api/sync");
+  if (!res.ok) {
+    throw new Error("Failed to sync");
+  }
+  return res.json();
+}
 
 const BadgesPage = () => {
   const { data: session, status } = useSession();
@@ -21,6 +28,11 @@ const BadgesPage = () => {
   useEffect(() => {
     if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") { // Sign out if token is invalid
       signOut();
+    }
+    const currentTime = new Date();
+    const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
+    if (session?.user.lastSync === null || (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
+      sync();
     }
 
     const fetchData = async () => {

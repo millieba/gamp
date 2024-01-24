@@ -9,7 +9,7 @@ const ProfilePicture = () => {
   const handleClick = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/badges');
+      await fetch('/api/sync');
     } catch (error) {
       console.error(error);
     } finally {

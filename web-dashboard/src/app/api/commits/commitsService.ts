@@ -27,13 +27,11 @@ export async function getCommitsCount() {
         let page = 1;
 
         while (hasNextPage) {
-            console.log(`Fetching page ${page} of commits`);
             const commits = await octokit.request("GET /search/commits", {
                 q: `author:${username}`,
                 per_page: 100, // Get 100 results per page
                 page: page,
             });
-            console.log(commits.status)
             totalCommits += commits.data.items.length;
 
             // Check if there are more pages
