@@ -32,7 +32,6 @@ export interface QueryResult {
   };
 }
 
-
 export const GET = async () => {
   const session = await getServerSession(options)
 
@@ -59,8 +58,8 @@ export const GET = async () => {
   `)).viewer.login;
 
   const query = `
-  query($afterCursorRepositories: String) {
-    user(login: "${username}") {
+  query($username: String!, $afterCursorRepositories: String) {
+    user(login: $username) {
       repositories(first: 2, after: $afterCursorRepositories) {
         edges {
           node {
@@ -68,7 +67,7 @@ export const GET = async () => {
               login
             }
             name
-            languages(first: 2) {
+            languages(first: 100) {
               totalCount
               totalSize
               edges {
@@ -93,16 +92,37 @@ export const GET = async () => {
   }
 `;
 
-  try {
-    const result = await graphqlWithAuth<QueryResult>(query, { 
-      username,
-      afterCursorRepositories: "Y3Vyc29yOnYyOpHOIKM3ww==",
-    });
-    const { user } = result;
+let allData = [];
+let hasNextPage = true;
+let afterCursorRepositories = null;
+let user: QueryResult['user'] | undefined;
 
-    return NextResponse.json({ languages: user }, { status: 200 });
+while (hasNextPage) {
+  try {
+    const result = await graphqlWithAuth<{ data: QueryResult }>(query, {
+      username: username,
+      afterCursorRepositories,
+    });
+
+    user = result.user;
+    console.log(result.user.repositories.edges);
+
+    if (!result.user) {
+      throw new Error('No data returned from GraphQL server');
+    }
+
+  
+    if (result.user.repositories) {
+      allData.push(...result.user.repositories.edges);
+    }
+  
+    hasNextPage = result.user.repositories.pageInfo.hasNextPage;
+    afterCursorRepositories = result.user.repositories.pageInfo.endCursor;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'An error occurred while fetching languages' }, { status: 500 });
+    console.error('Error occurred:', error);
+    return NextResponse.json({ error: `An error occurred while fetching languages: ${error.message}` }, { status: 500 });
   }
+}
+  
+  return NextResponse.json({ languages: allData }, { status: 200 });
 };
