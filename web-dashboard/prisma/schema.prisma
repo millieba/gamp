@@ -42,6 +42,7 @@ model Account {
   session_state            String?
   githubStats              GitHubStats?
   badges                   Badge[]
+  lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
