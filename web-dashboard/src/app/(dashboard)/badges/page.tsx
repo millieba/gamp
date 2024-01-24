@@ -2,7 +2,7 @@
 import OwlBadge from "../../../../public/badges/Night_Owl_Badge.svg"
 import GoldMedal from "../../../../public/badges/Gold_Medal_Badge.svg"
 import { useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Badge } from "@/utils/types";
 
 async function getBadges() {
@@ -12,29 +12,14 @@ async function getBadges() {
   }
   return res.json();
 }
-async function sync() {
-  const res = await fetch("/api/sync");
-  if (!res.ok) {
-    throw new Error("Failed to sync");
-  }
-  return res.json();
-}
 
 const BadgesPage = () => {
   const { data: session, status } = useSession();
   const [badges, setBadges] = useState<{ badges: Badge[] }>();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") { // Sign out if token is invalid
-      signOut();
-    }
-    const currentTime = new Date();
-    const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
-    if (session?.user.lastSync === null || (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
-      sync();
-    }
-
     const fetchData = async () => {
       setIsLoading(true);
       const badges = await getBadges();

@@ -1,17 +1,41 @@
-import { useState } from 'react';
-import { useSession } from "next-auth/react";
+import { useEffect, useState } from 'react';
+import { signOut, useSession } from "next-auth/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+
+export async function sync(currentPage: string) {
+  // setIsLoading(true);
+  console.log(currentPage)
+  const syncResponse = await fetch('/api/sync');
+  if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
+    await fetch(`api${currentPage}`);
+  }
+}
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>();
+  const [currentPage, setCurrentPage] = useState<string>("");
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") { // Sign out if token is invalid
+      signOut();
+    }
+    setCurrentPage(window.location.pathname);
+    const currentTime = new Date();
+    const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
+    if (session?.user.lastSync === null || (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
+      sync(currentPage);
+    }
+  }, [session, status]);
 
   const handleClick = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/sync');
-    } catch (error) {
-      console.error(error);
+      await sync(currentPage);
+    } catch (err) {
+      (err instanceof Error) && setError(err.message);
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

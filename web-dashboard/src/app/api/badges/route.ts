@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
-import { checkBadges } from "./checkBadgesService";
+import prisma from "@/utils/prisma";
 
 export const GET = async () => {
     try {
@@ -11,7 +11,10 @@ export const GET = async () => {
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
 
-        const badges = await checkBadges(session?.user?.githubAccountId);
+        const badges = await prisma.account.findUnique({ // Get badges from database
+            where: { id: session.user.githubAccountId },
+            select: { badges: true },
+        });
 
         return NextResponse.json(badges, { status: 200 });
     } catch (error) {
