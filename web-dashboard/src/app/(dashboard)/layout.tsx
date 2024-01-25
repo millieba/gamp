@@ -1,6 +1,6 @@
 "use client";
 import SideNavBar from "@/components/molecules/SideNavBar";
-import { Providers } from './providers';
+import { Providers } from "./providers";
 
 export default function DashboardLayout({
     children,
