@@ -2,25 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useBadgesContext } from '@/contexts/BadgesContext';
-import { useStatsContext } from '@/contexts/StatsContext';
 
 export async function sync(currentPage: string) {
-  console.log('syncing ...');
   const syncResponse = await fetch('/api/sync');
-  console.log("line after fetch('/api/sync')")
   if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
-    console.log("syncing done, now refetching ...")
     return await fetch(`api${currentPage}`).then((res) => res.json());
   }
 }
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [currentPage, setCurrentPage] = useState<string>('');
-  const { setBadges } = useBadgesContext();
-  const { setStatsData } = useStatsContext();
+  const { isLoading, setIsLoading } = useBadgesContext();
 
   const handleClick = async () => {
     setIsLoading(true);
@@ -35,50 +29,11 @@ const ProfilePicture = () => {
   };
 
   useEffect(() => {
-    console.log("isLoading top of useeffects: ", isLoading)
     if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
       signOut();
     }
     setCurrentPage(window.location.pathname);
-    const currentTime = new Date();
-    const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
-
-    const fetchData = async () => {
-      console.log("isLoading top of fetch: ", isLoading)
-
-      setIsLoading(true);
-      try {
-        if (
-          session?.user.lastSync === null ||
-          (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)
-        ) {
-          console.log("isLoading inside if session null: ", isLoading)
-
-          const syncData = await sync(currentPage);
-          if (syncData) {
-            if (syncData.badges) {
-              console.log("if syncdata.badges isLoading: ", isLoading)
-              console.log('syncData.badges: ', syncData.badges);
-              setBadges(syncData.badges);
-            }
-            if (syncData.statsData) {
-              setStatsData(syncData.statsData);
-            }
-          }
-          console.log("isLoading: ", isLoading)
-
-        }
-      } catch (error) {
-        console.error(error);
-        setError('Failed to fetch badges');
-      } finally {
-        console.log("Finally isLoading: ", isLoading)
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [session, status, setBadges, setStatsData]);
+  }, [session, status]);
 
   return (
     <div className="flex flex-col items-center">
