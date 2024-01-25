@@ -21,7 +21,6 @@ const FetchLanguages = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log(data.languages);
         setRepositories(data.languages);
       } else {
         setError(data.error);
