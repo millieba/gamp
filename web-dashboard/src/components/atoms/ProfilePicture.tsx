@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useBadgesContext } from '@/contexts/BadgesContext';
 import { useStatsContext } from '@/contexts/StatsContext';
 
 export async function sync(currentPage: string) {
+  console.log('syncing ...');
   const syncResponse = await fetch('/api/sync');
+  console.log("line after fetch('/api/sync')")
   if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
+    console.log("syncing done, now refetching ...")
     return await fetch(`api${currentPage}`).then((res) => res.json());
   }
 }
@@ -32,6 +35,7 @@ const ProfilePicture = () => {
   };
 
   useEffect(() => {
+    console.log("isLoading top of useeffects: ", isLoading)
     if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
       signOut();
     }
@@ -40,20 +44,36 @@ const ProfilePicture = () => {
     const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
 
     const fetchData = async () => {
-      if (
-        session?.user.lastSync === null ||
-        (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)
-      ) {
-        const syncData = await sync(currentPage);
-        if (syncData) {
-          if (syncData.badges) {
-            console.log('syncData.badges: ', syncData.badges)
-            setBadges(syncData.badges);
+      console.log("isLoading top of fetch: ", isLoading)
+
+      setIsLoading(true);
+      try {
+        if (
+          session?.user.lastSync === null ||
+          (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)
+        ) {
+          console.log("isLoading inside if session null: ", isLoading)
+
+          const syncData = await sync(currentPage);
+          if (syncData) {
+            if (syncData.badges) {
+              console.log("if syncdata.badges isLoading: ", isLoading)
+              console.log('syncData.badges: ', syncData.badges);
+              setBadges(syncData.badges);
+            }
+            if (syncData.statsData) {
+              setStatsData(syncData.statsData);
+            }
           }
-          if (syncData.statsData) {
-            setStatsData(syncData.statsData);
-          }
+          console.log("isLoading: ", isLoading)
+
         }
+      } catch (error) {
+        console.error(error);
+        setError('Failed to fetch badges');
+      } finally {
+        console.log("Finally isLoading: ", isLoading)
+        setIsLoading(false);
       }
     };
 
