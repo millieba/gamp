@@ -96,7 +96,7 @@ export const GET = async () => {
           hasNextPage
         }
       }
-      repositories(first: 100, after: $afterCursorRepositories) {
+      repositories(first: 50, after: $afterCursorRepositories) {
         edges {
           node {
             owner {
@@ -141,13 +141,14 @@ export const GET = async () => {
   
   let user: QueryResult["user"] | undefined;
   
-  while (hasNextPage) {
+  while (hasNextPage || hasNextPageOrg || hasNextPageOrgRepositories) {
     try {
       const result = await graphqlWithAuth<{ data: QueryResult }>(query, {
         username: username,
+        afterCursorOrg,
         afterCursorRepositories,
+        afterCursorOrgRepositories,
       });
-      
       
       user = result.user;
       
@@ -161,26 +162,24 @@ export const GET = async () => {
         }
       }
 
-      // Check if there are more repositories in one organization
-      const numberOfNodes = result.user.organizations.nodes.length;
-      if (numberOfNodes > 0) {
-        for (let i = 0; i < numberOfNodes; i++) {
-          hasNextPageOrgRepositories = result.user.organizations.nodes[i].repositories.pageInfo.hasNextPage;
-          if (hasNextPageOrgRepositories) {
-            afterCursorOrgRepositories = result.user.organizations.nodes[i].repositories.pageInfo.endCursor;
-          }
-          const edges = result.user.organizations.nodes[i].repositories.edges;
-          if (edges) {
-            allData.push(...edges);
+      if (hasNextPageOrg) {
+        const orgNodes = result.user.organizations.nodes;
+        for (const orgNode of orgNodes) {
+          if (orgNode.repositories) {
+            allData.push(...orgNode.repositories.edges);
+            hasNextPageOrgRepositories = orgNode.repositories.pageInfo.hasNextPage;
+            if (hasNextPageOrgRepositories) {
+              afterCursorOrgRepositories = orgNode.repositories.pageInfo.endCursor;
+            }
           }
         }
       }
-              
+      
       hasNextPage = result.user.repositories.pageInfo.hasNextPage;
       afterCursorRepositories = result.user.repositories.pageInfo.endCursor;
-
+  
       hasNextPageOrg = result.user.organizations.pageInfo.hasNextPage;
-      afterCursorOrg = result.user.organizations.pageInfo.endCursor;
+      afterCursorOrg = result.user.organizations.pageInfo.endCursor;  
 
     } catch (error) {
       console.error("Error occurred:", error);
