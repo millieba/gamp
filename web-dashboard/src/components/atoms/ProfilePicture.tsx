@@ -2,13 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useBadgesContext } from '@/contexts/BadgesContext';
-
-export async function sync(currentPage: string) {
-  const syncResponse = await fetch('/api/sync');
-  if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
-    return await fetch(`api${currentPage}`).then((res) => res.json());
-  }
-}
+import { sync } from '@/contexts/BadgesContext';
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
@@ -17,20 +11,17 @@ const ProfilePicture = () => {
   const { isLoading, setIsLoading } = useBadgesContext();
 
   const handleClick = async () => {
-    setIsLoading(true);
     try {
-      await sync(currentPage);
+      await sync(currentPage, setIsLoading);
     } catch (err) {
       (err instanceof Error) && setError(err.message);
       console.error(err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
-      signOut();
+      signOut(); // Sign out user if the access token has expired and not been refreshed
     }
     setCurrentPage(window.location.pathname);
   }, [session, status]);

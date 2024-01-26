@@ -2,13 +2,27 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { Badge } from '@/utils/types';
 import { useSession } from 'next-auth/react';
-import { sync } from '@/components/atoms/ProfilePicture';
 
 interface BadgesContextProps {
   badges: Badge[];
   setBadges: React.Dispatch<React.SetStateAction<Badge[]>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export async function sync(currentPage: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>) {
+  try {
+    setIsLoading(true);
+    const syncResponse = await fetch('/api/sync');
+    if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
+      const data = await fetch(`api${currentPage}`).then((res) => res.json());
+      return data;
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsLoading(false);
+  }
 }
 
 const BadgesContext = createContext<BadgesContextProps | undefined>(undefined);
@@ -21,25 +35,22 @@ export const BadgesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        const currentTime = new Date();
-        const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
-
-        if (
-          session?.user.lastSync === null ||
-          (session?.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)
-        ) {
-          const syncData = await sync(window.location.pathname);
-          if (syncData && syncData.badges) {
-            setBadges(syncData.badges);
-          }
-        }
-        else {
-          setIsLoading(true);
-          const res = await fetch('/api/badges'); // Fetch from database if lastSync is within the last hour
-          if (res.ok) {
-            const badgesData = await res.json();
-            setBadges(badgesData.badges);
+        if (status === 'authenticated' && session?.user) { // Ensure that session data is available
+          const currentTime = new Date();
+          const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
+          if (session.user.lastSync === null || // Do full sync with GitHub if lastSync is null or more than an hour ago
+            (session.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
+            const syncData = await sync(window.location.pathname, setIsLoading);
+            if (syncData && syncData.badges) {
+              setBadges(syncData.badges);
+            }
+          } else { // Fetch from database if lastSync is within the last hour
+            setIsLoading(true);
+            const res = await fetch('/api/badges'); 
+            if (res.ok) {
+              const badgesData = await res.json();
+              setBadges(badgesData.badges);
+            }
           }
         }
       } catch (error) {
@@ -50,7 +61,7 @@ export const BadgesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     fetchData();
-  }, []);
+  }, [status]);
 
   return (
     <BadgesContext.Provider value={{ badges, setBadges, isLoading, setIsLoading }}>

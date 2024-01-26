@@ -1,11 +1,9 @@
 "use client";
 import React from 'react';
-import { useSession } from 'next-auth/react';
 import { useBadgesContext } from '@/contexts/BadgesContext';
 
 const BadgesPage = () => {
-  const { data: session, status } = useSession();
-  const { badges, setBadges, isLoading } = useBadgesContext();
+  const { badges, isLoading } = useBadgesContext();
 
   return (
     <div>
