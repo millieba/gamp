@@ -13,7 +13,9 @@ export default function DashboardLayout({
         <Providers>
             <section>
                 <div className="flex gap-4">
-                    <SideNavBar />
+                    <div className="w-72">
+                        <SideNavBar />
+                    </div>
                     <main className="pt-6">
                         {children}
                     </main>
