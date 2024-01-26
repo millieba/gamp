@@ -1,7 +1,12 @@
-"use client";
+import FetchLanguages from "@/components/atoms/FetchLanguages";
 
 const ProfilePage = () => {
-    return <h1 className="text-2xl">Profile</h1>
-}
+  return (
+    <div>
+      <h1 className="text-2xl">Profile</h1>
+      <FetchLanguages />
+    </div>
+  );
+};
 
 export default ProfilePage;
