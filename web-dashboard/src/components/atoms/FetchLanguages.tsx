@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryResult } from "@/app/api/languages/route";
 import { useSession, signOut } from "next-auth/react";
 import * as d3 from "d3";
@@ -19,9 +19,9 @@ const FetchLanguages = () => {
     {}
   );
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-  const MARGIN = 30;
-  const height = 400;
-  const width = 700;
+  const MARGIN = 15;
+  const height = 100;
+  const width = 100;
 
   useEffect(() => {
     if (
@@ -33,7 +33,6 @@ const FetchLanguages = () => {
   }, [session, status]);
 
   const fetchData = async () => {
-
     try {
       const response = await fetch("/api/languages/");
       const data = await response.json();
@@ -66,13 +65,19 @@ const FetchLanguages = () => {
     fetchData();
   }, []);
 
-  const colors = d3.scaleOrdinal(d3.schemeCategory10);
+  const colors = [
+    "#604ad2",
+    "#735eda",
+    "#8471e2",
+    "#9685e9",
+    "#a798f0",
+  ];
   const radius = Math.min(width, height) / 2 - MARGIN;
-  const innerRadius = 70;
+  const innerRadius = 10;
 
-  const dataItems: DataItem[] = Object.entries(languageSizes).map(
-    ([name, value]) => ({ name, value })
-  );
+  const dataItems: DataItem[] = Object.entries(languageSizes)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
 
   const pie = d3.pie<DataItem>().value((d: DataItem) => d.value)(dataItems);
 
@@ -81,7 +86,7 @@ const FetchLanguages = () => {
   const arcOver = d3
     .arc()
     .innerRadius(innerRadius)
-    .outerRadius(radius + 10);
+    .outerRadius(radius + 2);
 
   const total = d3.sum(dataItems, (d: DataItem) => d.value);
 
@@ -90,29 +95,40 @@ const FetchLanguages = () => {
   };
 
   return (
-    <div>
-      <svg width={width} height={height} style={{ display: "inline-block" }}>
-        <g transform={`translate(${width / 3}, ${height / 2})`}>
-          {pie.map((d: any, i: number) => (
+    <div className="grid md:grid-cols-1 lg:grid-cols-2">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ display: "inline-block" }}
+      >
+        <g transform={`translate(${width/2}, ${height/2})`}>
+          {pie.slice(0, 4).map((d: any, i: number) => (
             <path
               key={i}
               d={hoveredSlice === i ? arcOver(d) : arc(d)}
-              fill={colors(i)}
-              style={{cursor: 'pointer', strokeWidth: '1px'}}
+              fill={colors[i]}
               onMouseOver={() => setHoveredSlice(i)}
               onMouseOut={() => setHoveredSlice(null)}
             />
           ))}
         </g>
-        <g transform={`translate(${width - 250}, ${height / 2 - pie.length * 20 / 2})`}>
-        {pie.map((d: any, i: number) => (
-          <g transform={`translate(0, ${i * 20})`} key={i}>
-            <rect width="18" height="18" fill={colors(i)}/>
-            {/* TODO: fill with the right color */}
-            <text x="24" y="9" dy="0.35em" fill="#fff">{d.data.name}, {calculatePercentage(d.data.value)}%</text>
-          </g>
-        ))}
-      </g>
+      </svg>
+      <svg style={{ display: "inline-block", marginTop: "20px"}}>
+        <g>
+          {pie.slice(0, 4).map((d: any, i: number) => (
+              <g 
+              transform={`translate(0, ${i * 20})`} 
+              key={i}
+              onMouseOver={() => setHoveredSlice(i)}
+              onMouseOut={() => setHoveredSlice(null)}
+            >
+              <rect  x="10" y="6" width={width / 10} height={width / 10} fill={colors[i]}/>
+              {/* TODO: fill with the right color */}
+              <text x="28" y="9" dy="0.35em" className={`text-sm fill-DarkNeutral1100 ${hoveredSlice === i ? `font-bold` : ``}`}>
+                {d.data.name}, {calculatePercentage(d.data.value)}%
+              </text>
+            </g>
+          ))}
+        </g>
       </svg>
     </div>
   );

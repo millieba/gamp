@@ -14,7 +14,6 @@ const StatBox: React.FC<StatDetails> = ({ name, description, content }) => {
             <h1 className="text-2xl font-bold mb-4 pr-4 text-DarkNeutral1000">{name}</h1>
             <p className="text-DarkNeutral1100 pr-4">{description}</p>
             <div className="text-DarkNeutral1100">
-                jtjtrjtj
                 {content}
             </div>
         </div>
