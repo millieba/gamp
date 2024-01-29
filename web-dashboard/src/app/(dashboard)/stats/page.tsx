@@ -2,18 +2,10 @@
 import StatBox from "@/components/atoms/StatBox";
 import { useEffect, useState } from "react";
 import { RepositoryDetails } from "@/utils/types";
-import { signOut, useSession } from "next-auth/react";
 
 const StatsPage = () => {
   const [fetchedData, setFetchedData] = useState<RepositoryDetails[]>();
   const [error, setError] = useState<Boolean>(false);
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    if (status === 'authenticated' && session?.error === "RefreshAccessTokenError") {
-      signOut();
-    }
-  }, [session, status]);
 
   useEffect(() => {
     const getData = async () => {

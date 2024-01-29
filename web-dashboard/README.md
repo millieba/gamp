@@ -11,14 +11,12 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 - I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
 	- Default options, database name: `masters_db` on default user, `postgres`
 
-## Register new GitHub app
-- Go to https://github.com/settings/apps/new
-- Set "Homepage URL" and "Callback URL" to `http://localhost:3000`
-- Select the "Expire user authorization tokens" and "Request user authorization (OAuth) during installation" options, and unselect the "Active" option under the "Webhook" heading. Webhooks can be configured later.
-- Grant the permissions required by your app before clicking "Create GitHub App". These permissions can be updated later, so just choose what you know you need for now.
+## Register new GitHub OAuth App
+- Go to https://github.com/settings/applications/new
+- Set "Homepage URL" and "Authorization callback URL" to `http://localhost:3000`
 - Copy the client id and client secret, keep them somewhere safe for later.
 
-![](img/github_reg_app.png)
+![](img/github_reg_oauth.png)
 
 ## Create .env files
 ### .env
@@ -47,7 +45,11 @@ GITHUB_ID=ClientIDFromOAuthAppSetupOnGitHub
 - Run `pnpm exec prisma migrate dev`
 	- This command will interpret the Prisma schema file, generate SQL commands based on it, and execute a migration to ensure our database matches the Prisma schema. It will also generate a Prisma client that matches the current schema.
 	- If there were any changes in the schema file since the last migration, Prisma would create a new migration. However, since the latest migration is already pushed to Git, this command will likely just apply that existing migration to your local database.
-  
+
+## Seed
+- Run `pnpm exec prisma db seed`
+  - This command will seed the badge table of the database with badge definitions.
+
 ## Test login
 - Start development server by running `pnpm dev`
 - Visit http://localhost:3000/api/auth/signin. 
