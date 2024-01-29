@@ -11,20 +11,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Represents badges that can be awarded to user accounts
+model Badge {
+  id          String    @id
+  name        String    @unique
+  description String
+  image       String
+  points      Int
+  type        String
+  threshold   Int
+  accounts    Account[]
+
+  @@map("badges")
+}
+
+// One user can have multiple accounts with different providers.
 model Account {
-  id                       String  @id @default(cuid())
-  userId                   String  @map("user_id")
+  id                       String       @id @default(cuid())
+  userId                   String       @map("user_id")
   type                     String
   provider                 String
-  providerAccountId        String  @map("provider_account_id")
-  refresh_token            String? @db.Text
+  providerAccountId        String       @map("provider_account_id")
+  refresh_token            String?      @db.Text
   refresh_token_expires_in Int?
-  access_token             String? @db.Text
+  access_token             String?      @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String? @db.Text
+  id_token                 String?      @db.Text
   session_state            String?
+  githubStats              GitHubStats?
+  badges                   Badge[]
+  lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -52,4 +70,29 @@ model User {
   sessions      Session[]
 
   @@map("users")
+}
+
+// Represents GitHub statistics for a user account
+model GitHubStats {
+  id                   String                @id @default(cuid())
+  accountId            String                @unique @map("account_id")
+  commitCount          Int?                  @map("commit_count")
+  repoCount            Int?                  @map("repo_count")
+  issueCount           Int?                  @map("issue_count")
+  languagesCount       Int?                  @map("languages_count")
+  programmingLanguages ProgrammingLanguage[]
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("github_stats")
+}
+
+// Represents programming languages used in GitHub statistics
+model ProgrammingLanguage {
+  id            String @id @default(cuid())
+  name          String
+  codeLines     Int    @map("code_lines")
+  githubStatsId String @map("github_stats_id")
+
+  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id])
 }

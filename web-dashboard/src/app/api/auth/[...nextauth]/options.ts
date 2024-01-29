@@ -71,6 +71,8 @@ export const options: NextAuthOptions = {
             }
 
             session.user.userId = user.id; // Add userId to the session object
+            session.user.githubAccountId = githubAccount.id; // Add githubAccountId to the session object
+            session.user.lastSync = githubAccount.lastSync; // Add lastSync to the session object
             return session;
         },
         async signIn({ user, account }) {
@@ -120,6 +122,7 @@ export const options: NextAuthOptions = {
                             provider: account.provider,
                             providerAccountId: account.providerAccountId,
                             userId: user.id,
+                            lastSync: null,
                         },
                     });
 
@@ -139,6 +142,8 @@ export const options: NextAuthOptions = {
 declare module "next-auth" {
     interface ExtendedUser extends User {
         userId?: string;
+        githubAccountId?: string;
+        lastSync: Date | null;
     }
 
     interface Session {

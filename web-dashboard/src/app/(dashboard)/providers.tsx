@@ -1,11 +1,17 @@
-'use client';
 import { SessionProvider } from 'next-auth/react';
-export default SessionProvider;
+import { BadgesProvider } from '@/contexts/BadgesContext';
+import { StatsProvider } from '@/contexts/StatsContext';
 
 type Props = {
-    children: React.ReactNode,
+    children: React.ReactNode;
 };
 
 export const Providers = ({ children }: Props) => {
-    return <SessionProvider>{children}</SessionProvider>
-}
+    return (
+        <SessionProvider>
+            <StatsProvider>
+                <BadgesProvider>{children}</BadgesProvider>
+            </StatsProvider>
+        </SessionProvider>
+    );
+};
