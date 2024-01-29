@@ -10,14 +10,27 @@ interface BadgesContextProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export async function sync(currentPage: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>) {
+export async function sync(setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setBadges: React.Dispatch<React.SetStateAction<Badge[]>>, setStats?: React.Dispatch<React.SetStateAction<Badge[]>>) {
   try {
     setIsLoading(true);
-    const syncResponse = await fetch('/api/sync');
-    if (syncResponse.ok && (currentPage === '/badges' || currentPage === '/stats')) {
-      const data = await fetch(`api${currentPage}`).then((res) => res.json());
-      return data;
+    const syncResponse = await fetch('/api/sync'); // This endpoint updates the database with the latest data from GitHub
+    if (syncResponse.ok) {
+      await fetchFromDB(setIsLoading, setBadges, setStats); // Fetch the updated data from the database, and update the context
     }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+export async function fetchFromDB(setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setBadges: React.Dispatch<React.SetStateAction<Badge[]>>, setStats?: React.Dispatch<React.SetStateAction<Badge[]>>) {
+  try {
+    setIsLoading(true);
+    const badgesData = await fetch(`api/badges`).then((res) => res.json());
+    setBadges(badgesData.badges);
+    // const statsData = await fetch(`api/stats`).then((res) => res.json()); // TODO: Uncomment when stats endpoint is implemented
+    // setStats(statsData.stats);
   } catch (error) {
     console.error(error);
   } finally {
@@ -40,17 +53,9 @@ export const BadgesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
           if (session.user.lastSync === null || // Do full sync with GitHub if lastSync is null or more than an hour ago
             (session.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
-            const syncData = await sync(window.location.pathname, setIsLoading);
-            if (syncData && syncData.badges) {
-              setBadges(syncData.badges);
-            }
+            await sync(setIsLoading, setBadges);
           } else { // Fetch from database if lastSync is within the last hour
-            setIsLoading(true);
-            const res = await fetch('/api/badges'); 
-            if (res.ok) {
-              const badgesData = await res.json();
-              setBadges(badgesData.badges);
-            }
+            await fetchFromDB(setIsLoading, setBadges);
           }
         }
       } catch (error) {

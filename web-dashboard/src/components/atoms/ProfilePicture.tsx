@@ -7,12 +7,11 @@ import { sync } from '@/contexts/BadgesContext';
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
-  const [currentPage, setCurrentPage] = useState<string>('');
-  const { isLoading, setIsLoading } = useBadgesContext();
+  const { setBadges, isLoading, setIsLoading } = useBadgesContext();
 
   const handleClick = async () => {
     try {
-      await sync(currentPage, setIsLoading);
+      await sync(setIsLoading, setBadges);
     } catch (err) {
       (err instanceof Error) && setError(err.message);
       console.error(err);
@@ -23,7 +22,6 @@ const ProfilePicture = () => {
     if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
       signOut(); // Sign out user if the access token has expired and not been refreshed
     }
-    setCurrentPage(window.location.pathname);
   }, [session, status]);
 
   return (
