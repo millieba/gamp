@@ -19,9 +19,9 @@ const FetchLanguages = () => {
     {}
   );
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-  const MARGIN = 15;
-  const height = 100;
-  const width = 100;
+  const MARGIN = 7;
+  const height = 50;
+  const width = 50;
 
   useEffect(() => {
     if (
@@ -65,21 +65,24 @@ const FetchLanguages = () => {
     fetchData();
   }, []);
 
-  const colors = [
-    "#604ad2",
-    "#735eda",
-    "#8471e2",
-    "#9685e9",
-    "#a798f0",
-  ];
-  const radius = Math.min(width, height) / 2 - MARGIN;
-  const innerRadius = 10;
+  const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
+  const radius = (Math.min(width, height) / 2 - MARGIN)/2;
+  const innerRadius = 2;
 
   const dataItems: DataItem[] = Object.entries(languageSizes)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
 
-  const pie = d3.pie<DataItem>().value((d: DataItem) => d.value)(dataItems);
+  const remainingTotal = dataItems
+    .slice(4)
+    .reduce((total, item) => total + item.value, 0);
+  
+  const newDataItems = [
+    ...dataItems.slice(0, 4),
+    { name: 'Other', value: remainingTotal },
+  ];
+
+  const pie = d3.pie<DataItem>().value((d: DataItem) => d.value)(newDataItems);
 
   const arc = d3.arc().innerRadius(innerRadius).outerRadius(radius);
 
@@ -94,17 +97,19 @@ const FetchLanguages = () => {
     return ((value / total) * 100).toFixed(1);
   };
 
+
+
   return (
-    <div className="grid md:grid-cols-1 lg:grid-cols-2">
+    <div className="grid xs:grid-cols-1 sm:grid-cols-2">
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${width/2} ${height/2}`}
         style={{ display: "inline-block" }}
       >
-        <g transform={`translate(${width/2}, ${height/2})`}>
-          {pie.slice(0, 4).map((d: any, i: number) => (
+        <g transform={`translate(${width / 4}, ${height / 4})`}>
+          {pie.map((d: any, i: number) => (
             <path
               key={i}
-              d={hoveredSlice === i ? arcOver(d) : arc(d)}
+              d={(hoveredSlice === i ? arcOver(d) : arc(d)) ?? ""}
               fill={colors[i]}
               onMouseOver={() => setHoveredSlice(i)}
               onMouseOut={() => setHoveredSlice(null)}
@@ -112,24 +117,44 @@ const FetchLanguages = () => {
           ))}
         </g>
       </svg>
-      <svg style={{ display: "inline-block", marginTop: "20px"}}>
+      <svg style={{ display: "inline-block" }}>
         <g>
-          {pie.slice(0, 4).map((d: any, i: number) => (
-              <g 
-              transform={`translate(0, ${i * 20})`} 
+          {pie.map((d: any, i: number) => (
+            <g
+              transform={`translate(0, ${i * 20})`}
               key={i}
               onMouseOver={() => setHoveredSlice(i)}
               onMouseOut={() => setHoveredSlice(null)}
             >
-              <rect  x="10" y="6" width={width / 10} height={width / 10} fill={colors[i]}/>
+              <rect
+                x="10"
+                y="6"
+                width={width / 10}
+                height={width / 10}
+                fill={colors[i]}
+              />
               {/* TODO: fill with the right color */}
-              <text x="28" y="9" dy="0.35em" className={`text-sm fill-DarkNeutral1100 ${hoveredSlice === i ? `font-bold` : ``}`}>
+              <text
+                x="28"
+                y="9"
+                dy="0.35em"
+                className={`text-sm fill-DarkNeutral1100 ${
+                  hoveredSlice === i ? `font-bold` : ``
+                }`}
+              >
                 {d.data.name}, {calculatePercentage(d.data.value)}%
               </text>
             </g>
           ))}
         </g>
       </svg>
+      <p>Amongst your other used languages:
+        {dataItems.slice(4).map((item) => (
+            <>
+            {item.name}, 
+            </>
+        ))}
+      </p>
     </div>
   );
 };
