@@ -5,17 +5,20 @@ export interface PageInfo {
 
 export interface QueryResult {
   user: {
-    repositories: {
+    organizations: {
       nodes: {
-        owner: {
-          login: string;
-        };
-        name: string;
-        languages: {
+        repositories: {
           edges: {
-            size: number;
             node: {
+              owner: {
+                login: string;
+              };
               name: string;
+              languages: {
+                edges: {
+                  size: number;
+                }[];
+              };
             };
           }[];
           pageInfo: PageInfo;
@@ -23,8 +26,25 @@ export interface QueryResult {
       }[];
       pageInfo: PageInfo;
     };
+    repositories: {
+      edges: {
+        node: {
+          owner: {
+            login: string;
+          };
+          name: string;
+          languages: {
+            edges: {
+              size: number;
+            }[];
+          };
+        };
+      }[];
+      pageInfo: PageInfo;
+    };
   };
-}
+};
+
 
 export const languageQuery = `
 query ($username: String!, $afterCursorRepositories: String, $afterCursorOrg: String, $afterCursorOrgRepositories: String) {

@@ -17,7 +17,7 @@ const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
 const FetchLanguages = () => {
   const [repositories, setRepositories] = useState<
-    QueryResult["user"]["repositories"]["nodes"] | null
+    QueryResult["user"]["repositories"] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [languageSizes, setLanguageSizes] = useState<{ [key: string]: number }>(
