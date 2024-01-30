@@ -12,6 +12,7 @@ const height = 50;
 const width = 50;
 const radius = (Math.min(width, height) / 2 - margin) / 2;
 const innerRadius = 2;
+const outerRadius = radius;
 const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
 const FetchLanguages = () => {
@@ -111,7 +112,7 @@ const FetchLanguages = () => {
                   {pie.map((d: PieArcDatum, i: number) => (
                     <path
                       key={i}
-                      d={(hoveredSlice === i ? arcOver(d) : arc(d)) ?? ""}
+                      d={(hoveredSlice === i ? arcOver({...d, innerRadius, outerRadius}) : arc({...d, innerRadius, outerRadius})) ?? ""}
                       fill={colors[i]}
                       onMouseOver={() => setHoveredSlice(i)}
                       onMouseOut={() => setHoveredSlice(null)}
@@ -120,7 +121,7 @@ const FetchLanguages = () => {
                   ))}
                 </g>
               </svg>
-            </div>
+            </div>        
 
             <div
               style={{
