@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { QueryResult } from "@/app/api/languages/route";
+import { QueryResult } from "@/app/api/languages/languageUtils";
 import * as d3 from "d3";
 import React from "react";
 import { calculatePercentage } from "@/utils/utils";
@@ -33,11 +33,12 @@ const FetchLanguages = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setRepositories(data.languages);
+        setRepositories(data);
+        console.log(data);
 
         // Calculate language sizes
         const sizes: { [key: string]: number } = {};
-        data.languages.forEach((repo: Repository) => {
+        data.forEach((repo: Repository) => {
           repo.node.languages.edges.forEach((language: Language) => {
             if (sizes[language.node.name]) {
               sizes[language.node.name] += language.size;
