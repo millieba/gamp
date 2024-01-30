@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import { useBadgesContext } from '@/contexts/BadgesContext';
-import { sync } from '@/contexts/BadgesContext';
-import { useStatsContext } from '@/contexts/StatsContext';
+import { useSyncContext, sync } from '@/contexts/SyncContext';
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
-  const { setBadges, isLoading, setIsLoading } = useBadgesContext();
-  const { setStats } = useStatsContext();
+  const { setBadges, setStats, setIsLoading, isLoading } = useSyncContext();
 
   const handleClick = async () => {
     try {

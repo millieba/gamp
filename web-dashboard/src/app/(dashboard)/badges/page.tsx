@@ -1,8 +1,9 @@
 "use client";
-import { useBadgesContext } from '@/contexts/BadgesContext';
+
+import { useSyncContext } from "@/contexts/SyncContext";
 
 const BadgesPage = () => {
-  const { badges, isLoading } = useBadgesContext();
+  const { badges, isLoading } = useSyncContext();
 
   return (
     <div>
