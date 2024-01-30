@@ -1,17 +1,27 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, Dispatch, SetStateAction, useState } from 'react';
+
+export interface Stats {
+    commitCount: number;
+    programmingLanguages: ProgrammingLanguage[];
+}
+
+export interface ProgrammingLanguage {
+    name: string;
+    codeBytes: number;
+}
 
 interface StatsContextProps {
-    statsData: any; // TODO: type stats data when endpoints and database are set up
-    setStatsData: React.Dispatch<React.SetStateAction<any>>;
+    stats: Stats | undefined;
+    setStats: Dispatch<SetStateAction<Stats | undefined>>;
 }
 
 const StatsContext = createContext<StatsContextProps | undefined>(undefined);
 
 export const StatsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [statsData, setStatsData] = React.useState<any>(null); // TODO: type this
+    const [stats, setStats] = useState<Stats | undefined>();
 
     return (
-        <StatsContext.Provider value={{ statsData, setStatsData }}>
+        <StatsContext.Provider value={{ stats, setStats }}>
             {children}
         </StatsContext.Provider>
     );

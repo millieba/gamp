@@ -27,11 +27,4 @@ async function checkCommitsCountBadges(accountId: string) {
 
 export async function checkBadges(accountId: string) {
     await checkCommitsCountBadges(accountId);
-
-    const badges = await prisma.account.findUnique({
-        where: { id: accountId, provider: "github" },
-        select: { badges: true },
-    });
-
-    return badges;
 }

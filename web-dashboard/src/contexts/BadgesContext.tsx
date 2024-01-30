@@ -1,16 +1,17 @@
 "use client";
-import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { Badge } from '@/utils/types';
 import { useSession } from 'next-auth/react';
+import { Stats, useStatsContext } from './StatsContext';
 
 interface BadgesContextProps {
   badges: Badge[];
-  setBadges: React.Dispatch<React.SetStateAction<Badge[]>>;
+  setBadges: Dispatch<SetStateAction<Badge[]>>;
   isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export async function sync(setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setBadges: React.Dispatch<React.SetStateAction<Badge[]>>, setStats?: React.Dispatch<React.SetStateAction<Badge[]>>) {
+export async function sync(setIsLoading: Dispatch<SetStateAction<boolean>>, setBadges: Dispatch<SetStateAction<Badge[]>>, setStats: Dispatch<SetStateAction<Stats | undefined>>) {
   try {
     setIsLoading(true);
     const syncResponse = await fetch('/api/sync'); // This endpoint updates the database with the latest data from GitHub
@@ -24,13 +25,13 @@ export async function sync(setIsLoading: React.Dispatch<React.SetStateAction<boo
   }
 }
 
-export async function fetchFromDB(setIsLoading: React.Dispatch<React.SetStateAction<boolean>>, setBadges: React.Dispatch<React.SetStateAction<Badge[]>>, setStats?: React.Dispatch<React.SetStateAction<Badge[]>>) {
+export async function fetchFromDB(setIsLoading: Dispatch<SetStateAction<boolean>>, setBadges: Dispatch<SetStateAction<Badge[]>>, setStats: Dispatch<SetStateAction<Stats | undefined>>) {
   try {
     setIsLoading(true);
     const badgesData = await fetch(`api/badges`).then((res) => res.json());
     setBadges(badgesData.badges);
-    // const statsData = await fetch(`api/stats`).then((res) => res.json()); // TODO: Uncomment when stats endpoint is implemented
-    // setStats(statsData.stats);
+    const statsData = await fetch(`api/stats`).then((res) => res.json()); // TODO: Uncomment when stats endpoint is implemented
+    setStats(statsData.stats);
   } catch (error) {
     console.error(error);
   } finally {
@@ -41,6 +42,7 @@ export async function fetchFromDB(setIsLoading: React.Dispatch<React.SetStateAct
 const BadgesContext = createContext<BadgesContextProps | undefined>(undefined);
 
 export const BadgesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { stats, setStats } = useStatsContext();
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session, status } = useSession();
@@ -53,9 +55,9 @@ export const BadgesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
           if (session.user.lastSync === null || // Do full sync with GitHub if lastSync is null or more than an hour ago
             (session.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)) {
-            await sync(setIsLoading, setBadges);
+            await sync(setIsLoading, setBadges, setStats);
           } else { // Fetch from database if lastSync is within the last hour
-            await fetchFromDB(setIsLoading, setBadges);
+            await fetchFromDB(setIsLoading, setBadges, setStats);
           }
         }
       } catch (error) {
