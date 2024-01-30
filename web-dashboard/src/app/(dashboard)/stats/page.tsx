@@ -51,9 +51,9 @@ const StatsPage = () => {
         You have access to {numberOfRepos} repositories on GitHub.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:px-4">
-        {fetchedData.map((repo: { name: string, description: string }) => (
+        {fetchedData.map((repo: { name: string, description: string }, index: number) => (
           <StatBox
-            key={repo.name}
+            key={index}
             name={repo.name}
             description={repo.description}
           />
