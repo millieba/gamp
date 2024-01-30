@@ -4,11 +4,9 @@ import { QueryResult } from "@/app/api/languages/route";
 import * as d3 from "d3";
 import React from "react";
 import { calculatePercentage } from "@/utils/utils";
+import { DataItem, PieArcDatum, Language, Repository, Data } from "@/utils/types";
 
-type DataItem = {
-  name: string;
-  value: number;
-};
+
 const margin = 7;
 const height = 50;
 const width = 50;
@@ -38,8 +36,8 @@ const FetchLanguages = () => {
 
         // Calculate language sizes
         const sizes: { [key: string]: number } = {};
-        data.languages.forEach((repo: any) => {
-          repo.node.languages.edges.forEach((language: any) => {
+        data.languages.forEach((repo: Repository) => {
+          repo.node.languages.edges.forEach((language: Language) => {
             if (sizes[language.node.name]) {
               sizes[language.node.name] += language.size;
             } else {
@@ -110,7 +108,7 @@ const FetchLanguages = () => {
                 className="max-w-xs mx-auto"
               >
                 <g transform={`translate(${width / 4}, ${height / 4})`}>
-                  {pie.map((d: any, i: number) => (
+                  {pie.map((d: PieArcDatum, i: number) => (
                     <path
                       key={i}
                       d={(hoveredSlice === i ? arcOver(d) : arc(d)) ?? ""}
@@ -133,7 +131,7 @@ const FetchLanguages = () => {
             >
               <svg>
                 <g>
-                  {pie.map((d: any, i: number) => (
+                  {pie.map((d: PieArcDatum, i: number) => (
                     <g
                       transform={`translate(0, ${i * 20})`}
                       key={i}
