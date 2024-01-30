@@ -34,7 +34,6 @@ const FetchLanguages = () => {
 
       if (response.ok) {
         setRepositories(data);
-        console.log(data);
 
         // Calculate language sizes
         const sizes: { [key: string]: number } = {};

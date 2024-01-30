@@ -35,11 +35,9 @@ export async function languagesServices(accountId: string) {
     let hasNextPageOrgRepositories = true;
     let afterCursorOrgRepositories = null;
 
-    let user: QueryResult["user"] | undefined;
-
     while (hasNextPage || hasNextPageOrg || hasNextPageOrgRepositories) {
       try {
-        const result: any = await graphqlWithAuth<{ data: QueryResult }>(
+        const result: QueryResult = await graphqlWithAuth<QueryResult>(
           languageQuery,
           {
             username: username,
@@ -48,8 +46,6 @@ export async function languagesServices(accountId: string) {
             afterCursorOrgRepositories,
           }
         );
-
-        user = result.user;
 
         if (!result.user) {
           throw new Error("No data returned from GraphQL server");
