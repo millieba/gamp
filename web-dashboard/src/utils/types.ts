@@ -1,50 +1,76 @@
 export interface RepositoryDetails {
-    name: string;
-    description: string;
+  name: string;
+  description: string;
 }
 
 export interface User {
-    date: string;
-    email: string;
-    name: string;
+  date: string;
+  email: string;
+  name: string;
 }
 
 export interface Commit {
-    committer?: User;
-    repositoryName: string;
-    date: string;
-    message: string;
+  committer?: User;
+  repositoryName: string;
+  date: string;
+  message: string;
 }
 
 export interface Badge {
-    id: string;
-    name: string;
-    description: string;
-    image: string;
-    points: number;
-    type: string;
-    threshold: number;
-  }
-
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  points: number;
+  type: string;
+  threshold: number;
+}
 
 // GraphQL types
 export interface Owner {
-    login: string;
+  login: string;
 }
 
 export interface RepositoryNode {
-    owner: Owner;
-    name: string;
+  owner: Owner;
+  name: string;
 }
 
 export interface Repositories {
-    nodes: RepositoryNode[];
+  nodes: RepositoryNode[];
 }
 
 export interface OrganizationNode {
-    repositories: Repositories;
+  repositories: Repositories;
 }
 
 export interface Organizations {
-    nodes: OrganizationNode[];
+  nodes: OrganizationNode[];
+}
+
+// Types and interfaces for FetchLanguages.tsx
+export type DataItem = {
+  name: string;
+  value: number;
+};
+
+export type PieArcDatum = d3.PieArcDatum<DataItem>;
+
+export interface Language {
+  node: {
+    name: string;
+  };
+  size: number;
+}
+
+export interface Repository {
+  node: {
+    languages: {
+      edges: Language[];
+    };
+  };
+}
+
+export interface Data {
+  languages: Repository[];
 }

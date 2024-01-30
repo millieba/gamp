@@ -2,6 +2,7 @@
 import StatBox from "@/components/atoms/StatBox";
 import { useEffect, useState } from "react";
 import { RepositoryDetails } from "@/utils/types";
+import FetchLanguages from "@/components/atoms/FetchLanguages";
 
 const StatsPage = () => {
   const [fetchedData, setFetchedData] = useState<RepositoryDetails[]>();
@@ -36,6 +37,14 @@ const StatsPage = () => {
   return (
     <>
       <h1 className="text-2xl">Stats</h1>
+      <StatBox
+        name={"Most used languages"}
+        description={
+          "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+        }
+        content={<FetchLanguages />}
+        maxWidth="500px"
+      />
       <p>
         You have access to {numberOfRepos} repositories on GitHub.
       </p>
