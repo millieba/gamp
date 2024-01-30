@@ -117,6 +117,7 @@ const FetchLanguages = () => {
                       fill={colors[i]}
                       onMouseOver={() => setHoveredSlice(i)}
                       onMouseOut={() => setHoveredSlice(null)}
+                      aria-label={`${d.data.name}, ${calculatePercentage(d.data.value, total)}%`}
                     />
                   ))}
                 </g>
@@ -153,6 +154,9 @@ const FetchLanguages = () => {
                         className={`text-xs fill-DarkNeutral1100 ${
                           hoveredSlice === i ? `font-bold` : ``
                         }`}
+                        onFocus={() => setHoveredSlice(i)} 
+                        onBlur={() => setHoveredSlice(null)} 
+                        tabIndex={0}
                       >
                         {d.data.name},{" "}
                         {calculatePercentage(d.data.value, total)}%
