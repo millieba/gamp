@@ -1,21 +1,30 @@
 import prisma from "@/utils/prisma";
 import { getCommitsCount } from "../commits/commitsService";
+import { calculateLanguageSizes } from "../languages/languagesService";
 
 export async function syncStats(accountId: string) {
     try {
         const commitsCount = await (await getCommitsCount()).json();
-        // const languages = await (await getLanguages()).json(); // TODO: This function doesn't exist yet. Currently directly inside the route handler.
+        const languages = await calculateLanguageSizes(accountId);
+        const languagesArray = Object.keys(languages).map((languageName) => { // Convert the object into an array of language objects as expected by Prisma
+            return { name: languageName, bytesWritten: languages[languageName] };
+          });
 
         await prisma.gitHubStats.upsert({
             where: { accountId: accountId },
             update: {
                 commitCount: commitsCount?.totalCommits, // TODO: It is very goofy to call this commitCount one place and commitsCount another. Fix plz.
-                // languages: languages,
+                programmingLanguages: {
+                    deleteMany: {}, // Delete all existing languages, then re-create them
+                    create: languagesArray,
+                },
             },
             create: {
                 accountId: accountId,
                 commitCount: commitsCount?.totalCommits,
-                // languages: languages,
+                programmingLanguages: {
+                    create: languagesArray,
+                },
             },
         });
     } catch (error) {

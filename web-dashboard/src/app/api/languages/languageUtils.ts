@@ -16,6 +16,9 @@ export interface QueryResult {
               name: string;
               languages: {
                 edges: {
+                  node: {
+                    name: string;
+                  };
                   size: number;
                 }[];
               };
@@ -35,6 +38,9 @@ export interface QueryResult {
           name: string;
           languages: {
             edges: {
+              node: {
+                name: string;
+              };
               size: number;
             }[];
           };

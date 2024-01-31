@@ -95,4 +95,6 @@ model ProgrammingLanguage {
   githubStatsId String @map("github_stats_id")
 
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id])
+  
+  @@map("programming_languages")
 }

@@ -13,7 +13,20 @@ export const GET = async () => {
 
         const stats = await prisma.account.findUnique({ // Get stats from database
             where: { id: session.user.githubAccountId },
-            select: { githubStats: true },
+            select: {
+                githubStats: {
+                    select: {
+                        commitCount: true,
+                        repoCount: true,
+                        programmingLanguages: {
+                            select: {
+                                name: true,
+                                bytesWritten: true,
+                            },
+                        },
+                    }
+                },
+            },
         });
 
         return NextResponse.json(stats, { status: 200 });
