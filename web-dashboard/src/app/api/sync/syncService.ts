@@ -1,5 +1,6 @@
 import prisma from "@/utils/prisma";
 import { checkBadges } from "../badges/checkBadgesService";
+import { syncStats } from "../stats/statsSyncService";
 
 export class TooManyRequestsError extends Error {
     retryAfter: number;
@@ -25,7 +26,7 @@ export async function syncWithGithub(accountId: string) {
         }
 
         await checkBadges(accountId);
-        // await checkStats(accountId);
+        await syncStats(accountId);
         // await checkLevel(accountId);
 
         await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } });

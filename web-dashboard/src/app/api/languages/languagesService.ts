@@ -2,6 +2,7 @@ import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
 import { languageQuery } from "./languageUtils";
 import { QueryResult } from "./languageUtils";
+import { Language, Repository } from "@/utils/types";
 
 export async function languagesServices(accountId: string) {
   try {
@@ -80,8 +81,7 @@ export async function languagesServices(accountId: string) {
       } catch (error) {
         console.error("Error occurred:", error);
         throw new Error(
-          `An error occurred while fetching languages: ${
-            (error as Error).message
+          `An error occurred while fetching languages: ${(error as Error).message
           }`
         );
       }
@@ -91,6 +91,31 @@ export async function languagesServices(accountId: string) {
     console.error("Error occurred:", error);
     throw new Error(
       `An error occurred while fetching languages: ${(error as Error).message}`
+    );
+  }
+}
+
+export async function calculateLanguageSizes(accountId: string) { // Finds all languages used in all repos, and sums the bytes written in each language
+  try {
+    const sizes: { [key: string]: number } = {}; // Key is a language name, value is the total bytes written in that language
+    const data = await languagesServices(accountId);
+
+    data.forEach((repo: Repository) => {
+      repo.node.languages.edges.forEach((language: Language) => {
+        if (sizes[language.node.name]) {
+          sizes[language.node.name] += language.size;
+        } else {
+          sizes[language.node.name] = language.size;
+        }
+      });
+    });
+
+    return sizes;
+  } catch (error) {
+    console.error("Error occurred:", error);
+    throw new Error(
+      `An error occurred while preparing languages for DB: ${(error as Error).message
+      }`
     );
   }
 }
