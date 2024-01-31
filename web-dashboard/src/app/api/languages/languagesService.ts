@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
-import { languageQuery } from "./languageUtils";
-import { QueryResult } from "./languageUtils";
+import { languageQuery } from "./languagesUtils";
+import { QueryResult } from "./languagesUtils";
 
 export async function languagesServices(accountId: string) {
   try {

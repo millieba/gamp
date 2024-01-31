@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { QueryResult } from "@/app/api/languages/languageUtils";
+import { QueryResult } from "@/app/api/languages/languagesUtils";
 import * as d3 from "d3";
 import React from "react";
 import { calculatePercentage } from "@/utils/utils";
