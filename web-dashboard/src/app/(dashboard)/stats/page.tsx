@@ -3,10 +3,12 @@ import StatBox from "@/components/atoms/StatBox";
 import { useEffect, useState } from "react";
 import { RepositoryDetails } from "@/utils/types";
 import FetchLanguages from "@/components/atoms/FetchLanguages";
+import { useSyncContext } from "@/contexts/SyncContext";
 
 const StatsPage = () => {
   const [fetchedData, setFetchedData] = useState<RepositoryDetails[]>();
   const [error, setError] = useState<Boolean>(false);
+  const { stats, isLoading } = useSyncContext();
 
   useEffect(() => {
     const getData = async () => {

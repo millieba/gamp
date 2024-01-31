@@ -1,6 +1,5 @@
 import { SessionProvider } from 'next-auth/react';
-import { BadgesProvider } from '@/contexts/BadgesContext';
-import { StatsProvider } from '@/contexts/StatsContext';
+import { SyncProvider } from '@/contexts/SyncContext';
 
 type Props = {
     children: React.ReactNode;
@@ -9,9 +8,7 @@ type Props = {
 export const Providers = ({ children }: Props) => {
     return (
         <SessionProvider>
-            <StatsProvider>
-                <BadgesProvider>{children}</BadgesProvider>
-            </StatsProvider>
+            <SyncProvider>{children}</SyncProvider>
         </SessionProvider>
     );
 };

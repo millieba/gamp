@@ -91,8 +91,10 @@ model GitHubStats {
 model ProgrammingLanguage {
   id            String @id @default(cuid())
   name          String
-  codeLines     Int    @map("code_lines")
+  bytesWritten  Int    @map("bytes_written")
   githubStatsId String @map("github_stats_id")
 
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id])
+  
+  @@map("programming_languages")
 }
