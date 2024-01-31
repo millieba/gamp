@@ -1,9 +1,10 @@
 import prisma from "@/utils/prisma";
-import { getCommitsCount } from "../commits/commitsService";
+import { fetchCommitCount } from "../commits/commitsService";
 
-async function checkCommitsCountBadges(accountId: string) {
-    const res = await (await getCommitsCount()).json();
-    const commitsCount = res.totalCommits;
+async function checkCommitCountBadges(accountId: string) {
+    // TODO: Consider calling getCommitCountFromDB() instead of fetchCommitCount() to avoid unnecessary API calls.
+    // However, would have to make sure that stats are synced before checking badges.
+    const commitCount = (await fetchCommitCount(accountId)).commitCount;
 
     // Fetch all badges of type "commits_count" from the database
     const badges = await prisma.badge.findMany({
@@ -11,7 +12,7 @@ async function checkCommitsCountBadges(accountId: string) {
     });
 
     for (const badge of badges) {
-        if (commitsCount >= badge.threshold) {
+        if (commitCount >= badge.threshold) {
             // Assign the badge to the user by adding it to the user's account
             await prisma.account.update({
                 where: { id: accountId },
@@ -26,5 +27,5 @@ async function checkCommitsCountBadges(accountId: string) {
 }
 
 export async function checkBadges(accountId: string) {
-    await checkCommitsCountBadges(accountId);
+    await checkCommitCountBadges(accountId);
 }

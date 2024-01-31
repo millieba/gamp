@@ -17,8 +17,7 @@ export const GET = async () => {
         if (error instanceof TooManyRequestsError) {
             return NextResponse.json({ error: error.message, retryAfter: error.retryAfter }, { status: 429 });
         } else {
-            const errorMessage = (error instanceof Error) ? error.message : 'Internal Server Error';
-            return NextResponse.json({ error: errorMessage }, { status: 500 });
+            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     }
 };

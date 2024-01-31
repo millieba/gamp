@@ -1,10 +1,9 @@
 import prisma from "@/utils/prisma";
+import { getLoggedInAccount } from "@/utils/user";
 import { Octokit } from "@octokit/rest";
 
 export async function fetchRepoCount(accountId: string) {
-    const loggedInAccount = await prisma.account.findUnique({
-        where: { id: accountId, provider: "github" },
-    });
+    const loggedInAccount = await getLoggedInAccount(accountId);
 
     const octokit = new Octokit({
         auth: `token ${loggedInAccount?.access_token}`,
@@ -18,14 +17,13 @@ export async function fetchRepoCount(accountId: string) {
         return { repoCount };
     }
     catch (error) {
-        console.log(error);
+        console.error("An error occurred while counting repos:", error);
+        throw error;
     }
 };
 
 export async function fetchRepos(accountId: string) {
-    const loggedInAccount = await prisma.account.findUnique({
-        where: { id: accountId, provider: "github" },
-    });
+    const loggedInAccount = await getLoggedInAccount(accountId);
 
     const octokit = new Octokit({
         auth: `token ${loggedInAccount?.access_token}`,
@@ -43,9 +41,23 @@ export async function fetchRepos(accountId: string) {
                 description: repo.description,
             };
         });
-        return {repos: repoData};
+        return { repos: repoData };
 
     } catch (error) {
-        console.log(error);
+        console.error("An error occurred while fetching all repos:", error);
+        throw error;
+    }
+}
+
+export async function getRepoCountFromDB(accountId: string) {
+    try {
+        const repoCount = await prisma.gitHubStats.findUnique({
+            where: { accountId: accountId },
+            select: { repoCount: true },
+        });
+        return repoCount;
+    } catch (error) {
+        console.error("An error occurred while fetching repo count from database:", error);
+        throw error;
     }
 }

@@ -31,7 +31,7 @@ export const GET = async () => {
 
         return NextResponse.json(stats, { status: 200 });
     } catch (error) {
-        console.error(error);
+        console.error("An error occurred while getting stats from the database:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 };

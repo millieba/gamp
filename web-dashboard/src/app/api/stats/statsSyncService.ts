@@ -1,11 +1,11 @@
 import prisma from "@/utils/prisma";
-import { getCommitsCount } from "../commits/commitsService";
+import { fetchCommitCount } from "../commits/commitsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { calculateLanguageSizes } from "../languages/languagesService";
 
 export async function syncStats(accountId: string) {
     try {
-        const commitsCount = await (await getCommitsCount()).json();
+        const commitCount = await fetchCommitCount(accountId);
         const repoCount = await fetchRepoCount(accountId);
 
         const languages = await calculateLanguageSizes(accountId);
@@ -16,7 +16,7 @@ export async function syncStats(accountId: string) {
         await prisma.gitHubStats.upsert({
             where: { accountId: accountId },
             update: {
-                commitCount: commitsCount?.totalCommits, // TODO: It is very goofy to call this commitCount one place and commitsCount another. Fix plz.
+                commitCount: commitCount?.commitCount,
                 repoCount: repoCount?.repoCount,
                 programmingLanguages: {
                     deleteMany: {}, // Delete all existing languages, then re-create them
@@ -26,7 +26,7 @@ export async function syncStats(accountId: string) {
             create: {
                 accountId: accountId,
                 repoCount: repoCount?.repoCount,
-                commitCount: commitsCount?.totalCommits,
+                commitCount: commitCount?.commitCount,
                 programmingLanguages: {
                     create: languagesArray,
                 },

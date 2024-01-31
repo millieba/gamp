@@ -18,7 +18,7 @@ export const GET = async () => {
 
         return NextResponse.json(badges, { status: 200 });
     } catch (error) {
-        console.error(error);
+        console.error("An error occurred while getting badges from the database:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 };

@@ -90,7 +90,7 @@ export const GET = async () => {
 
     return NextResponse.json({ contributions: user.contributionsCollection }, { status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error("An error occurred while fetching contributions:", error);
     return NextResponse.json({ error: 'An error occurred while fetching contributions' }, { status: 500 });
   }
 };
