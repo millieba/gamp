@@ -1,19 +1,9 @@
-import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
 import prisma from "@/utils/prisma";
-import { getServerSession } from "next-auth";
-import { options } from "../auth/[...nextauth]/options";
+import { getLoggedInAccount } from "@/utils/user";
 
-export async function getCommitsCount() {
-    const session = await getServerSession(options)
-
-    if (!session || !session.user || !session.user.email) {
-        return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
-    }
-
-    const loggedInAccount = await prisma.account.findFirst({
-        where: { userId: session?.user?.userId, provider: "github" },
-    });
+export async function fetchCommitCount(accountId: string) {
+    const loggedInAccount = await getLoggedInAccount(accountId);
 
     const octokit = new Octokit({
         auth: `token ${loggedInAccount?.access_token}`,
@@ -39,23 +29,16 @@ export async function getCommitsCount() {
             page++;
         }
 
-        return NextResponse.json({ totalCommits: totalCommits }, { status: 200 });
+        return { commitCount: totalCommits };
     } catch (error) {
-        return NextResponse.json({ error }, { status: 500 });
+        console.error("An error occurred while counting commits:", error);
+        throw error;
     }
 }
 
-export async function getAllCommits() {
+export async function fetchAllCommits(accountId: string) {
     try {
-        const session = await getServerSession(options);
-
-        if (!session || !session.user || !session.user.email) {
-            return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
-        }
-
-        const loggedInAccount = await prisma.account.findFirst({
-            where: { userId: session?.user?.userId, provider: "github" },
-        });
+        const loggedInAccount = await getLoggedInAccount(accountId);
 
         const octokit = new Octokit({
             auth: `token ${loggedInAccount?.access_token}`,
@@ -94,10 +77,22 @@ export async function getAllCommits() {
             message: commit.commit.message,
         }));
 
-
-        return NextResponse.json({ commits: allCommits }, { status: 200 });
+        return { commits: allCommits };
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        console.error("An error occurred while getting all commits:", error);
+        throw error;
+    }
+}
+
+export async function getCommitCountFromDB(accountId: string) {
+    try {
+        const commitCount = await prisma.gitHubStats.findUnique({
+            where: { accountId: accountId },
+            select: { commitCount: true },
+        });
+        return commitCount;
+    } catch (error) {
+        console.error("An error occurred while fetching commit count from database:", error);
+        throw error;
     }
 }
