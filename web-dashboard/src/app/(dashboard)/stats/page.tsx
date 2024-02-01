@@ -1,45 +1,16 @@
 "use client";
 import StatBox from "@/components/atoms/StatBox";
-import { useEffect, useState } from "react";
-import { RepositoryDetails } from "@/utils/types";
 import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const StatsPage = () => {
-  const [fetchedData, setFetchedData] = useState<RepositoryDetails[]>();
-  const [error, setError] = useState<Boolean>(false);
-  const { stats, isLoading } = useSyncContext();
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await fetch("/api/repos");
-        const data = await response.json();
-        const dataDict: RepositoryDetails[] =
-          data.repos?.map(
-            (repo: RepositoryDetails) => ({
-              name: repo.name,
-              owner: repo.owner,
-              description: repo.description,
-            })
-          ) || [];
-        setFetchedData(dataDict);
-      } catch (error) {
-        setError(true);
-      }
-    };
-    getData();
-  }, []);
-
-  if (error) return <div>There was an error</div>;
-
-  if (!fetchedData) return <div>Loading...</div>;
-
-  const numberOfRepos = fetchedData.length;
+  const { isLoading } = useSyncContext();
 
   return (
     <>
       <h1 className="text-2xl">Stats</h1>
+      {isLoading ? <p>Loading...</p> 
+      : 
       <StatBox
         name={"Most used languages"}
         description={
@@ -48,7 +19,9 @@ const StatsPage = () => {
         content={<LanguageChart />}
         maxWidth="500px"
       />
-      <p>
+      }
+      </>
+      /* <p>
         You have access to {numberOfRepos} repositories on GitHub.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:px-4">
@@ -60,7 +33,7 @@ const StatsPage = () => {
           />
         ))}
       </div>
-    </>
+    </> */
   );
 };
 

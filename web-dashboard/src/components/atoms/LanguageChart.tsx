@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import React from "react";
 import { calculatePercentage } from "@/utils/utils";
 import { DataItem, PieArcDatum, Language, Repository, Data } from "@/utils/types";
+import { ProgrammingLanguage, useSyncContext } from "@/contexts/SyncContext";
 
 
 const margin = 7;
@@ -16,51 +17,23 @@ const outerRadius = radius;
 const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
 const LanguageChart = () => {
-  const [repositories, setRepositories] = useState<
-    QueryResult["user"]["repositories"] | null
-  >(null);
-  const [error, setError] = useState<string | null>(null);
   const [languageSizes, setLanguageSizes] = useState<{ [key: string]: number }>(
     {}
   );
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/languages/");
-      const data = await response.json();
-
-      if (response.ok) {
-        setRepositories(data);
-
-        // Calculate language sizes
-        const sizes: { [key: string]: number } = {};
-        data.forEach((repo: Repository) => {
-          repo.node.languages.edges.forEach((language: Language) => {
-            if (sizes[language.node.name]) {
-              sizes[language.node.name] += language.size;
-            } else {
-              sizes[language.node.name] = language.size;
-            }
-          });
-        });
-        setLanguageSizes(sizes);
-        setIsLoading(false);
-      } else {
-        setError(data.error);
-      }
-    } catch (error) {
-      console.error("An error occurred while fetching data:", error);
-      setError("An error occurred while fetching data");
-      setIsLoading(false);
-    }
-  };
+  const { stats, isLoading } = useSyncContext();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const sizes: { [key: string]: number } = {};
+    stats?.programmingLanguages.forEach((repo: ProgrammingLanguage) => {
+        if (sizes[repo.name]) {
+          sizes[repo.name] += repo.bytesWritten;
+        } else {
+          sizes[repo.name] = repo.bytesWritten;
+        }
+    });
+    setLanguageSizes(sizes);
+  }, [stats]);
 
   // Sort the languages by decreasing size in bytes
   const sortedLanguages: DataItem[] = Object.entries(languageSizes)
@@ -94,10 +67,6 @@ const LanguageChart = () => {
   const total = d3.sum(sortedLanguages, (d: DataItem) => d.value);
 
   return (
-    <>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
         <>
           <div
             className="grid xs:grid-cols-1 md:grid-cols-2 justify-center"
@@ -176,8 +145,6 @@ const LanguageChart = () => {
             ))}
           </p>
         </>
-      )}
-    </>
   );
 };
 
