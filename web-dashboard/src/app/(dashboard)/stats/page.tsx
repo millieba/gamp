@@ -13,12 +13,13 @@ const StatsPage = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch("/api/repositories");
+        const response = await fetch("/api/repos");
         const data = await response.json();
         const dataDict: RepositoryDetails[] =
-          data.repos?.data.map(
-            (repo: { name: string; description: string }) => ({
+          data.repos?.map(
+            (repo: RepositoryDetails) => ({
               name: repo.name,
+              owner: repo.owner,
               description: repo.description,
             })
           ) || [];
@@ -51,10 +52,10 @@ const StatsPage = () => {
         You have access to {numberOfRepos} repositories on GitHub.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:px-4">
-        {fetchedData.map((repo: { name: string, description: string }, index: number) => (
+        {fetchedData.map((repo: RepositoryDetails, index: number) => (
           <StatBox
             key={index}
-            name={repo.name}
+            name={`${repo.owner}/${repo.name}`}
             description={repo.description}
           />
         ))}

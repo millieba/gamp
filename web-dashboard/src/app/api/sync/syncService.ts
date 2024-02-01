@@ -31,7 +31,13 @@ export async function syncWithGithub(accountId: string) {
 
         await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } });
     } catch (error) {
-        if (error instanceof TooManyRequestsError) throw error;
-        else throw new Error((error instanceof Error) ? error.message : 'Internal Server Error');
+        if (error instanceof TooManyRequestsError) {
+            console.error("Throttling sync for account " + accountId + " for " + error.retryAfter + " seconds");
+            throw error;
+        }
+        else {
+            console.error(`An error occurred while syncing account ${accountId}:`, error);
+            throw error;
+        }
     }
 }
