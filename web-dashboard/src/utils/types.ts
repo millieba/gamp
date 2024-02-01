@@ -1,5 +1,6 @@
 export interface RepositoryDetails {
   name: string;
+  owner: string;
   description: string;
 }
 

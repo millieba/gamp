@@ -94,7 +94,7 @@ model ProgrammingLanguage {
   bytesWritten  Int    @map("bytes_written")
   githubStatsId String @map("github_stats_id")
 
-  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id])
+  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
   
   @@map("programming_languages")
 }
