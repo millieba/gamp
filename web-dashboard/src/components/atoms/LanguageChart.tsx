@@ -15,7 +15,7 @@ const innerRadius = 2;
 const outerRadius = radius;
 const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
-const FetchLanguages = () => {
+const LanguageChart = () => {
   const [repositories, setRepositories] = useState<
     QueryResult["user"]["repositories"] | null
   >(null);
@@ -181,4 +181,4 @@ const FetchLanguages = () => {
   );
 };
 
-export default FetchLanguages;
+export default LanguageChart;
