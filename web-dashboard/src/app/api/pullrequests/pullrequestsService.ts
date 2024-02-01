@@ -1,11 +1,9 @@
 import { graphql } from "@octokit/graphql";
-import prisma from "@/utils/prisma";
 import { pullrequestsQuery, QueryResult } from "./pullrequestsUtils";
+import { getLoggedInAccount } from "@/utils/user";
 
 export async function pullrequestsService(accountId: string) {
-  const loggedInAccount = await prisma.account.findUnique({
-    where: { id: accountId },
-  });
+  const loggedInAccount = await getLoggedInAccount(accountId);
 
   const graphqlWithAuth = graphql.defaults({
     headers: {
@@ -66,8 +64,8 @@ export async function pullrequestsService(accountId: string) {
         }
       }
     } catch (error) {
-      console.error(error);
-      break;
+      console.error("An error occurred while fetching pull requests:", error);
+      throw error;
     }
   }
   return allData;

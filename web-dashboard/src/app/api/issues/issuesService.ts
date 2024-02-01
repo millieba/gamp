@@ -1,12 +1,10 @@
-import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
 import { issuesQuery, QueryResult } from "./issuesUtils";
+import { getLoggedInAccount } from "@/utils/user";
 
 export async function issuesService(accountId: string) {
   try {
-    const loggedInAccount = await prisma.account.findUnique({
-      where: { id: accountId },
-    });
+    const loggedInAccount = await getLoggedInAccount(accountId);
 
     const graphqlWithAuth = graphql.defaults({
       headers: {
@@ -63,19 +61,13 @@ export async function issuesService(accountId: string) {
         hasNextPageIssues = result.user.issues.pageInfo.hasNextPage;
         afterCursorIssues = result.user.issues.pageInfo.endCursor;
       } catch (error) {
-        console.error("Error occurred:", error);
-        throw new Error(
-          `An error occurred while fetching issues: ${
-            (error as Error).message
-          }`
-        );
+        console.error("An error occurred while paginating and fetching issues:", error);
+        throw error;
       }
     }
     return allData;
   } catch (error) {
-    console.error("Error occurred:", error);
-    throw new Error(
-      `An error occurred while fetching issues: ${(error as Error).message}`
-    );
+    console.error("An error occurred while fetching issues:", error);
+    throw error;
   }
 }
