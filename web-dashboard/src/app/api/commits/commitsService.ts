@@ -85,10 +85,14 @@ export async function fetchAllCommits(accountId: string) {
 }
 
 export async function getCommitCountFromDB(accountId: string) {
-    const commitCount = await prisma.gitHubStats.findUnique({
-        where: { accountId: accountId },
-        select: { commitCount: true },
-    });
-
-    return commitCount;
+    try {
+        const commitCount = await prisma.gitHubStats.findUnique({
+            where: { accountId: accountId },
+            select: { commitCount: true },
+        });
+        return commitCount;
+    } catch (error) {
+        console.error("An error occurred while fetching commit count from database:", error);
+        throw error;
+    }
 }

@@ -37,3 +37,25 @@ export async function syncStats(accountId: string) {
         throw error; // re-throw the error so it can be caught and handled by the calling function
     }
 }
+
+export async function getStatsFromDB(accountId: string) {
+    try {
+        const stats = await prisma.gitHubStats.findUnique({
+            where: { accountId: accountId },
+            select: {
+                commitCount: true,
+                repoCount: true,
+                programmingLanguages: {
+                    select: {
+                        name: true,
+                        bytesWritten: true,
+                    },
+                },
+            },
+        });
+        return { githubStats: stats };
+    } catch (error) {
+        console.error(`An error occurred while getting stats for account ${accountId} from the database:`, error);
+        throw error;
+    }
+}
