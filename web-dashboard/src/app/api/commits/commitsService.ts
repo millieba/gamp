@@ -3,35 +3,22 @@ import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
 
 export async function fetchCommitCount(accountId: string) {
-    const loggedInAccount = await getLoggedInAccount(accountId);
-
-    const octokit = new Octokit({
-        auth: `token ${loggedInAccount?.access_token}`,
-    });
-    const { data: user } = await octokit.users.getAuthenticated();
-    const username = user.login;
-
     try {
-        let hasNextPage = true;
-        let totalCommits = 0;
-        let page = 1;
+        const loggedInAccount = await getLoggedInAccount(accountId);
+        const octokit = new Octokit({
+            auth: `token ${loggedInAccount?.access_token}`,
+        });
+        const { data: user } = await octokit.users.getAuthenticated();
+        const username = user.login;
 
-        while (hasNextPage) {
-            const commits = await octokit.request("GET /search/commits", {
-                q: `author:${username}`,
-                per_page: 100, // Get 100 results per page
-                page: page,
-            });
-            totalCommits += commits.data.items.length;
+        const commits = await octokit.request("GET /search/commits", {
+            q: `author:${username}`,
+        });
+        const commitCount = commits.data.total_count;
 
-            // Check if there are more pages
-            hasNextPage = commits.headers.link?.includes('rel="next"') || false;
-            page++;
-        }
-
-        return { commitCount: totalCommits };
+        return { commitCount: commitCount };
     } catch (error) {
-        console.error("An error occurred while counting commits:", error);
+        console.error("An error occurred while counting all commits:", error);
         throw error;
     }
 }
@@ -49,7 +36,7 @@ export async function fetchAllCommits(accountId: string) {
         const username = user.login;
 
         let hasNextPage = true;
-        let allCommits: any[] = []; // TODO: Type this
+        let allCommits = [];
         let page = 1;
 
         while (hasNextPage) {
@@ -59,23 +46,25 @@ export async function fetchAllCommits(accountId: string) {
                 page: page,
             });
 
-            allCommits = [...allCommits, ...commits.data.items];
+            for (let i = 0; i < commits.data.items.length; i++) {
+                const commit = commits.data.items[i];
+                allCommits.push({
+                    committer: {
+                        date: commit.commit.committer?.date,
+                        email: commit.commit.committer?.email,
+                        name: commit.commit.committer?.name,
+                    },
+                    repositoryName: commit.repository.name,
+                    repositoryOwner: commit.repository.owner.login,
+                    date: commit.commit.author.date,
+                    message: commit.commit.message,
+                });
+            }
 
             // Check if there are more pages
             hasNextPage = commits.headers.link?.includes('rel="next"') || false;
             page++;
         }
-
-        allCommits = allCommits.map((commit) => ({
-            committer: {
-                date: commit.commit.committer.date,
-                email: commit.commit.committer.email,
-                name: commit.commit.committer.name,
-            },
-            repositoryName: commit.repository.name,
-            date: commit.commit.author.date,
-            message: commit.commit.message,
-        }));
 
         return { commits: allCommits };
     } catch (error) {
