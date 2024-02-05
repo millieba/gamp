@@ -28,19 +28,33 @@ export async function fetchRepos(accountId: string) {
     const octokit = new Octokit({
         auth: `token ${loggedInAccount?.access_token}`,
     });
+    
+    let hasNextPage = true;
+    let repoData = [];
+    let page = 1;
 
     try {
-        const repos = await octokit.request("GET /user/repos", {
-            owner: loggedInAccount?.providerAccountId,
-        });
+        while (hasNextPage) {
+            const repos = await octokit.request("GET /user/repos", {
+                owner: loggedInAccount?.providerAccountId,
+                per_page: 100, // Fetch 100 repos per page
+                page: page, // Fetch the specified page
+            });
 
-        const repoData = repos.data.map((repo) => {
-            return {
-                name: repo.name,
-                owner: repo.owner.login,
-                description: repo.description,
-            };
-        });
+            for (let i = 0; i < repos.data.length; i++) {
+                const repo = repos.data[i];
+                repoData.push({
+                    name: repo.name,
+                    owner: repo.owner.login,
+                    description: repo.description,
+                });
+            }
+
+            // Check if there are more pages
+            hasNextPage = repos.headers.link?.includes('rel="next"') || false;
+            page++;
+        }
+
         return { repos: repoData };
 
     } catch (error) {
