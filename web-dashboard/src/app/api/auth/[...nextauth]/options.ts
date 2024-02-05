@@ -4,8 +4,6 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from '@/utils/prisma';
 
 const adapter = PrismaAdapter(prisma);
-const relative_expires_at = 3600; // Expire sessions and access tokens after 1 hour
-const expires_at = Math.floor(Date.now() / 1000) + relative_expires_at;
 
 async function deleteTokenFromGitHub(accessToken: string, clientId: string, clientSecret: string) {
     const apiUrl = `https://api.github.com/applications/${clientId}/token`;
@@ -47,7 +45,7 @@ export const options: NextAuthOptions = {
         }),
     ],
     session: {
-        maxAge: relative_expires_at,
+        maxAge: 3600, // Expire sessions after 1 hour since access tokens do and cannot currently be refreshed
     },
     callbacks: {
         async session({ session, user }) {
@@ -82,6 +80,8 @@ export const options: NextAuthOptions = {
             return session;
         },
         async signIn({ user, account }) {
+            const expires_at = Math.floor(Date.now() / 1000) + 3600; // Set access token to expire in 1 hour
+
             if (user && account && adapter) {
                 try {
                     // In our app, one user can have many accounts, but one account can only belong to one user
