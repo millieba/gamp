@@ -3,18 +3,9 @@ import { getLoggedInAccount } from "@/utils/user";
 import { Octokit } from "@octokit/rest";
 
 export async function fetchRepoCount(accountId: string) {
-    const loggedInAccount = await getLoggedInAccount(accountId);
-
-    const octokit = new Octokit({
-        auth: `token ${loggedInAccount?.access_token}`,
-    });
-
     try {
-        const repos = await octokit.request("GET /user/repos", {
-            owner: loggedInAccount?.providerAccountId,
-        });
-        const repoCount = repos.data.length;
-        return { repoCount };
+        const repos = await fetchRepos(accountId);
+        return { repoCount: repos.repos.length };
     }
     catch (error) {
         console.error("An error occurred while counting repos:", error);
