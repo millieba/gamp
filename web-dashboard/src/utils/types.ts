@@ -49,7 +49,7 @@ export interface Organizations {
   nodes: OrganizationNode[];
 }
 
-// Types and interfaces for FetchLanguages.tsx
+// Types and interfaces for LanguageChart.tsx
 export type DataItem = {
   name: string;
   value: number;

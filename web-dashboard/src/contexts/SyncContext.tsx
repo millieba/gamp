@@ -10,7 +10,7 @@ export interface Stats {
 
 export interface ProgrammingLanguage {
     name: string;
-    codeBytes: number;
+    bytesWritten: number;
 }
 
 export async function sync(
@@ -34,14 +34,14 @@ export async function sync(
 export async function fetchFromDB(
     setIsLoading: Dispatch<SetStateAction<boolean>>,
     setBadges: Dispatch<SetStateAction<Badge[]>>,
-    setStats: Dispatch<SetStateAction<Stats | undefined>>
+     setStats: Dispatch<SetStateAction<Stats | undefined>>
 ) {
     try {
         setIsLoading(true);
         const badgesData = await fetch(`api/badges`).then((res) => res.json());
         setBadges(badgesData.badges);
         const statsData = await fetch(`api/stats`).then((res) => res.json());
-        setStats(statsData.stats);
+        setStats(statsData.githubStats);
     } catch (error) {
         console.error(error);
     } finally {
