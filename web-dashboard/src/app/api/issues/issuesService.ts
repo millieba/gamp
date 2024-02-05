@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { issuesQuery, QueryResult } from "./issuesUtils";
+import { QueryResult } from "./issuesUtils";
 import { getLoggedInAccount } from "@/utils/user";
 
 export async function issuesService(accountId: string) {
@@ -22,6 +22,31 @@ export async function issuesService(accountId: string) {
   `)
     ).viewer.login;
 
+    const issuesQuery = `
+query ($afterIssues: String) {
+  search(query: "is:issue assignee:${username}", type: ISSUE, first: 100, after: $afterIssues) {
+  issueCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ... on Issue {
+        title
+          url
+          createdAt
+          closedAt
+          number
+          state
+         
+        }
+      }
+    }
+  }
+}
+  `;
+
     let allData = [];
     let hasNextPageIssues = true;
     let afterCursorIssues = null;
@@ -31,25 +56,25 @@ export async function issuesService(accountId: string) {
         const result: QueryResult = await graphqlWithAuth<QueryResult>(
           issuesQuery,
           {
-            username: username,
             afterIssues: afterCursorIssues,
           }
         );
 
-        if (!result.user) {
+        if (!result.search) {
           throw new Error("No data returned from GraphQL server");
         }
 
-        if (hasNextPageIssues) {
-          if (result.user.issues) {
-            allData.push(...result.user.issues.edges);
-          }
+        if (result.search) {
+          allData.push(result.search);
         }
 
-        hasNextPageIssues = result.user.issues.pageInfo.hasNextPage;
-        afterCursorIssues = result.user.issues.pageInfo.endCursor;
+        hasNextPageIssues = result.search.pageInfo.hasNextPage;
+        afterCursorIssues = result.search.pageInfo.endCursor;
       } catch (error) {
-        console.error("An error occurred while paginating and fetching issues:", error);
+        console.error(
+          "An error occurred while paginating and fetching issues:",
+          error
+        );
         throw error;
       }
     }
