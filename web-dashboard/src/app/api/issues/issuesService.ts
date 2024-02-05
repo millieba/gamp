@@ -26,17 +26,13 @@ export async function issuesService(accountId: string) {
     let hasNextPageIssues = true;
     let afterCursorIssues = null;
 
-    let hasNextPageAssignee = true;
-    let afterCursorAssignee = null;
-
-    while (hasNextPageIssues || hasNextPageAssignee) {
+    while (hasNextPageIssues) {
       try {
         const result: QueryResult = await graphqlWithAuth<QueryResult>(
           issuesQuery,
           {
             username: username,
-            afterCursorIssues,
-            afterCursorAssignee,
+            afterIssues: afterCursorIssues,
           }
         );
 
@@ -47,14 +43,6 @@ export async function issuesService(accountId: string) {
         if (hasNextPageIssues) {
           if (result.user.issues) {
             allData.push(...result.user.issues.edges);
-          }
-        }
-
-        for (const edge of result.user.issues.edges) {
-          if (hasNextPageAssignee) {
-            allData.push(...edge.node.assignees.edges.map((edge) => edge.node));
-            hasNextPageAssignee = edge.node.assignees.pageInfo.hasNextPage;
-            afterCursorAssignee = edge.node.assignees.pageInfo.endCursor;
           }
         }
 

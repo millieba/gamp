@@ -33,7 +33,7 @@ export interface QueryResult {
 }
 
 export const issuesQuery = `
-  query ($username: String!, $afterIssues: String, $afterAssignees: String) {
+  query ($username: String!, $afterIssues: String) {
     user(login: $username) {
       issues(first: 100, after: $afterIssues) {
         pageInfo {
@@ -42,7 +42,7 @@ export const issuesQuery = `
         }
         edges {
           node {
-            assignees(first: 100, after: $afterAssignees) {
+            assignees(first: 100) {
               pageInfo {
                 hasNextPage
                 endCursor
