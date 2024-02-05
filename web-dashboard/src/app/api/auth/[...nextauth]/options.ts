@@ -4,6 +4,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from '@/utils/prisma';
 
 const adapter = PrismaAdapter(prisma);
+const relative_expires_at = 3600; // Expire sessions and access tokens after 1 hour
+const expires_at = Math.floor(Date.now() / 1000) + relative_expires_at;
 
 async function deleteTokenFromGitHub(accessToken: string, clientId: string, clientSecret: string) {
     const apiUrl = `https://api.github.com/applications/${clientId}/token`;
@@ -44,6 +46,9 @@ export const options: NextAuthOptions = {
             },
         }),
     ],
+    session: {
+        maxAge: relative_expires_at,
+    },
     callbacks: {
         async session({ session, user }) {
             const [githubAccount] = await prisma.account.findMany({
@@ -54,6 +59,7 @@ export const options: NextAuthOptions = {
             if (!githubAccount.expires_at) return session;
 
             if (githubAccount.expires_at * 1000 < Date.now() && session.error !== "RefreshAccessTokenError") {
+                session.error = "RefreshAccessTokenError";
                 try {
                     console.log("Deleting access token", githubAccount.access_token);
                     await deleteTokenFromGitHub(
@@ -61,9 +67,9 @@ export const options: NextAuthOptions = {
                         process.env.GITHUB_ID as string,
                         process.env.GITHUB_SECRET as string
                     );
+                    // Delete the user's sessions as their access token is no longer valid
+                    await prisma.session.deleteMany({ where: { userId: user.id } });
 
-                    // Setting the session error will trigger sign out which will redirect the user to the sign in page to refresh the access token
-                    session.error = "RefreshAccessTokenError";
                 } catch (error) {
                     console.error("Error deleting access token", error);
                     session.error = "DeleteAccessTokenError";
@@ -76,8 +82,6 @@ export const options: NextAuthOptions = {
             return session;
         },
         async signIn({ user, account }) {
-            const expires_at = Math.floor(Date.now() / 1000) + 3600; // Set access token to expire in 1 hour
-
             if (user && account && adapter) {
                 try {
                     // In our app, one user can have many accounts, but one account can only belong to one user
