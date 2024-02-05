@@ -20,7 +20,7 @@ const ProfilePicture = () => {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
-      redirect("/api/auth/signin") // If the user is not authenticated, or their access token has expired, redirect to the login page
+      redirect("/api/auth/signin") // Redirect to the sign in page if the user is not authenticated or their access token has expired
     }
   }, [session, status]);
 

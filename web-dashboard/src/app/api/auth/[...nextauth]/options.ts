@@ -59,7 +59,7 @@ export const options: NextAuthOptions = {
             if (!githubAccount.expires_at) return session;
 
             if (githubAccount.expires_at * 1000 < Date.now() && session.error !== "RefreshAccessTokenError") {
-                session.error = "RefreshAccessTokenError";
+                session.error = "RefreshAccessTokenError"; // This tells the frontend that the access token needs to be refreshed, e.g. through signing in again
                 try {
                     console.log("Deleting access token", githubAccount.access_token);
                     await deleteTokenFromGitHub(
