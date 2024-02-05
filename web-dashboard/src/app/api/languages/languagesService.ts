@@ -1,7 +1,6 @@
 import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
-import { languageQuery } from "./languageUtils";
-import { QueryResult } from "./languageUtils";
+import { languageQuery, QueryResult } from "./languagesUtils";
 import { Language, Repository } from "@/utils/types";
 import { getLoggedInAccount } from "@/utils/user";
 
