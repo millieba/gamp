@@ -79,6 +79,8 @@ model GitHubStats {
   commitCount          Int?                  @map("commit_count")
   repoCount            Int?                  @map("repo_count")
   issueCount           Int?                  @map("issue_count")
+  avgTimeToCloseIssues Int?                  @map("avg_time_to_close_issues")
+  closedIssueCount     Int?                  @map("closed_issue_count")
   languagesCount       Int?                  @map("languages_count")
   programmingLanguages ProgrammingLanguage[]
 

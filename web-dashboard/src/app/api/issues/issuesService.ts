@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
-import { QueryResult } from "./issuesUtils";
+import { AllData, QueryResult } from "./issuesUtils";
 import { getLoggedInAccount } from "@/utils/user";
 
 export async function fetchIssueCount(accountId: string) {
@@ -65,7 +65,7 @@ query ($afterIssues: String) {
           throw new Error("No data returned from GraphQL server");
         }
 
-        if (result.search) {
+        if (result) {
           allData.push(result.search);
         }
 
@@ -91,12 +91,56 @@ query ($afterIssues: String) {
 export async function issueCount(accountId: string) {
   try {
     const data = await fetchIssueCount(accountId);
-    console.log(data[0].issueCount);
-    return data[0].issueCount;
+    const issueCount = data[0].issueCount;
+    const avgTimeToCloseIssues = calculateAvgTimeToCloseIssues(data);
+    const closedIssueCount = calculateClosedIssueCount(data);
+    return [issueCount, avgTimeToCloseIssues, closedIssueCount];
   } catch (error) {
-    console.error("An error occured while trying to fetch the issueCount:", error);
+    console.error(
+      "An error occured while trying to fetch the issueCount:",
+      error
+    );
     throw error;
   }
+}
+
+// Function to calculate time difference
+function calculateTimeDifference(createdAt: string, closedAt: string): number {
+  const startDate = new Date(createdAt);
+  const endDate = new Date(closedAt);
+  return endDate.getTime() - startDate.getTime();
+}
+
+// Function to calculate average time
+export function calculateAvgTimeToCloseIssues(results: any): number {
+  let total = 0;
+  let count = 0;
+
+  for (const edge of results.edges) {
+    if (edge.node.createdAt && edge.node.closedAt) {
+      const diff = calculateTimeDifference(
+        edge.node.createdAt,
+        edge.node.closedAt
+      );
+      total += diff;
+      count++;
+    }
+  }
+
+  const avgTimeInMilliseconds = total / count;
+  const avgTimeInDays = avgTimeInMilliseconds / (1000 * 60 * 60 * 24);
+  return avgTimeInDays;
+}
+
+// Function to calculate average time
+export function calculateClosedIssueCount(results: any): number {
+  let closedIssueCount = 12;
+  for (const edge of results.edges) {
+    if (edge.node.state === "closed") {
+      closedIssueCount += 1;
+    }
+  }
+  return closedIssueCount;
 }
 
 export async function getIssueCountFromDb(accountId: string) {
