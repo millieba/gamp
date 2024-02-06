@@ -2,11 +2,13 @@ import prisma from "@/utils/prisma";
 import { fetchCommitCount } from "../commits/commitsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { calculateLanguageSizes } from "../languages/languagesService";
+import { issueCount } from "../issues/issuesService";
 
 export async function syncStats(accountId: string) {
     try {
         const commitCount = await fetchCommitCount(accountId);
         const repoCount = await fetchRepoCount(accountId);
+        const issueCountvariable = await issueCount(accountId);
 
         const languages = await calculateLanguageSizes(accountId);
         const languagesArray = Object.keys(languages).map((languageName) => { // Convert the object into an array of language objects as expected by Prisma
@@ -18,6 +20,7 @@ export async function syncStats(accountId: string) {
             update: {
                 commitCount: commitCount?.commitCount,
                 repoCount: repoCount?.repoCount,
+                issueCount: issueCountvariable,
                 programmingLanguages: {
                     deleteMany: {}, // Delete all existing languages, then re-create them
                     create: languagesArray,
@@ -27,6 +30,7 @@ export async function syncStats(accountId: string) {
                 accountId: accountId,
                 repoCount: repoCount?.repoCount,
                 commitCount: commitCount?.commitCount,
+                issueCount: issueCountvariable,
                 programmingLanguages: {
                     create: languagesArray,
                 },
@@ -45,6 +49,7 @@ export async function getStatsFromDB(accountId: string) {
             select: {
                 commitCount: true,
                 repoCount: true,
+                issueCount: true,
                 programmingLanguages: {
                     select: {
                         name: true,

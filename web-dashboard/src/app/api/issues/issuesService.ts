@@ -1,8 +1,9 @@
+import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
 import { QueryResult } from "./issuesUtils";
 import { getLoggedInAccount } from "@/utils/user";
 
-export async function issuesService(accountId: string) {
+export async function fetchIssueCount(accountId: string) {
   try {
     const loggedInAccount = await getLoggedInAccount(accountId);
 
@@ -68,6 +69,8 @@ query ($afterIssues: String) {
           allData.push(result.search);
         }
 
+        console.log(allData);
+
         hasNextPageIssues = result.search.pageInfo.hasNextPage;
         afterCursorIssues = result.search.pageInfo.endCursor;
       } catch (error) {
@@ -81,6 +84,35 @@ query ($afterIssues: String) {
     return allData;
   } catch (error) {
     console.error("An error occurred while fetching issues:", error);
+    throw error;
+  }
+}
+
+export async function issueCount(accountId: string) {
+  try {
+    const data = await fetchIssueCount(accountId);
+    console.log(data[0].issueCount);
+    return data[0].issueCount;
+  } catch (error) {
+    console.error("An error occured while trying to fetch the issueCount:", error);
+    throw error;
+  }
+}
+
+export async function getIssueCountFromDb(accountId: string) {
+  try {
+    const issueCount = await prisma.gitHubStats.findUnique({
+      where: { accountId: accountId },
+      select: {
+        issueCount: true,
+      },
+    });
+    return issueCount;
+  } catch (error) {
+    console.error(
+      `An error occurred while getting issueCount for account ${accountId} from the database:`,
+      error
+    );
     throw error;
   }
 }
