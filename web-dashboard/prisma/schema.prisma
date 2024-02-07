@@ -82,6 +82,8 @@ model GitHubStats {
   avgTimeToCloseIssues Int?                  @map("avg_time_to_close_issues")
   closedIssueCount     Int?                  @map("closed_issue_count")
   languagesCount       Int?                  @map("languages_count")
+  createdPrs           Int?                  @map("created_prs")
+  createdAndMergedPrs  Int?                  @map("created_and_merged_prs")
   programmingLanguages ProgrammingLanguage[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -97,6 +99,6 @@ model ProgrammingLanguage {
   githubStatsId String @map("github_stats_id")
 
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
-  
+
   @@map("programming_languages")
 }
