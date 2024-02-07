@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
-import { AllData, QueryResult } from "./issuesUtils";
+import { QueryResult } from "./issuesUtils";
 import { getLoggedInAccount } from "@/utils/user";
 
 export async function fetchIssueCount(accountId: string) {
@@ -112,34 +112,42 @@ function calculateTimeDifference(createdAt: string, closedAt: string): number {
 }
 
 // Function to calculate average time
-export function calculateAvgTimeToCloseIssues(results: any): number {
+export function calculateAvgTimeToCloseIssues(results: any): number | null {
   let total = 0;
   let count = 0;
 
-  for (const edge of results.edges) {
-    if (edge.node.createdAt && edge.node.closedAt) {
-      const diff = calculateTimeDifference(
-        edge.node.createdAt,
-        edge.node.closedAt
-      );
-      total += diff;
-      count++;
-    }
+  results.forEach((result: { edges: any[] }) => {
+    result.edges.forEach((edge) => {
+      if (edge.node.state === "CLOSED" && edge.node.createdAt && edge.node.closedAt) {
+        const diff = calculateTimeDifference(
+          edge.node.createdAt,
+          edge.node.closedAt
+        );
+        total += diff;
+        count++;
+      }
+    });
+  });
+
+  if (count === 0) {
+    return 0; // return null if no closed issues were found
   }
 
-  const avgTimeInMilliseconds = total / count;
-  const avgTimeInDays = avgTimeInMilliseconds / (1000 * 60 * 60 * 24);
-  return avgTimeInDays;
+  return total / count;
 }
 
 // Function to calculate average time
 export function calculateClosedIssueCount(results: any): number {
-  let closedIssueCount = 12;
-  for (const edge of results.edges) {
-    if (edge.node.state === "closed") {
-      closedIssueCount += 1;
-    }
-  }
+  let closedIssueCount = 0;
+
+  results.forEach((result: { edges: any[] }) => {
+    result.edges.forEach((edge) => {
+      if (edge.node.state === "CLOSED") {
+        closedIssueCount += 1;
+      }
+    });
+  });
+
   return closedIssueCount;
 }
 
