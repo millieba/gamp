@@ -145,6 +145,7 @@ interface Organization {
 
 interface Viewer {
     organizations: {
+        pageInfo: PageInfo;
         nodes: Organization[];
     };
     repositories: Repositories;
@@ -177,8 +178,16 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
             query getAllReposAndCommits($orgsCursor: String, $orgReposCursor: String, $viewerReposCursor: String, $orgCommitsCursor: String, $viewerCommitsCursor: String) {
                 viewer {
                   organizations(first: 50, after: $orgsCursor) {
+                    pageInfo {
+                        hasNextPage
+                        endCursor
+                    }
                     nodes {
                       repositories(first: 50, after: $orgReposCursor) {
+                        pageInfo {
+                            hasNextPage
+                            endCursor
+                        }
                         nodes {
                           nameWithOwner
                           defaultBranchRef {
@@ -214,6 +223,10 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                     }
                   }
                   repositories(first: 50, after: $viewerReposCursor) {
+                    pageInfo {
+                        hasNextPage
+                        endCursor
+                    }
                     nodes {
                       nameWithOwner
                       defaultBranchRef {
@@ -267,7 +280,8 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                     orgReposCursor = repo.defaultBranchRef.target.history.pageInfo.endCursor;
                     console.log("orgReposCursor", orgReposCursor)
                 });
-                orgsCursor = org.repositories.pageInfo.endCursor;
+                console.log(org)
+                orgsCursor = org;
                 console.log("orgsCursor", orgsCursor)
             });
 
