@@ -1,6 +1,8 @@
 import { Octokit } from "@octokit/rest";
 import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
+import { graphql } from "@octokit/graphql";
+import { fetchRepos } from "../repos/repoService";
 
 export async function fetchCommitCount(accountId: string) {
     try {
@@ -82,6 +84,211 @@ export async function getCommitCountFromDB(accountId: string) {
         return commitCount;
     } catch (error) {
         console.error("An error occurred while fetching commit count from database:", error);
+        throw error;
+    }
+}
+
+
+
+interface User {
+    login: string;
+    id: string;
+}
+
+interface Author {
+    user: User;
+    email: string;
+    name: string;
+}
+
+interface PageInfo {
+    hasNextPage: boolean;
+    endCursor: string;
+}
+
+interface Node {
+    deletions: number;
+    additions: number;
+    author: Author;
+    message: string;
+    changedFilesIfAvailable: number;
+    committedDate: string;
+}
+
+interface History {
+    nodes: Node[];
+    pageInfo: PageInfo;
+    totalCount: number;
+}
+
+interface Target {
+    history: History;
+}
+
+interface DefaultBranchRef {
+    target: Target;
+}
+
+interface Repo {
+    nameWithOwner: string;
+    defaultBranchRef: DefaultBranchRef;
+}
+
+interface Repositories {
+    nodes: Repo[];
+    pageInfo: PageInfo;
+}
+
+interface Organization {
+    repositories: Repositories;
+}
+
+interface Viewer {
+    organizations: {
+        nodes: Organization[];
+    };
+    repositories: Repositories;
+}
+
+interface GraphQLResponse {
+    viewer: Viewer;
+}
+
+export async function getAllCommitsWithGraphQL2(accountId: string) {
+    try {
+        const loggedInAccount = await getLoggedInAccount(accountId);
+        let commits: any[] = [];
+        let hasNextPage = true;
+        let orgsCursor = null;
+        let orgReposCursor = null;
+        let viewerReposCursor = null;
+        let orgCommitsCursor = null;
+        let viewerCommitsCursor = null;
+        let allResults = [];
+
+        const graphqlWithAuth = graphql.defaults({
+            headers: {
+                authorization: `token ${loggedInAccount?.access_token}`,
+            },
+        });
+
+        while (hasNextPage) {
+            const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(`
+            query getAllReposAndCommits($orgsCursor: String, $orgReposCursor: String, $viewerReposCursor: String, $orgCommitsCursor: String, $viewerCommitsCursor: String) {
+                viewer {
+                  organizations(first: 50, after: $orgsCursor) {
+                    nodes {
+                      repositories(first: 50, after: $orgReposCursor) {
+                        nodes {
+                          nameWithOwner
+                          defaultBranchRef {
+                            target {
+                              ... on Commit {
+                                history(first: 100, after: $orgCommitsCursor, author: {emails: "millieba@hotmail.com"}) {
+                                  nodes {
+                                    deletions
+                                    additions
+                                    author {
+                                      user {
+                                        login
+                                        id
+                                      }
+                                      email
+                                      name
+                                    }
+                                    message
+                                    changedFilesIfAvailable
+                                    committedDate
+                                  }
+                                  pageInfo {
+                                    hasNextPage
+                                    endCursor
+                                  }
+                                  totalCount
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  repositories(first: 50, after: $viewerReposCursor) {
+                    nodes {
+                      nameWithOwner
+                      defaultBranchRef {
+                        target {
+                          ... on Commit {
+                            history(first: 100, after: $viewerCommitsCursor, author: {emails: "millieba@hotmail.com"}) {
+                              nodes {
+                                deletions
+                                additions
+                                author {
+                                  user {
+                                    login
+                                    id
+                                  }
+                                  email
+                                  name
+                                }
+                                message
+                                changedFilesIfAvailable
+                                committedDate
+                              }
+                              pageInfo {
+                                hasNextPage
+                                endCursor
+                              }
+                              totalCount
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, {
+                orgsCursor: orgsCursor,
+                orgReposCursor: orgReposCursor,
+                viewerReposCursor: viewerReposCursor,
+                orgCommitsCursor: orgCommitsCursor,
+                viewerCommitsCursor: viewerCommitsCursor
+            });
+            allResults.push(result);
+            //console.log(result.viewer.organizations.nodes[0].repositories.nodes[0].defaultBranchRef.target.history.nodes); // success...
+
+            const viewer = result.viewer;
+            const orgs = viewer.organizations.nodes;
+            const viewerRepos = viewer.repositories.nodes;
+
+            orgs.forEach((org: Organization) => {
+                org.repositories.nodes.forEach((repo: Repo) => {
+                    orgReposCursor = repo.defaultBranchRef.target.history.pageInfo.endCursor;
+                    console.log("orgReposCursor", orgReposCursor)
+                });
+                orgsCursor = org.repositories.pageInfo.endCursor;
+                console.log("orgsCursor", orgsCursor)
+            });
+
+            viewerRepos.forEach((repo: Repo) => {
+                viewerReposCursor = repo.defaultBranchRef.target.history.pageInfo.endCursor;
+                console.log("viewerReposCursor", viewerReposCursor)
+            });
+            viewerCommitsCursor = viewer.repositories.pageInfo.endCursor;
+            console.log("viewerCommitsCursor", viewerCommitsCursor)
+
+            orgCommitsCursor = orgs.some((org: Organization) => org.repositories.pageInfo.hasNextPage) ? orgs[0].repositories.pageInfo.endCursor : null;
+            console.log("orgCommitsCursor", orgCommitsCursor)
+
+
+
+            hasNextPage = orgs.some((org: Organization) => org.repositories.pageInfo.hasNextPage) || viewer.repositories.pageInfo.hasNextPage;
+        }
+
+        return allResults;
+    } catch (error) {
+        console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
         throw error;
     }
 }

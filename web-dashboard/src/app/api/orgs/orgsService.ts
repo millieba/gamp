@@ -31,7 +31,6 @@ export async function fetchOrgs(accountId: string) {
         });
 
         while (hasNextPage) {
-            // Use graphql to get all organizations, with pagination
             const result: OrgsResult = await graphqlWithAuth<OrgsResult>(`
                 query($orgsCursor: String) {
                     viewer {
