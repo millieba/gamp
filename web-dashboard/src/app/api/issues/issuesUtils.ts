@@ -19,3 +19,27 @@ export interface QueryResult {
     }[];
   };
 }
+
+export interface QueryResultEdges {
+  edges: {
+    node: {
+      title: string;
+      url: string;
+      createdAt: string;
+      closedAt: string;
+      number: number;
+      state: string;
+    };
+  }[];
+}
+
+export interface QueryResultNode {
+    node: {
+      title: string;
+      url: string;
+      createdAt: string;
+      closedAt: string;
+      number: number;
+      state: string;
+    };
+  }[];
