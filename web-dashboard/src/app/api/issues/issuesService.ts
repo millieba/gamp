@@ -69,8 +69,6 @@ query ($afterIssues: String) {
           allData.push(result.search);
         }
 
-        console.log(allData);
-
         hasNextPageIssues = result.search.pageInfo.hasNextPage;
         afterCursorIssues = result.search.pageInfo.endCursor;
       } catch (error) {
@@ -151,12 +149,14 @@ export function calculateClosedIssueCount(results: any): number {
   return closedIssueCount;
 }
 
-export async function getIssueCountFromDb(accountId: string) {
+export async function getIssueVariablesFromDb(accountId: string) {
   try {
     const issueCount = await prisma.gitHubStats.findUnique({
       where: { accountId: accountId },
       select: {
         issueCount: true,
+        avgTimeToCloseIssues: true,
+        closedIssueCount: true,
       },
     });
     return issueCount;
