@@ -269,35 +269,27 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                 viewerCommitsCursor: viewerCommitsCursor
             });
             allResults.push(result);
-            //console.log(result.viewer.organizations.nodes[0].repositories.nodes[0].defaultBranchRef.target.history.nodes); // success...
 
             const viewer = result.viewer;
             const orgs = viewer.organizations.nodes;
             const viewerRepos = viewer.repositories.nodes;
+            const orgRepos = viewer.organizations.nodes.map((org: Organization) => org.repositories.nodes.map((repo: Repo) => repo)).flat();
 
+            orgsCursor = viewer.organizations.pageInfo.endCursor;
             orgs.forEach((org: Organization) => {
-                org.repositories.nodes.forEach((repo: Repo) => {
-                    orgReposCursor = repo.defaultBranchRef.target.history.pageInfo.endCursor;
-                    console.log("orgReposCursor", orgReposCursor)
-                });
-                console.log(org)
-                orgsCursor = org;
-                console.log("orgsCursor", orgsCursor)
+                orgReposCursor = org.repositories.pageInfo.endCursor;
             });
-
+            orgRepos.forEach((repo: Repo) => {
+                orgCommitsCursor = repo.defaultBranchRef?.target?.history?.pageInfo?.endCursor;
+            });
+            viewerReposCursor = viewer.repositories.pageInfo.endCursor;
             viewerRepos.forEach((repo: Repo) => {
-                viewerReposCursor = repo.defaultBranchRef.target.history.pageInfo.endCursor;
-                console.log("viewerReposCursor", viewerReposCursor)
+                viewerCommitsCursor = repo.defaultBranchRef?.target?.history?.pageInfo?.endCursor;
             });
-            viewerCommitsCursor = viewer.repositories.pageInfo.endCursor;
-            console.log("viewerCommitsCursor", viewerCommitsCursor)
-
-            orgCommitsCursor = orgs.some((org: Organization) => org.repositories.pageInfo.hasNextPage) ? orgs[0].repositories.pageInfo.endCursor : null;
-            console.log("orgCommitsCursor", orgCommitsCursor)
-
 
 
             hasNextPage = orgs.some((org: Organization) => org.repositories.pageInfo.hasNextPage) || viewer.repositories.pageInfo.hasNextPage;
+            console.log(hasNextPage);
         }
 
         return allResults;
