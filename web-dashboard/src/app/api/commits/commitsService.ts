@@ -173,9 +173,17 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
             },
         });
 
+        const userId = (await graphqlWithAuth<{ viewer: { id: string } }>(`
+            query {
+                viewer {
+                    id
+                }
+            }
+        `)).viewer.id;
+
         while (hasNextPage) {
             const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(`
-            query getAllReposAndCommits($orgsCursor: String, $orgReposCursor: String, $viewerReposCursor: String, $orgCommitsCursor: String, $viewerCommitsCursor: String) {
+            query getAllReposAndCommits($userId: ID, $orgsCursor: String, $orgReposCursor: String, $viewerReposCursor: String, $orgCommitsCursor: String, $viewerCommitsCursor: String) {
                 viewer {
                   organizations(first: 50, after: $orgsCursor) {
                     pageInfo {
@@ -193,7 +201,7 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                           defaultBranchRef {
                             target {
                               ... on Commit {
-                                history(first: 100, after: $orgCommitsCursor, author: {emails: "millieba@hotmail.com"}) {
+                                history(first: 100, after: $orgCommitsCursor, author: {id: $userId}) {
                                   nodes {
                                     deletions
                                     additions
@@ -232,7 +240,7 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                       defaultBranchRef {
                         target {
                           ... on Commit {
-                            history(first: 100, after: $viewerCommitsCursor, author: {emails: "millieba@hotmail.com"}) {
+                            history(first: 100, after: $viewerCommitsCursor, author: {id: $userId}) {
                               nodes {
                                 deletions
                                 additions
@@ -262,6 +270,7 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                 }
               }
             `, {
+                userId: userId,
                 orgsCursor: orgsCursor,
                 orgReposCursor: orgReposCursor,
                 viewerReposCursor: viewerReposCursor,
