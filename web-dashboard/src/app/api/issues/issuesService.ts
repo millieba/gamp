@@ -86,7 +86,7 @@ query ($afterIssues: String) {
   }
 }
 
-export async function issueCount(accountId: string) {
+export async function fetchIssueVariables(accountId: string) {
   try {
     const data = await fetchIssueCount(accountId);
     const issueCount = data[0].issueCount;
@@ -155,7 +155,7 @@ export function calculateClosedIssueCount(results: QueryResultEdges[]): number {
 
 export async function getIssueVariablesFromDb(accountId: string) {
   try {
-    const issueCount = await prisma.gitHubStats.findUnique({
+    const issueData = await prisma.gitHubStats.findUnique({
       where: { accountId: accountId },
       select: {
         issueCount: true,
@@ -163,7 +163,7 @@ export async function getIssueVariablesFromDb(accountId: string) {
         closedIssueCount: true,
       },
     });
-    return issueCount;
+    return issueData;
   } catch (error) {
     console.error(
       `An error occurred while getting issueCount for account ${accountId} from the database:`,

@@ -3,9 +3,10 @@ export interface PageInfo {
   hasNextPage: boolean;
 }
 
-export interface QueryResult {
+export interface PrQueryResult {
   user: {
     pullRequests: {
+      totalCount: number;
       pageInfo: PageInfo;
       edges: {
         node: {
@@ -41,10 +42,40 @@ export interface QueryResult {
   };
 }
 
+export interface PrQueryResultNarrowedDown {
+    id: string;
+    comments: {
+      pageInfo: PageInfo;
+      edges: {
+        node: {
+          body: string;
+          url: string;
+          author: {
+            url: string;
+          };
+        };
+      }[];
+    };
+    title: string;
+    merged: boolean;
+    reviews: {
+      pageInfo: PageInfo;
+      edges: {
+        node: {
+          body: string;
+          author: {
+            avatarUrl: string;
+          };
+        };
+      }[];
+    };
+}
+
 export const pullrequestsQuery = `
 query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
   user(login: $username) {
     pullRequests(first: 100, after: $afterPr) {
+      totalCount
       pageInfo {
         endCursor
         hasNextPage
