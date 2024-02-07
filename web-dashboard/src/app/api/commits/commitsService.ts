@@ -88,84 +88,66 @@ export async function getCommitCountFromDB(accountId: string) {
     }
 }
 
-
-
-interface User {
-    login: string;
-    id: string;
-}
-
-interface Author {
-    user: User;
-    email: string;
-    name: string;
-}
-
 interface PageInfo {
     hasNextPage: boolean;
     endCursor: string;
 }
 
-interface Node {
+interface Commit {
     deletions: number;
     additions: number;
-    author: Author;
+    author: {
+        email: string;
+    };
     message: string;
     changedFilesIfAvailable: number;
     committedDate: string;
 }
 
-interface History {
-    nodes: Node[];
-    pageInfo: PageInfo;
-    totalCount: number;
-}
-
-interface Target {
-    history: History;
-}
-
-interface DefaultBranchRef {
-    target: Target;
-}
-
 interface Repo {
     nameWithOwner: string;
-    defaultBranchRef: DefaultBranchRef;
-}
+    defaultBranchRef: {
+        target: {
+            history: {
+                nodes: Commit[];
+                pageInfo: PageInfo;
+                totalCount: number;
+            };
+        };
 
-interface Repositories {
-    nodes: Repo[];
-    pageInfo: PageInfo;
+    };
 }
 
 interface Organization {
-    repositories: Repositories;
-}
-
-interface Viewer {
-    organizations: {
+    repositories: {
         pageInfo: PageInfo;
-        nodes: Organization[];
-    };
-    repositories: Repositories;
+        nodes: Repo[];
+    }
 }
 
 interface GraphQLResponse {
-    viewer: Viewer;
+    viewer: {
+        organizations: {
+            pageInfo: PageInfo;
+            nodes: Organization[];
+        };
+        repositories: {
+            pageInfo: PageInfo;
+            nodes: Repo[];
+        };
+    };
 }
 
 export async function getAllCommitsWithGraphQL2(accountId: string) {
     try {
         const loggedInAccount = await getLoggedInAccount(accountId);
-        let commits: any[] = [];
+        let allCommits: any[] = [];
         let hasNextPage = true;
         let orgsCursor = null;
         let orgReposCursor = null;
         let viewerReposCursor = null;
         let orgCommitsCursor = null;
         let viewerCommitsCursor = null;
-        let allResults = [];
 
         const graphqlWithAuth = graphql.defaults({
             headers: {
@@ -183,92 +165,89 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
 
         while (hasNextPage) {
             const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(`
-            query getAllReposAndCommits($userId: ID, $orgsCursor: String, $orgReposCursor: String, $viewerReposCursor: String, $orgCommitsCursor: String, $viewerCommitsCursor: String) {
-                viewer {
-                  organizations(first: 50, after: $orgsCursor) {
-                    pageInfo {
-                        hasNextPage
-                        endCursor
-                    }
-                    nodes {
-                      repositories(first: 50, after: $orgReposCursor) {
-                        pageInfo {
-                            hasNextPage
-                            endCursor
-                        }
-                        nodes {
-                          nameWithOwner
-                          defaultBranchRef {
-                            target {
-                              ... on Commit {
-                                history(first: 100, after: $orgCommitsCursor, author: {id: $userId}) {
-                                  nodes {
-                                    deletions
-                                    additions
-                                    author {
-                                      user {
-                                        login
-                                        id
-                                      }
-                                      email
-                                      name
-                                    }
-                                    message
-                                    changedFilesIfAvailable
-                                    committedDate
-                                  }
-                                  pageInfo {
-                                    hasNextPage
-                                    endCursor
-                                  }
-                                  totalCount
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                  repositories(first: 50, after: $viewerReposCursor) {
-                    pageInfo {
-                        hasNextPage
-                        endCursor
-                    }
-                    nodes {
-                      nameWithOwner
-                      defaultBranchRef {
-                        target {
-                          ... on Commit {
-                            history(first: 100, after: $viewerCommitsCursor, author: {id: $userId}) {
-                              nodes {
-                                deletions
-                                additions
-                                author {
-                                  user {
-                                    login
-                                    id
-                                  }
-                                  email
-                                  name
-                                }
-                                message
-                                changedFilesIfAvailable
-                                committedDate
-                              }
-                              pageInfo {
+                query getAllReposAndCommits(
+                    $userId: ID, 
+                    $orgsCursor: String, 
+                    $orgReposCursor: String, 
+                    $viewerReposCursor: String, 
+                    $orgCommitsCursor: String, 
+                    $viewerCommitsCursor: String
+                ) {
+                    viewer {
+                        organizations(first: 50, after: $orgsCursor) {
+                            pageInfo {
                                 hasNextPage
                                 endCursor
-                              }
-                              totalCount
                             }
-                          }
+                            nodes {
+                                repositories(first: 50, after: $orgReposCursor) {
+                                    pageInfo {
+                                        hasNextPage
+                                        endCursor
+                                    }
+                                    nodes {
+                                        nameWithOwner
+                                        defaultBranchRef {
+                                            target {
+                                                ... on Commit {
+                                                    history(first: 100, after: $orgCommitsCursor, author: {id: $userId}) {
+                                                        nodes {
+                                                            deletions
+                                                            additions
+                                                            author {
+                                                                email
+                                                            }
+                                                            message
+                                                            changedFilesIfAvailable
+                                                            committedDate
+                                                        }
+                                                        pageInfo {
+                                                            hasNextPage
+                                                            endCursor
+                                                        }
+                                                        totalCount
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                      }
+                        repositories(first: 50, after: $viewerReposCursor) {
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
+                            nodes {
+                                nameWithOwner
+                                defaultBranchRef {
+                                    target {
+                                        ... on Commit {
+                                            history(first: 100, after: $viewerCommitsCursor, author: {id: $userId}) {
+                                                nodes {
+                                                    deletions
+                                                    additions
+                                                    author {
+                                                        email
+                                                    }
+                                                    message
+                                                    changedFilesIfAvailable
+                                                    committedDate
+                                                }
+                                                pageInfo {
+                                                    hasNextPage
+                                                    endCursor
+                                                }
+                                                totalCount
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                  }
                 }
-              }
             `, {
                 userId: userId,
                 orgsCursor: orgsCursor,
@@ -277,12 +256,11 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                 orgCommitsCursor: orgCommitsCursor,
                 viewerCommitsCursor: viewerCommitsCursor
             });
-            allResults.push(result);
 
             const viewer = result.viewer;
             const orgs = viewer.organizations.nodes;
             const viewerRepos = viewer.repositories.nodes;
-            const orgRepos = viewer.organizations.nodes.map((org: Organization) => org.repositories.nodes.map((repo: Repo) => repo)).flat();
+            const orgRepos = orgs.flatMap((org: Organization) => org.repositories.nodes.map((repo: Repo) => repo));
 
             orgsCursor = viewer.organizations.pageInfo.endCursor;
             orgs.forEach((org: Organization) => {
@@ -296,12 +274,18 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                 viewerCommitsCursor = repo.defaultBranchRef?.target?.history?.pageInfo?.endCursor;
             });
 
-
             hasNextPage = orgs.some((org: Organization) => org.repositories.pageInfo.hasNextPage) || viewer.repositories.pageInfo.hasNextPage;
-            console.log(hasNextPage);
+
+            const orgCommits = orgRepos.map((repo: Repo) => repo.defaultBranchRef?.target?.history?.nodes.map((commit: Commit) => (commit))).flat();
+            const viewerCommits = viewerRepos.map((repo: Repo) => repo.defaultBranchRef?.target?.history?.nodes.map((commit: Commit) => (commit))).flat();
+
+            allCommits.push(...viewerCommits, ...orgCommits);
+
+            // Sort commits by date
+            allCommits.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime());
         }
 
-        return allResults;
+        return allCommits;
     } catch (error) {
         console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
         throw error;
