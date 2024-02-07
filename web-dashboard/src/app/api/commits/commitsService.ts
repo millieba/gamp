@@ -94,13 +94,14 @@ interface PageInfo {
 }
 
 interface Commit {
-    deletions: number;
+    message: string;
+    oid: string;
     additions: number;
+    deletions: number;
+    changedFilesIfAvailable: number;
     author: {
         email: string;
     };
-    message: string;
-    changedFilesIfAvailable: number;
     committedDate: string;
 }
 
@@ -192,13 +193,14 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                                                 ... on Commit {
                                                     history(first: 100, after: $orgCommitsCursor, author: {id: $userId}) {
                                                         nodes {
-                                                            deletions
+                                                            message
+                                                            oid
                                                             additions
+                                                            deletions
+                                                            changedFilesIfAvailable
                                                             author {
                                                                 email
                                                             }
-                                                            message
-                                                            changedFilesIfAvailable
                                                             committedDate
                                                         }
                                                         pageInfo {
@@ -226,13 +228,14 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
                                         ... on Commit {
                                             history(first: 100, after: $viewerCommitsCursor, author: {id: $userId}) {
                                                 nodes {
-                                                    deletions
+                                                    message
+                                                    oid
                                                     additions
+                                                    deletions
+                                                    changedFilesIfAvailable
                                                     author {
                                                         email
                                                     }
-                                                    message
-                                                    changedFilesIfAvailable
                                                     committedDate
                                                 }
                                                 pageInfo {
@@ -281,8 +284,19 @@ export async function getAllCommitsWithGraphQL2(accountId: string) {
 
             allCommits.push(...viewerCommits, ...orgCommits);
 
-            // Sort commits by date
-            allCommits.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime());
+            allCommits.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime()); // Sort commits by date
+
+            const uniqueCommits = allCommits.filter((commit, index, self) => { // Remove duplicate commits
+                if (commit && commit.oid) {
+                    return index === self.findIndex((c) => (
+                        c.oid === commit.oid
+                    ));
+                } else {
+                    return true; // Do nothing to objects without an oid
+                }
+            });
+
+            return uniqueCommits;
         }
 
         return allCommits;
