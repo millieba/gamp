@@ -20,9 +20,9 @@ export async function syncStats(accountId: string) {
             update: {
                 commitCount: commitCount?.commitCount,
                 repoCount: repoCount?.repoCount,
-                issueCount: issueCountvariable[0],
-                avgTimeToCloseIssues: issueCountvariable[1],
-                closedIssueCount: issueCountvariable[2],
+                issueCount: issueCountvariable?.issueCount,
+                avgTimeToCloseIssues: issueCountvariable?.avgTimeToCloseIssues,
+                closedIssueCount: issueCountvariable?.closedIssueCount,
                 programmingLanguages: {
                     deleteMany: {}, // Delete all existing languages, then re-create them
                     create: languagesArray,
@@ -32,9 +32,9 @@ export async function syncStats(accountId: string) {
                 accountId: accountId,
                 repoCount: repoCount?.repoCount,
                 commitCount: commitCount?.commitCount,
-                issueCount: issueCountvariable[0],
-                avgTimeToCloseIssues: issueCountvariable[1],
-                closedIssueCount: issueCountvariable[2],
+                issueCount: issueCountvariable?.issueCount,
+                avgTimeToCloseIssues: issueCountvariable?.avgTimeToCloseIssues,
+                closedIssueCount: issueCountvariable?.closedIssueCount,
                 programmingLanguages: {
                     create: languagesArray,
                 },

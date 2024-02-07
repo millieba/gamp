@@ -92,7 +92,11 @@ export async function issueCount(accountId: string) {
     const issueCount = data[0].issueCount;
     const avgTimeToCloseIssues = calculateAvgTimeToCloseIssues(data);
     const closedIssueCount = calculateClosedIssueCount(data);
-    return [issueCount, avgTimeToCloseIssues, closedIssueCount];
+    return {
+      issueCount: issueCount,
+      avgTimeToCloseIssues: avgTimeToCloseIssues,
+      closedIssueCount: closedIssueCount,
+    };
   } catch (error) {
     console.error(
       "An error occured while trying to fetch the issueCount:",
