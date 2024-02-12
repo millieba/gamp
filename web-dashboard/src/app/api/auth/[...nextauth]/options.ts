@@ -44,6 +44,9 @@ export const options: NextAuthOptions = {
             },
         }),
     ],
+    session: {
+        maxAge: 3600, // Expire sessions after 1 hour since access tokens do and cannot currently be refreshed
+    },
     callbacks: {
         async session({ session, user }) {
             const [githubAccount] = await prisma.account.findMany({
@@ -54,6 +57,7 @@ export const options: NextAuthOptions = {
             if (!githubAccount.expires_at) return session;
 
             if (githubAccount.expires_at * 1000 < Date.now() && session.error !== "RefreshAccessTokenError") {
+                session.error = "RefreshAccessTokenError"; // This tells the frontend that the access token needs to be refreshed, e.g. through signing in again
                 try {
                     console.log("Deleting access token", githubAccount.access_token);
                     await deleteTokenFromGitHub(
@@ -61,9 +65,9 @@ export const options: NextAuthOptions = {
                         process.env.GITHUB_ID as string,
                         process.env.GITHUB_SECRET as string
                     );
+                    // Delete the user's sessions as their access token is no longer valid
+                    await prisma.session.deleteMany({ where: { userId: user.id } });
 
-                    // Setting the session error will trigger sign out which will redirect the user to the sign in page to refresh the access token
-                    session.error = "RefreshAccessTokenError";
                 } catch (error) {
                     console.error("Error deleting access token", error);
                     session.error = "DeleteAccessTokenError";
