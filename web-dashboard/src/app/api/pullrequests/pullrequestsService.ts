@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PrQueryResult, PrQueryResultNarrowedDown } from "./pullrequestsUtils";
+import { pullrequestsQuery, PrQueryResult, PRData } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
@@ -101,14 +101,13 @@ export async function fetchPullRequestVariables(accountId: string) {
 }
 
 // function to fetch the number of created and merged pull requests
-export function calculateMergedAndCreatedPrs(data: any) {
+export function calculateMergedAndCreatedPrs(data: PRData[]) {
   let count = 0;
   for (const pr of data) {
-    if (pr.merged) {
+    if (typeof pr === 'object' && pr?.merged) {
       count++;
     }
   }
-
   return count;
 };
 

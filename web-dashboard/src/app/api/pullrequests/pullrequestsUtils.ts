@@ -42,9 +42,15 @@ export interface PrQueryResult {
   };
 }
 
-export interface PrQueryResultNarrowedDown {
-    id: string;
-    comments: {
+export type PRData = number | {
+    body?: string;
+    url?: string;
+    author?: {
+      url?: string;
+      avatarUrl?: string;
+    };
+    id?: string;
+    comments?: {
       pageInfo: PageInfo;
       edges: {
         node: {
@@ -56,20 +62,20 @@ export interface PrQueryResultNarrowedDown {
         };
       }[];
     };
-    title: string;
-    merged: boolean;
-    reviews: {
-      pageInfo: PageInfo;
-      edges: {
-        node: {
-          body: string;
-          author: {
-            avatarUrl: string;
+    title?: string;
+    merged?: boolean;
+    reviews?: {
+        pageInfo?: PageInfo;
+        edges?: {
+          node?: {
+            body?: string;
+            author?: {
+              avatarUrl?: string;
+            };
           };
-        };
-      }[];
+        }[];
     };
-}
+  };
 
 export const pullrequestsQuery = `
 query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
