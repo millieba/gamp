@@ -1,6 +1,7 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, QueryResult } from "./pullrequestsUtils";
+import { pullrequestsQuery, PrQueryResult, PRData } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
+import prisma from "@/utils/prisma";
 
 export async function pullrequestsService(accountId: string) {
   const loggedInAccount = await getLoggedInAccount(accountId);
@@ -32,16 +33,26 @@ export async function pullrequestsService(accountId: string) {
   let hasNextPageReview = true;
   let afterReview = null;
 
+  let count = 0;
+
   while (hasNextPagePr) {
     try {
-      const result: QueryResult = await graphqlWithAuth<QueryResult>(pullrequestsQuery, {
-        username: username,
-        afterPr: afterPr,
-        afterCmt: afterCmt,
-        afterReview: afterReview,
-      });
+      const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(
+        pullrequestsQuery,
+        {
+          username: username,
+          afterPr: afterPr,
+          afterCmt: afterCmt,
+          afterReview: afterReview,
+        }
+      );
 
       const user = result.user;
+
+      if (count === 0) {
+        allData.push(user.pullRequests.totalCount);
+        count++;
+      }
 
       if (hasNextPagePr) {
         if (user.pullRequests) {
@@ -69,4 +80,55 @@ export async function pullrequestsService(accountId: string) {
     }
   }
   return allData;
+}
+
+export async function fetchPullRequestVariables(accountId: string) {
+  try {
+    const data = await pullrequestsService(accountId);
+    const createdPrs = data[0] ? data[0] : 0;
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
+    return {
+      createdPrs: createdPrs,
+      createdAndMergedPrs: createdAndMergedPrs,
+    };
+  } catch (error) {
+    console.error(
+      "An error occurred while fetching pull request variables:",
+      error
+    );
+    throw error;
+  }
+}
+
+// function to fetch the number of created and merged pull requests
+export function calculateMergedAndCreatedPrs(data: PRData[]) {
+  let count = 0;
+  for (const pr of data) {
+    if (typeof pr === 'object' && pr?.merged) {
+      count++;
+    }
+  }
+  return count;
+};
+
+// fetch pull request variables from the database
+export async function getPrVariablesFromDb(accountId: string) {
+  try {
+    const prData = await prisma.gitHubStats.findUnique({
+      where: {
+        accountId: accountId,
+      },
+      select: {
+        createdPrs: true,
+        createdAndMergedPrs: true,
+      },
+    });
+    return prData;
+  } catch (error) {
+    console.error(
+      `An error occurred while getting pull request variables for account ${accountId} from the database:`,
+      error
+    );
+    throw error;
+  }
 }
