@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useSyncContext, sync } from '@/contexts/SyncContext';
+import { redirect } from 'next/navigation';
 
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
@@ -18,8 +19,8 @@ const ProfilePicture = () => {
   };
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.error === 'RefreshAccessTokenError') {
-      signOut(); // Sign out user if the access token has expired and not been refreshed
+    if (status === 'unauthenticated' || session?.error === 'RefreshAccessTokenError') {
+      redirect("/api/auth/signin") // Redirect to the sign in page if the user is unauthenticated or their access token has expired
     }
   }, [session, status]);
 
