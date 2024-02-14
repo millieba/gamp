@@ -22,6 +22,7 @@ interface Commit {
 }
 
 interface Repo {
+  nameWithOwner: any;
   name: string;
   owner: {
     login: string;
@@ -131,81 +132,136 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
   try {
     let bestCaseCommits: Commit[] = [];
     let fetchAloneRepos: { repoName: string; owner: string }[] = [];
-    let hasNextPageRepos = true;
+    let allRepos: any[] = [];
 
-    let reposCursor = null;
-    while (hasNextPageRepos) {
-      const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
+    let hasNextPageOrgs = true;
+    let afterOrgsCursor = null;
+
+    let hasNextPageOrgRepos = true;
+    let afterOrgReposCursor = null;
+
+    let hasNextPageViewerRepos = true;
+    let afterViewerReposCursor = null;
+
+    while (hasNextPageOrgs || hasNextPageOrgRepos || hasNextPageViewerRepos) {
+      const repoQuery: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
         `#graphql
-        query GetAllCommits(
-            $userId: ID, 
-            $reposCursor: String, 
-        ) {
-            viewer {
-                repositories(first: 25, after: $reposCursor) {
-                    pageInfo {
-                        hasNextPage
-                        endCursor
-                    }
-                    nodes {
-                        name
-                        owner {
-                            login
+            query getAllRepos($userId: ID, $afterOrgsCursor: String, $afterOrgReposCursor: String, $afterViewerReposCursor: String) {
+                viewer {
+                    organizations(first: 25, after: $afterOrgsCursor) {
+                        totalCount
+                        pageInfo {
+                            hasNextPage
+                            endCursor
                         }
-                        defaultBranchRef {
-                            target {
-                                ... on Commit {
-                                    history(first: 50, author: {id: $userId}) {
-                                        pageInfo {
-                                            hasNextPage
-                                            endCursor
-                                        }
-                                        nodes {
-                                            message
-                                            oid
-                                            additions
-                                            deletions
-                                            changedFilesIfAvailable
-                                            author {
-                                                email
+                        nodes {
+                            repositories(first: 25, after: $afterOrgReposCursor) {
+                                totalCount
+                                pageInfo {
+                                    hasNextPage
+                                    endCursor
+                                }
+                                nodes {
+                                    nameWithOwner
+                                    defaultBranchRef {
+                                        target {
+                                            ... on Commit {
+                                                history(first: 100, author: {id: $userId}){
+                                                    totalCount
+                                                    pageInfo {
+                                                        hasNextPage
+                                                        endCursor
+                                                    }
+                                                    nodes {
+                                                        message
+                                                        oid
+                                                        additions
+                                                        deletions
+                                                        changedFilesIfAvailable
+                                                        author {
+                                                            email
+                                                        }
+                                                        committedDate
+                                                    }
+                                                }
                                             }
-                                            committedDate
                                         }
                                     }
                                 }
+                        }
+                }
+            }
+            repositories(first: 25, after: $afterViewerReposCursor) {
+                totalCount
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                nodes {
+                    nameWithOwner
+                    defaultBranchRef {
+                        target {
+                            ... on Commit {
+                                history(first: 100, author: {id: $userId}){
+                                    totalCount
+                                    pageInfo {
+                                        hasNextPage
+                                        endCursor
+                                    }
+                                    nodes {
+                                        message
+                                        oid
+                                        additions
+                                        deletions
+                                        changedFilesIfAvailable
+                                        author {
+                                            email
+                                        }
+                                        committedDate
+                                    }
                             }
                         }
                     }
                 }
             }
         }
-        `,
+            }
+            }`,
         {
           userId: userId,
-          reposCursor: reposCursor,
+          afterOrgsCursor: afterOrgsCursor,
+          afterOrgReposCursor: afterOrgReposCursor,
+          afterViewerReposCursor: afterViewerReposCursor,
         }
       );
 
-      const reposData = result?.viewer?.repositories;
-      if (reposData && reposData.nodes) {
-        for (const repo of reposData.nodes) {
-          const repoHistory = repo.defaultBranchRef?.target?.history;
-          if (repoHistory && repoHistory.pageInfo.hasNextPage) {
-            fetchAloneRepos.push({ repoName: repo.name, owner: repo.owner.login });
-          } else if (repoHistory) {
-            const repoCommits = repoHistory.nodes;
-            bestCaseCommits.push(...repoCommits);
-          }
+      hasNextPageOrgs = repoQuery.viewer.organizations.pageInfo.hasNextPage;
+      afterOrgsCursor = repoQuery.viewer.organizations.pageInfo.endCursor;
+
+      hasNextPageViewerRepos = repoQuery.viewer.repositories.pageInfo.hasNextPage;
+      afterViewerReposCursor = repoQuery.viewer.repositories.pageInfo.endCursor;
+
+      repoQuery.viewer.repositories.nodes.forEach((repo) => {
+        allRepos.push([repo?.nameWithOwner, repo?.defaultBranchRef?.target?.history?.totalCount]);
+        if (repo?.defaultBranchRef?.target?.history?.nodes) {
+          bestCaseCommits.push(...repo?.defaultBranchRef?.target?.history?.nodes);
         }
+      });
 
-        const pageInfo = reposData.pageInfo;
-        hasNextPageRepos = pageInfo?.hasNextPage ?? false;
-        reposCursor = pageInfo?.endCursor ?? null;
-      } else {
-        hasNextPageRepos = false;
-      }
+      repoQuery.viewer.organizations.nodes.forEach((org) => {
+        hasNextPageOrgRepos = org.repositories.pageInfo.hasNextPage;
+        afterOrgReposCursor = org.repositories.pageInfo.endCursor;
+        org.repositories.nodes.forEach((repo) => {
+          allRepos.push([repo?.nameWithOwner, repo?.defaultBranchRef?.target?.history?.totalCount]);
+          if (repo?.defaultBranchRef?.target?.history?.nodes) {
+            bestCaseCommits.push(...repo?.defaultBranchRef?.target?.history?.nodes);
+          }
+        });
+      });
     }
-
+    allRepos
+      .filter((repo) => repo[1] > 50)
+      .map((repo) => fetchAloneRepos.push({ repoName: repo[0].split("/")[1], owner: repo[0].split("/")[0] }));
     return { bestCaseCommits, fetchAloneRepos };
   } catch (error) {
     console.error(`Failed to fetch best case commits for user ID ${userId}: ${error}`);
@@ -276,7 +332,7 @@ export async function getSingleRepoCommits(
       const pageInfo = commitsData?.pageInfo;
       hasNextPage = pageInfo?.hasNextPage ?? false;
       commitsCursor = pageInfo?.endCursor ?? null;
-          }
+    }
     return repoCommits;
   } catch (error) {
     console.error(`Failed to fetch commits for repo ${repoName}: ${error}`);
