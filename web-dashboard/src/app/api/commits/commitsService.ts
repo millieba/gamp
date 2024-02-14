@@ -127,12 +127,13 @@ export async function setupGraphQLWithAuth(accountId: string) {
   return { graphqlWithAuth, userId };
 }
 
-export async function getAllCommitsBestCase(reposCursor: string | null, graphqlWithAuth: graphQLType, userId: string) {
+export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId: string) {
   try {
     let bestCaseCommits: Commit[] = [];
     let fetchAloneRepos: { repoName: string; owner: string }[] = [];
     let hasNextPageRepos = true;
 
+    let reposCursor = null;
     while (hasNextPageRepos) {
       const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
         `#graphql
@@ -141,7 +142,7 @@ export async function getAllCommitsBestCase(reposCursor: string | null, graphqlW
             $reposCursor: String, 
         ) {
             viewer {
-                repositories(first: 100, after: $reposCursor) {
+                repositories(first: 25, after: $reposCursor) {
                     pageInfo {
                         hasNextPage
                         endCursor
@@ -154,7 +155,7 @@ export async function getAllCommitsBestCase(reposCursor: string | null, graphqlW
                         defaultBranchRef {
                             target {
                                 ... on Commit {
-                                    history(first: 100, author: {id: $userId}) {
+                                    history(first: 50, author: {id: $userId}) {
                                         pageInfo {
                                             hasNextPage
                                             endCursor
@@ -213,6 +214,7 @@ export async function getAllCommitsBestCase(reposCursor: string | null, graphqlW
 }
 
 export async function getSingleRepoCommits(
+  userId: string,
   repoName: string,
   owner: string,
   commitsCursor: string | null,
@@ -226,6 +228,7 @@ export async function getSingleRepoCommits(
       const result: SingleRepoCommitsResult = await graphqlWithAuth<SingleRepoCommitsResult>(
         `#graphql
         query getCommitsInRepo(
+          $userId: ID,
             $repoName: String!,
             $owner: String!,
             $commitsCursor: String
@@ -234,7 +237,7 @@ export async function getSingleRepoCommits(
                 defaultBranchRef {
                     target {
                         ... on Commit {
-                            history(first: 100, after: $commitsCursor) {
+                            history(first: 50, after: $commitsCursor, author: {id: $userId}) {
                                 pageInfo {
                                     hasNextPage
                                     endCursor
@@ -258,6 +261,7 @@ export async function getSingleRepoCommits(
         }
         `,
         {
+          userId: userId,
           repoName: repoName,
           owner: owner,
           commitsCursor: commitsCursor,
@@ -272,8 +276,7 @@ export async function getSingleRepoCommits(
       const pageInfo = commitsData?.pageInfo;
       hasNextPage = pageInfo?.hasNextPage ?? false;
       commitsCursor = pageInfo?.endCursor ?? null;
-    }
-
+          }
     return repoCommits;
   } catch (error) {
     console.error(`Failed to fetch commits for repo ${repoName}: ${error}`);
@@ -285,13 +288,13 @@ export async function fetchAllCommitsHandler(accountId: string) {
   try {
     const { graphqlWithAuth, userId } = await setupGraphQLWithAuth(accountId);
 
-    const { bestCaseCommits, fetchAloneRepos } = await getAllCommitsBestCase(null, graphqlWithAuth, userId);
+    const { bestCaseCommits, fetchAloneRepos } = await getAllCommitsBestCase(graphqlWithAuth, userId);
 
     let allCommits: Commit[] = [...bestCaseCommits];
     console.log(fetchAloneRepos);
     if (fetchAloneRepos.length > 0) {
       for (const { repoName, owner } of fetchAloneRepos) {
-        const repoCommits = await getSingleRepoCommits(repoName, owner, null, graphqlWithAuth);
+        const repoCommits = await getSingleRepoCommits(userId, repoName, owner, null, graphqlWithAuth);
         allCommits = [...allCommits, ...repoCommits];
       }
     }
