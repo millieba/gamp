@@ -14,15 +14,16 @@ export async function pullrequestsService(accountId: string) {
 
   const username = (
     await graphqlWithAuth<{ viewer: { login: string } }>(`
-    query {
-      viewer {
-        login
+      query {
+        viewer {
+          login
+        }
       }
-    }
-  `)
+    `)
   ).viewer.login;
 
   let allData = [];
+  let totalPRCount = 0;
 
   let hasNextPagePr = true;
   let afterPr = null;
@@ -33,25 +34,19 @@ export async function pullrequestsService(accountId: string) {
   let hasNextPageReview = true;
   let afterReview = null;
 
-  let count = 0;
-
   while (hasNextPagePr) {
     try {
-      const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(
-        pullrequestsQuery,
-        {
-          username: username,
-          afterPr: afterPr,
-          afterCmt: afterCmt,
-          afterReview: afterReview,
-        }
-      );
+      const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(pullrequestsQuery, {
+        username: username,
+        afterPr: afterPr,
+        afterCmt: afterCmt,
+        afterReview: afterReview,
+      });
 
       const user = result.user;
 
-      if (count === 0) {
-        allData.push(user.pullRequests.totalCount);
-        count++;
+      if (!totalPRCount) {
+        totalPRCount = user.pullRequests.totalCount;
       }
 
       if (hasNextPagePr) {
@@ -79,23 +74,21 @@ export async function pullrequestsService(accountId: string) {
       throw error;
     }
   }
-  return allData;
+
+  return { createdPrs: totalPRCount, PRData: allData };
 }
 
 export async function fetchPullRequestVariables(accountId: string) {
   try {
     const data = await pullrequestsService(accountId);
-    const createdPrs = data[0] ? data[0] : 0;
-    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
+    const createdPrs = data.createdPrs;
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data.PRData);
     return {
       createdPrs: createdPrs,
       createdAndMergedPrs: createdAndMergedPrs,
     };
   } catch (error) {
-    console.error(
-      "An error occurred while fetching pull request variables:",
-      error
-    );
+    console.error("An error occurred while fetching pull request variables:", error);
     throw error;
   }
 }
@@ -104,12 +97,12 @@ export async function fetchPullRequestVariables(accountId: string) {
 export function calculateMergedAndCreatedPrs(data: PRData[]) {
   let count = 0;
   for (const pr of data) {
-    if (typeof pr === 'object' && pr?.merged) {
+    if (pr?.merged) {
       count++;
     }
   }
   return count;
-};
+}
 
 // fetch pull request variables from the database
 export async function getPrVariablesFromDb(accountId: string) {
