@@ -22,7 +22,6 @@ interface Commit {
 }
 
 interface Repo {
-  nameWithOwner: any;
   name: string;
   owner: {
     login: string;
@@ -132,7 +131,6 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
   try {
     let bestCaseCommits: Commit[] = [];
     let fetchAloneRepos: { repoName: string; owner: string }[] = [];
-    let allRepos: any[] = [];
 
     let hasNextPageOrgs = true;
     let afterOrgsCursor = null;
@@ -144,30 +142,30 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
     let afterViewerReposCursor = null;
 
     while (hasNextPageOrgs || hasNextPageOrgRepos || hasNextPageViewerRepos) {
-      const repoQuery: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
+      const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
         `#graphql
-            query getAllRepos($userId: ID, $afterOrgsCursor: String, $afterOrgReposCursor: String, $afterViewerReposCursor: String) {
+            query getBestCaseCommits($userId: ID, $afterOrgsCursor: String, $afterOrgReposCursor: String, $afterViewerReposCursor: String) {
                 viewer {
                     organizations(first: 25, after: $afterOrgsCursor) {
-                        totalCount
                         pageInfo {
                             hasNextPage
                             endCursor
                         }
                         nodes {
                             repositories(first: 25, after: $afterOrgReposCursor) {
-                                totalCount
                                 pageInfo {
                                     hasNextPage
                                     endCursor
                                 }
                                 nodes {
-                                    nameWithOwner
+                                    name
+                                    owner {
+                                      login
+                                    }
                                     defaultBranchRef {
                                         target {
                                             ... on Commit {
                                                 history(first: 100, author: {id: $userId}){
-                                                    totalCount
                                                     pageInfo {
                                                         hasNextPage
                                                         endCursor
@@ -192,18 +190,19 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
                 }
             }
             repositories(first: 25, after: $afterViewerReposCursor) {
-                totalCount
                 pageInfo {
                     hasNextPage
                     endCursor
                 }
                 nodes {
-                    nameWithOwner
+                    name
+                    owner {
+                      login
+                    }
                     defaultBranchRef {
                         target {
                             ... on Commit {
                                 history(first: 100, author: {id: $userId}){
-                                    totalCount
                                     pageInfo {
                                         hasNextPage
                                         endCursor
@@ -235,33 +234,32 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
         }
       );
 
-      hasNextPageOrgs = repoQuery.viewer.organizations.pageInfo.hasNextPage;
-      afterOrgsCursor = repoQuery.viewer.organizations.pageInfo.endCursor;
+      hasNextPageOrgs = result.viewer.organizations.pageInfo.hasNextPage;
+      afterOrgsCursor = result.viewer.organizations.pageInfo.endCursor;
 
-      hasNextPageViewerRepos = repoQuery.viewer.repositories.pageInfo.hasNextPage;
-      afterViewerReposCursor = repoQuery.viewer.repositories.pageInfo.endCursor;
+      hasNextPageViewerRepos = result.viewer.repositories.pageInfo.hasNextPage;
+      afterViewerReposCursor = result.viewer.repositories.pageInfo.endCursor;
 
-      repoQuery.viewer.repositories.nodes.forEach((repo) => {
-        allRepos.push([repo?.nameWithOwner, repo?.defaultBranchRef?.target?.history?.totalCount]);
-        if (repo?.defaultBranchRef?.target?.history?.nodes) {
-          bestCaseCommits.push(...repo?.defaultBranchRef?.target?.history?.nodes);
+      const processRepo = (repo: Repo) => {
+        const repoHistory = repo.defaultBranchRef?.target?.history;
+        if (!repoHistory) return;
+        if (repoHistory.pageInfo.hasNextPage) {
+          fetchAloneRepos.push({ repoName: repo.name, owner: repo.owner.login });
+        } else {
+          const repoCommits = repoHistory.nodes;
+          bestCaseCommits.push(...repoCommits);
         }
-      });
+      };
 
-      repoQuery.viewer.organizations.nodes.forEach((org) => {
+      result.viewer.repositories.nodes?.forEach((repo) => processRepo(repo));
+
+      result.viewer.organizations.nodes.forEach((org) => {
         hasNextPageOrgRepos = org.repositories.pageInfo.hasNextPage;
         afterOrgReposCursor = org.repositories.pageInfo.endCursor;
-        org.repositories.nodes.forEach((repo) => {
-          allRepos.push([repo?.nameWithOwner, repo?.defaultBranchRef?.target?.history?.totalCount]);
-          if (repo?.defaultBranchRef?.target?.history?.nodes) {
-            bestCaseCommits.push(...repo?.defaultBranchRef?.target?.history?.nodes);
-          }
-        });
+        org.repositories.nodes.forEach((repo) => processRepo(repo));
       });
     }
-    allRepos
-      .filter((repo) => repo[1] > 50)
-      .map((repo) => fetchAloneRepos.push({ repoName: repo[0].split("/")[1], owner: repo[0].split("/")[0] }));
+
     return { bestCaseCommits, fetchAloneRepos };
   } catch (error) {
     console.error(`Failed to fetch best case commits for user ID ${userId}: ${error}`);
@@ -293,7 +291,7 @@ export async function getSingleRepoCommits(
                 defaultBranchRef {
                     target {
                         ... on Commit {
-                            history(first: 50, after: $commitsCursor, author: {id: $userId}) {
+                            history(first: 100, after: $commitsCursor, author: {id: $userId}) {
                                 pageInfo {
                                     hasNextPage
                                     endCursor
@@ -340,6 +338,19 @@ export async function getSingleRepoCommits(
   }
 }
 
+function sortAndRemoveDuplicates(commits: Commit[]) {
+  const uniqueCommits = commits.filter((commit, index, self) => {
+    if (commit && commit.oid) {
+      return index === self.findIndex((c) => c.oid === commit.oid); // Filter out commits with the same object id
+    } else {
+      return true; // Do nothing to objects without an oid
+    }
+  });
+  uniqueCommits.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime()); // Sort commits by date
+
+  return uniqueCommits;
+}
+
 export async function fetchAllCommitsHandler(accountId: string) {
   try {
     const { graphqlWithAuth, userId } = await setupGraphQLWithAuth(accountId);
@@ -362,18 +373,4 @@ export async function fetchAllCommitsHandler(accountId: string) {
     console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
     throw error;
   }
-}
-
-function sortAndRemoveDuplicates(commits: Commit[]) {
-  commits.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime()); // Sort commits by date
-
-  const uniqueCommits = commits.filter((commit, index, self) => {
-    if (commit && commit.oid) {
-      return index === self.findIndex((c) => c.oid === commit.oid); // Filter out commits with the same object id
-    } else {
-      return true; // Do nothing to objects without an oid
-    }
-  });
-
-  return uniqueCommits;
 }
