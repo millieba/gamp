@@ -1,15 +1,14 @@
-import { CogIcon, TvIcon } from "@heroicons/react/24/outline";
-import React, { ReactElement } from "react";
+import React from "react";
 
-export interface FactDetails {
+export interface InfoDetails {
   subheading: string;
   heading: string;
   number: number;
   description?: string;
-  maxWidth?: string;
+  maxWidth?: string; // remember to specify the unit when using this prop
 }
 
-const FactBox: React.FC<FactDetails> = ({ subheading, heading, number, description, maxWidth }) => {
+const InfoCard: React.FC<InfoDetails> = ({ subheading, heading, number, description, maxWidth }) => {
   const gradientColor = "bg-DarkNeutral300";
   return (
     <div className={`p-8 m-2 rounded-lg shadow-md ${gradientColor}`} style={{ maxWidth: maxWidth ? maxWidth : "" }}>
@@ -25,4 +24,4 @@ const FactBox: React.FC<FactDetails> = ({ subheading, heading, number, descripti
   );
 };
 
-export default FactBox;
+export default InfoCard;

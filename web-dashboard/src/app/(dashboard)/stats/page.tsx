@@ -2,7 +2,7 @@
 import StatBox from "@/components/atoms/StatBox";
 import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
-import FactBox from "@/components/atoms/FactBox";
+import InfoCard from "@/components/atoms/InfoCard";
 
 const StatsPage = () => {
   const { badges, isLoading } = useSyncContext();
@@ -15,7 +15,7 @@ const StatsPage = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            <FactBox
+            <InfoCard
               subheading="Total Badges"
               heading="Badges"
               number={badges?.length || 0}
