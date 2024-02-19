@@ -42,40 +42,40 @@ export interface PrQueryResult {
   };
 }
 
-export type PRData = number | {
-    body?: string;
+export type PRData = {
+  body?: string;
+  url?: string;
+  author?: {
     url?: string;
-    author?: {
-      url?: string;
-      avatarUrl?: string;
-    };
-    id?: string;
-    comments?: {
-      pageInfo: PageInfo;
-      edges: {
-        node: {
-          body: string;
-          url: string;
-          author: {
-            url: string;
-          };
-        };
-      }[];
-    };
-    title?: string;
-    merged?: boolean;
-    reviews?: {
-        pageInfo?: PageInfo;
-        edges?: {
-          node?: {
-            body?: string;
-            author?: {
-              avatarUrl?: string;
-            };
-          };
-        }[];
-    };
+    avatarUrl?: string;
   };
+  id?: string;
+  comments?: {
+    pageInfo: PageInfo;
+    edges: {
+      node: {
+        body: string;
+        url: string;
+        author: {
+          url: string;
+        };
+      };
+    }[];
+  };
+  title?: string;
+  merged?: boolean;
+  reviews?: {
+    pageInfo?: PageInfo;
+    edges?: {
+      node?: {
+        body?: string;
+        author?: {
+          avatarUrl?: string;
+        };
+      };
+    }[];
+  };
+};
 
 export const pullrequestsQuery = `
 query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
