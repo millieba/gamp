@@ -19,18 +19,24 @@ const StatsPage = () => {
 
   const data = [
     {
+      icon: "star",
+      heading: "Achievements",
       subheading: "Badges earned",
       number: badges?.length || 0,
       unit: "badges",
       description: `You have earned ${badges?.length > 0 ? badges?.length : 0} badges out of 3 possible!`,
     },
     {
+      icon: "sparkles",
+      heading: "Work done",
       subheading: "Issues created",
       number: stats?.issueCount || 0,
       unit: "issues",
       description: `In addition, you have closed ${stats?.closedIssueCount} out of ${stats?.issueCount} issues!`,
     },
     {
+      icon: "clock",
+      heading: "Time",
       subheading: "Average time on each issue",
       number: convertMsToDays(stats?.avgTimeToCloseIssues || 0)[0],
       unit: convertMsToDays(stats?.avgTimeToCloseIssues || 0)[1],
@@ -39,6 +45,8 @@ const StatsPage = () => {
       } on each issue!`,
     },
     {
+      icon: "puzzle",
+      heading: "Contributions",
       subheading: "Pull requests created",
       number: stats?.createdPrs || 0,
       unit: "pull requests",
@@ -61,6 +69,8 @@ const StatsPage = () => {
                 (item.number !== 0 || item.number !== null || stats !== undefined) && (
                   <InfoCard
                     key={index}
+                    icon={item.icon}
+                    heading={item.heading}
                     subheading={item.subheading}
                     number={Number(item.number)}
                     unit={item.unit}
