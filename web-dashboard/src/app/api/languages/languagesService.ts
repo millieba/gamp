@@ -25,7 +25,7 @@ export async function languagesServices(accountId: string) {
     ).viewer.login;
 
     let allData = [];
-    let hasNextPage = true;
+    let hasNextPageRepositories = true;
     let afterCursorRepositories = null;
 
     let hasNextPageOrg = true;
@@ -34,24 +34,21 @@ export async function languagesServices(accountId: string) {
     let hasNextPageOrgRepositories = true;
     let afterCursorOrgRepositories = null;
 
-    while (hasNextPage || hasNextPageOrg || hasNextPageOrgRepositories) {
+    while (hasNextPageRepositories || hasNextPageOrg) {
       try {
-        const result: QueryResult = await graphqlWithAuth<QueryResult>(
-          languageQuery,
-          {
-            username: username,
-            afterCursorOrg,
-            afterCursorRepositories,
-            afterCursorOrgRepositories,
-          }
-        );
+        const result: QueryResult = await graphqlWithAuth<QueryResult>(languageQuery, {
+          username: username,
+          afterCursorOrg,
+          afterCursorRepositories,
+          afterCursorOrgRepositories,
+        });
 
         if (!result.user) {
           console.error("No data returned from GraphQL server");
           throw new Error("No data returned from GraphQL server");
         }
 
-        if (hasNextPage) {
+        if (hasNextPageRepositories) {
           if (result.user.repositories) {
             allData.push(...result.user.repositories.edges);
           }
@@ -62,21 +59,20 @@ export async function languagesServices(accountId: string) {
           for (const orgNode of orgNodes) {
             if (orgNode.repositories) {
               allData.push(...orgNode.repositories.edges);
-              hasNextPageOrgRepositories =
-                orgNode.repositories.pageInfo.hasNextPage;
+              hasNextPageOrgRepositories = orgNode.repositories.pageInfo.hasNextPage;
               if (hasNextPageOrgRepositories) {
-                afterCursorOrgRepositories =
-                  orgNode.repositories.pageInfo.endCursor;
+                afterCursorOrgRepositories = orgNode.repositories.pageInfo.endCursor;
               }
             }
           }
         }
 
-        hasNextPage = result.user.repositories.pageInfo.hasNextPage;
+        hasNextPageRepositories = result.user.repositories.pageInfo.hasNextPage;
         afterCursorRepositories = result.user.repositories.pageInfo.endCursor;
 
         hasNextPageOrg = result.user.organizations.pageInfo.hasNextPage;
         afterCursorOrg = result.user.organizations.pageInfo.endCursor;
+        console.log(hasNextPageOrg, hasNextPageOrgRepositories, hasNextPageRepositories);
       } catch (error) {
         console.error("An error occurred while paginating and fetching languages:", error);
         throw error;
@@ -89,7 +85,8 @@ export async function languagesServices(accountId: string) {
   }
 }
 
-export async function calculateLanguageSizes(accountId: string) { // Finds all languages used in all repos, and sums the bytes written in each language
+export async function calculateLanguageSizes(accountId: string) {
+  // Finds all languages used in all repos, and sums the bytes written in each language
   try {
     const sizes: { [key: string]: number } = {}; // Key is a language name, value is the total bytes written in that language
     const data = await languagesServices(accountId);

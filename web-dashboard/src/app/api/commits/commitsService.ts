@@ -135,13 +135,12 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
     let hasNextPageOrgs = true;
     let afterOrgsCursor = null;
 
-    let hasNextPageOrgRepos = true;
     let afterOrgReposCursor = null;
 
     let hasNextPageViewerRepos = true;
     let afterViewerReposCursor = null;
 
-    while (hasNextPageOrgs || hasNextPageOrgRepos || hasNextPageViewerRepos) {
+    while (hasNextPageOrgs || hasNextPageViewerRepos) {
       const result: GraphQLResponse = await graphqlWithAuth<GraphQLResponse>(
         `#graphql
             query getBestCaseCommits($userId: ID, $afterOrgsCursor: String, $afterOrgReposCursor: String, $afterViewerReposCursor: String) {
@@ -254,7 +253,6 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
       result.viewer.repositories.nodes?.forEach((repo) => processRepo(repo));
 
       result.viewer.organizations.nodes.forEach((org) => {
-        hasNextPageOrgRepos = org.repositories.pageInfo.hasNextPage;
         afterOrgReposCursor = org.repositories.pageInfo.endCursor;
         org.repositories.nodes.forEach((repo) => processRepo(repo));
       });

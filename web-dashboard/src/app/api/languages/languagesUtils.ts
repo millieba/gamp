@@ -49,10 +49,9 @@ export interface QueryResult {
       pageInfo: PageInfo;
     };
   };
-};
+}
 
-
-export const languageQuery = `
+export const languageQuery = `#graphql
 query ($username: String!, $afterCursorRepositories: String, $afterCursorOrg: String, $afterCursorOrgRepositories: String) {
   user(login: $username) {
     organizations(first: 10, after: $afterCursorOrg) {
