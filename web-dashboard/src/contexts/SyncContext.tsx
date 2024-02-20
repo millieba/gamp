@@ -21,13 +21,14 @@ export interface ProgrammingLanguage {
 export async function sync(
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   setBadges: Dispatch<SetStateAction<Badge[]>>,
+  setAllBadges: Dispatch<SetStateAction<Badge[]>>,
   setStats: Dispatch<SetStateAction<Stats | undefined>>
 ) {
   try {
     setIsLoading(true);
     const syncResponse = await fetch("/api/sync");
     if (syncResponse.ok) {
-      await fetchFromDB(setIsLoading, setBadges, setStats);
+      await fetchFromDB(setIsLoading, setBadges, setAllBadges, setStats);
     }
   } catch (error) {
     console.error(error);
@@ -39,12 +40,15 @@ export async function sync(
 export async function fetchFromDB(
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   setBadges: Dispatch<SetStateAction<Badge[]>>,
+  setAllBadges: Dispatch<SetStateAction<Badge[]>>,
   setStats: Dispatch<SetStateAction<Stats | undefined>>
 ) {
   try {
     setIsLoading(true);
     const badgesData = await fetch(`api/badges`).then((res) => res.json());
     setBadges(badgesData.badges);
+    const allBadgesData = await fetch(`api/badges/all`).then((res) => res.json());
+    setAllBadges(allBadgesData);
     const statsData = await fetch(`api/stats`).then((res) => res.json());
     setStats(statsData.githubStats);
   } catch (error) {
@@ -57,6 +61,8 @@ export async function fetchFromDB(
 interface SyncContextProps {
   badges: Badge[];
   setBadges: Dispatch<SetStateAction<Badge[]>>;
+  allBadges: Badge[];
+  setAllBadges: Dispatch<SetStateAction<Badge[]>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   stats: Stats | undefined;
@@ -67,6 +73,7 @@ const SyncContext = createContext<SyncContextProps | undefined>(undefined);
 
 export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [stats, setStats] = useState<Stats | undefined>();
   const { data: session, status } = useSession();
@@ -81,10 +88,10 @@ export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             session.user.lastSync === null || // Do full sync with GitHub if lastSync is null or more than an hour ago
             (session.user.lastSync && new Date(session.user.lastSync) < oneHourAgo)
           ) {
-            await sync(setIsLoading, setBadges, setStats);
+            await sync(setIsLoading, setBadges, setAllBadges, setStats);
           } else {
             // Fetch from database if lastSync is within the last hour
-            await fetchFromDB(setIsLoading, setBadges, setStats);
+            await fetchFromDB(setIsLoading, setBadges, setAllBadges, setStats);
           }
         }
       } catch (error) {
@@ -98,7 +105,9 @@ export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [status]);
 
   return (
-    <SyncContext.Provider value={{ badges, setBadges, isLoading, setIsLoading, stats, setStats }}>
+    <SyncContext.Provider
+      value={{ badges, setBadges, allBadges, setAllBadges, isLoading, setIsLoading, stats, setStats }}
+    >
       {children}
     </SyncContext.Provider>
   );

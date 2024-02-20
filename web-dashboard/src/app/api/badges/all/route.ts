@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { options } from "../auth/[...nextauth]/options";
-import { getBadgesFromDB } from "./checkBadgesService";
+import { options } from "../../auth/[...nextauth]/options";
+import { getBadgesFromDB } from "./getAllBadgesService";
 
 export const GET = async () => {
   try {

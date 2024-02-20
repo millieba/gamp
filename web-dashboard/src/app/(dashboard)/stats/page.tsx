@@ -5,7 +5,7 @@ import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
 
 const StatsPage = () => {
-  const { badges, isLoading, stats } = useSyncContext();
+  const { badges, isLoading, stats, allBadges } = useSyncContext();
 
   const convertMsToDays = (ms: number) => {
     if (ms < 86400000) {
@@ -24,7 +24,9 @@ const StatsPage = () => {
       subheading: "Badges earned",
       number: badges?.length || 0,
       unit: "badges",
-      description: `You have earned ${badges?.length > 0 ? badges?.length : 0} badges out of 3 possible!`,
+      description: `You have earned ${badges?.length > 0 ? badges?.length : 0} badges out of ${
+        allBadges.length
+      } possible!`,
     },
     {
       icon: "sparkles",
