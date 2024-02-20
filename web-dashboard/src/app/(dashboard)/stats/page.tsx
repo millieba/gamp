@@ -54,6 +54,14 @@ const StatsPage = () => {
         stats?.createdAndMergedPrs === stats?.createdPrs ? "all" : stats?.createdAndMergedPrs
       } of them have been merged!`,
     },
+    {
+      icon: "language",
+      heading: "Languages",
+      subheading: "Used languages",
+      number: stats?.programmingLanguages.length || 0,
+      unit: "languages",
+      description: "This is how many languages you have used in your repositories!",
+    },
   ];
 
   return (
@@ -63,7 +71,7 @@ const StatsPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {data.map(
               (item, index: number) =>
                 (item.number !== 0 || item.number !== null || stats !== undefined) && (
@@ -75,7 +83,6 @@ const StatsPage = () => {
                     number={Number(item.number)}
                     unit={item.unit}
                     description={item.description}
-                    maxWidth="300px"
                   />
                 )
             )}

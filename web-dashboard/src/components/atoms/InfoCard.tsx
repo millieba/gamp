@@ -1,5 +1,12 @@
-import { ClockIcon, PuzzlePieceIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/outline";
-import React from "react";
+import {
+  ClockIcon,
+  InformationCircleIcon,
+  LanguageIcon,
+  PuzzlePieceIcon,
+  SparklesIcon,
+  StarIcon,
+} from "@heroicons/react/24/outline";
+import React, { useState } from "react";
 
 export interface InfoDetails {
   icon: string;
@@ -7,23 +14,40 @@ export interface InfoDetails {
   subheading: string;
   number: number;
   unit: string;
-  description?: string;
-  maxWidth?: string; // remember to specify the unit when using this prop
+  description: string;
 }
 
-const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, unit, description, maxWidth }) => {
+const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, unit, description }) => {
   const gradientColor = "bg-DarkNeutral300";
+  const [hover, setHover] = useState(false);
+
+  const iconComponents: { [key: string]: React.ElementType } = {
+    clock: ClockIcon,
+    puzzle: PuzzlePieceIcon,
+    sparkles: SparklesIcon,
+    star: StarIcon,
+    language: LanguageIcon,
+  };
+
+  const IconComponent = iconComponents[icon];
+
   return (
     <div
-      className={`p-8 m-2 rounded-lg shadow-md ${gradientColor} overflow-visible overflow-wrap-anywhere`}
-      style={{ maxWidth: maxWidth ? maxWidth : "" }}
+      className={`p-8 m-2 rounded-lg shadow-md ${gradientColor} overflow-visible overflow-wrap-anywhere min-w-[250px]`}
     >
-      <div className="flex items-center mb-1">
-        {icon === "clock" && <ClockIcon className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
-        {icon === "puzzle" && <PuzzlePieceIcon className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
-        {icon === "sparkles" && <SparklesIcon className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
-        {icon === "star" && <StarIcon className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
-        <p className="text-DarkNeutral1000 font-semibold">{heading}</p>
+      <div className="flex items-center mb-1 justify-between">
+        <div className="flex items-center">
+          {IconComponent && <IconComponent className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
+          <p className="text-DarkNeutral1000 font-semibold">{heading}</p>
+        </div>
+        <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} className="relative">
+          <InformationCircleIcon className="h-5 w-5" />
+          {hover && (
+            <div className="absolute right-0 bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 min-w-[200px]">
+              {description}
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex">
         <h1 className="text-2xl font-bold pr-4 text-DarkNeutral1100">
@@ -31,7 +55,6 @@ const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, un
         </h1>
       </div>
       <p className="text-Teal600 font-bold">{subheading}</p>
-      <p className="text-DarkNeutral1100 pr-4">{description}</p>
     </div>
   );
 };
