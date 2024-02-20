@@ -2,11 +2,15 @@ import prisma from "@/utils/prisma";
 import { fetchCommitCount } from "../commits/commitsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { calculateLanguageSizes } from "../languages/languagesService";
+import { fetchIssueVariables } from "../issues/issuesService";
+import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 
 export async function syncStats(accountId: string) {
     try {
         const commitCount = await fetchCommitCount(accountId);
         const repoCount = await fetchRepoCount(accountId);
+        const issueVariables = await fetchIssueVariables(accountId);
+        const prVariables = await fetchPullRequestVariables(accountId);
 
         const languages = await calculateLanguageSizes(accountId);
         const languagesArray = Object.keys(languages).map((languageName) => { // Convert the object into an array of language objects as expected by Prisma
@@ -18,6 +22,11 @@ export async function syncStats(accountId: string) {
             update: {
                 commitCount: commitCount?.commitCount,
                 repoCount: repoCount?.repoCount,
+                issueCount: issueVariables?.issueCount,
+                avgTimeToCloseIssues: issueVariables?.avgTimeToCloseIssues,
+                closedIssueCount: issueVariables?.closedIssueCount,
+                createdPrs: prVariables?.createdPrs,
+                createdAndMergedPrs: prVariables?.createdAndMergedPrs,
                 programmingLanguages: {
                     deleteMany: {}, // Delete all existing languages, then re-create them
                     create: languagesArray,
@@ -27,6 +36,11 @@ export async function syncStats(accountId: string) {
                 accountId: accountId,
                 repoCount: repoCount?.repoCount,
                 commitCount: commitCount?.commitCount,
+                issueCount: issueVariables?.issueCount,
+                avgTimeToCloseIssues: issueVariables?.avgTimeToCloseIssues,
+                closedIssueCount: issueVariables?.closedIssueCount,
+                createdPrs: prVariables?.createdPrs,
+                createdAndMergedPrs: prVariables?.createdAndMergedPrs,
                 programmingLanguages: {
                     create: languagesArray,
                 },
@@ -45,6 +59,11 @@ export async function getStatsFromDB(accountId: string) {
             select: {
                 commitCount: true,
                 repoCount: true,
+                issueCount: true,
+                avgTimeToCloseIssues: true,
+                closedIssueCount: true,
+                createdPrs: true,
+                createdAndMergedPrs: true,
                 programmingLanguages: {
                     select: {
                         name: true,

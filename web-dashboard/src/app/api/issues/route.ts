@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 import { NextResponse } from "next/server";
-import { issuesService } from "./issuesService";
+import { getIssueVariablesFromDb } from "./issuesService";
 
 export const GET = async () => {
   try {
@@ -10,7 +10,7 @@ export const GET = async () => {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    const issues = await issuesService(session.user.githubAccountId);
+    const issues = await getIssueVariablesFromDb(session.user.githubAccountId);
     return NextResponse.json(issues, { status: 200 });
 
   } catch (error) {
