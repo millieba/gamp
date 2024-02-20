@@ -31,10 +31,10 @@ const StatsPage = () => {
     {
       icon: "sparkles",
       heading: "Work done",
-      subheading: "Issues created",
+      subheading: "Assigned issues",
       number: stats?.issueCount || 0,
       unit: "issues",
-      description: `In addition, you have closed ${stats?.closedIssueCount} out of ${stats?.issueCount} issues!`,
+      description: `In addition, you have closed ${stats?.closedIssueCount} out of ${stats?.issueCount} assigned issues!`,
     },
     {
       icon: "clock",
