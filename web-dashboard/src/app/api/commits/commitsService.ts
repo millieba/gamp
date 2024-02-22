@@ -349,6 +349,75 @@ function sortAndRemoveDuplicates(commits: Commit[]) {
   return uniqueCommits;
 }
 
+const mockCommits: Commit[] = [
+  {
+    message: "Commit for Thursday",
+    oid: "2",
+    additions: 150,
+    deletions: 70,
+    changedFilesIfAvailable: 4,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-22T14:00:00Z", // Thursday
+  },
+  {
+    message: "Commit for Wednesday",
+    oid: "3",
+    additions: 200,
+    deletions: 80,
+    changedFilesIfAvailable: 5,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-21T14:00:00Z", // Wednesday
+  },
+  {
+    message: "Commit for Tuesday",
+    oid: "4",
+    additions: 120,
+    deletions: 60,
+    changedFilesIfAvailable: 2,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-20T14:00:00Z", // Tuesday
+  },
+  {
+    message: "Commit for Monday",
+    oid: "5",
+    additions: 180,
+    deletions: 90,
+    changedFilesIfAvailable: 6,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-19T14:00:00Z", // Monday
+  },
+  {
+    message: "Commit for Friday",
+    oid: "6",
+    additions: 100,
+    deletions: 50,
+    changedFilesIfAvailable: 3,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-16T14:00:00Z", // Friday
+  },
+  {
+    message: "Commit for Thursday",
+    oid: "7",
+    additions: 150,
+    deletions: 70,
+    changedFilesIfAvailable: 4,
+    author: {
+      email: "author@example.com",
+    },
+    committedDate: "2024-02-15T14:00:00Z", // Thursday
+  },
+];
+
 export async function fetchAllCommitsHandler(accountId: string) {
   try {
     const { graphqlWithAuth, userId } = await setupGraphQLWithAuth(accountId);
@@ -365,11 +434,9 @@ export async function fetchAllCommitsHandler(accountId: string) {
     }
 
     const uniqueCommits = sortAndRemoveDuplicates(allCommits);
-    const streak = hasCommitStreak(uniqueCommits);
-    const streak2 = hasCommitStreak2(uniqueCommits);
+    const streak = hasCommitStreak(mockCommits);
 
     console.log(streak);
-    console.log("lol raskere?", streak2);
 
     return uniqueCommits;
   } catch (error) {
@@ -378,65 +445,21 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
-function hasCommitStreak(commits: Commit[]): { workdayStreak: number; allDayStreak: number } {
+function hasCommitStreak(commits: Commit[]): { workdayStreak: number; strictStreak: number } {
   const commitDates = new Set<string>(commits.map((commit) => commit.committedDate.split("T")[0]));
   const today = new Date();
   let workdayStreak = 0;
-  let allDayStreak = 0;
+  let strictStreak = 0;
 
-  while (true) {
-    const todayStr = today.toISOString().split("T")[0];
-    if (commitDates.has(todayStr)) {
-      allDayStreak++;
-      if (today.getDay() !== 0 && today.getDay() !== 6) {
-        workdayStreak++;
-      }
-    } else {
-      break;
-    }
+  while (commitDates.has(today.toISOString().split("T")[0])) {
+    console.log(today);
+    strictStreak++;
     today.setDate(today.getDate() - 1);
   }
-  //   console.log(commitDates);
 
-  return { workdayStreak, allDayStreak };
-}
+  // TODO: add logic for workdaystreak. E.g. A user commits on wednesday, thursday, friday. Streak is 3 on friday,
+  // but the user does not commit anything on saturday or sunday. This will however not break the streak, and when
+  // the user commits on monday, their streak will continue where it left off and be set to 4.
 
-function hasCommitStreak2(commits: Commit[]): { workdayStreak: number; allDayStreak: number } {
-  const commitDates = new Set<string>();
-  let prevDate: Date | null = null;
-
-  for (const commit of commits) {
-    const currentDate = new Date(commit.committedDate.split("T")[0]);
-
-    if (prevDate && Math.abs(currentDate.getTime() - prevDate.getTime()) > 1000 * 3600 * 24) {
-      // If the gap includes a Saturday or Sunday, don't break the streak
-      console.log(prevDate, prevDate.getDay(), currentDate, currentDate.getDay());
-
-      if (prevDate.getDay() !== 0 && prevDate.getDay() !== 6) {
-        break;
-      }
-    }
-
-    commitDates.add(currentDate.toISOString().split("T")[0]);
-    prevDate = currentDate;
-  }
-
-  const today = new Date();
-  let workdayStreak = 0;
-  let allDayStreak = 0;
-
-  while (true) {
-    const todayStr = today.toISOString().split("T")[0];
-    if (commitDates.has(todayStr)) {
-      allDayStreak++;
-      if (today.getDay() !== 0 && today.getDay() !== 6) {
-        workdayStreak++;
-      }
-    } else {
-      break;
-    }
-    today.setDate(today.getDate() - 1);
-  }
-  console.log(commitDates);
-  return { workdayStreak, allDayStreak };
+  return { workdayStreak, strictStreak };
 }
