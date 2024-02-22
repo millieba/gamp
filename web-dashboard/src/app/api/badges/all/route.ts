@@ -10,7 +10,7 @@ export const GET = async () => {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    const badges = await getBadgesFromDB(session.user.githubAccountId);
+    const badges = await getBadgesFromDB();
     return NextResponse.json(badges, { status: 200 });
   } catch (error) {
     console.error("An error occurred while getting badges from the database:", error);
