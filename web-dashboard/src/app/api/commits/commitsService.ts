@@ -365,10 +365,78 @@ export async function fetchAllCommitsHandler(accountId: string) {
     }
 
     const uniqueCommits = sortAndRemoveDuplicates(allCommits);
+    const streak = hasCommitStreak(uniqueCommits);
+    const streak2 = hasCommitStreak2(uniqueCommits);
+
+    console.log(streak);
+    console.log("lol raskere?", streak2);
 
     return uniqueCommits;
   } catch (error) {
     console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
     throw error;
   }
+}
+
+function hasCommitStreak(commits: Commit[]): { workdayStreak: number; allDayStreak: number } {
+  const commitDates = new Set<string>(commits.map((commit) => commit.committedDate.split("T")[0]));
+  const today = new Date();
+  let workdayStreak = 0;
+  let allDayStreak = 0;
+
+  while (true) {
+    const todayStr = today.toISOString().split("T")[0];
+    if (commitDates.has(todayStr)) {
+      allDayStreak++;
+      if (today.getDay() !== 0 && today.getDay() !== 6) {
+        workdayStreak++;
+      }
+    } else {
+      break;
+    }
+    today.setDate(today.getDate() - 1);
+  }
+  //   console.log(commitDates);
+
+  return { workdayStreak, allDayStreak };
+}
+
+function hasCommitStreak2(commits: Commit[]): { workdayStreak: number; allDayStreak: number } {
+  const commitDates = new Set<string>();
+  let prevDate: Date | null = null;
+
+  for (const commit of commits) {
+    const currentDate = new Date(commit.committedDate.split("T")[0]);
+
+    if (prevDate && Math.abs(currentDate.getTime() - prevDate.getTime()) > 1000 * 3600 * 24) {
+      // If the gap includes a Saturday or Sunday, don't break the streak
+      console.log(prevDate, prevDate.getDay(), currentDate, currentDate.getDay());
+
+      if (prevDate.getDay() !== 0 && prevDate.getDay() !== 6) {
+        break;
+      }
+    }
+
+    commitDates.add(currentDate.toISOString().split("T")[0]);
+    prevDate = currentDate;
+  }
+
+  const today = new Date();
+  let workdayStreak = 0;
+  let allDayStreak = 0;
+
+  while (true) {
+    const todayStr = today.toISOString().split("T")[0];
+    if (commitDates.has(todayStr)) {
+      allDayStreak++;
+      if (today.getDay() !== 0 && today.getDay() !== 6) {
+        workdayStreak++;
+      }
+    } else {
+      break;
+    }
+    today.setDate(today.getDate() - 1);
+  }
+  console.log(commitDates);
+  return { workdayStreak, allDayStreak };
 }
