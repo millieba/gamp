@@ -349,74 +349,35 @@ function sortAndRemoveDuplicates(commits: Commit[]) {
   return uniqueCommits;
 }
 
-const mockCommits: Commit[] = [
-  {
-    message: "Commit for Thursday",
-    oid: "2",
-    additions: 150,
-    deletions: 70,
-    changedFilesIfAvailable: 4,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-22T14:00:00Z", // Thursday
-  },
-  {
-    message: "Commit for Wednesday",
-    oid: "3",
-    additions: 200,
-    deletions: 80,
-    changedFilesIfAvailable: 5,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-21T14:00:00Z", // Wednesday
-  },
-  {
-    message: "Commit for Tuesday",
-    oid: "4",
-    additions: 120,
-    deletions: 60,
-    changedFilesIfAvailable: 2,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-20T14:00:00Z", // Tuesday
-  },
-  {
-    message: "Commit for Monday",
-    oid: "5",
-    additions: 180,
-    deletions: 90,
-    changedFilesIfAvailable: 6,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-19T14:00:00Z", // Monday
-  },
-  {
-    message: "Commit for Friday",
-    oid: "6",
-    additions: 100,
-    deletions: 50,
-    changedFilesIfAvailable: 3,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-16T14:00:00Z", // Friday
-  },
-  {
-    message: "Commit for Thursday",
-    oid: "7",
-    additions: 150,
-    deletions: 70,
-    changedFilesIfAvailable: 4,
-    author: {
-      email: "author@example.com",
-    },
-    committedDate: "2024-02-15T14:00:00Z", // Thursday
-  },
-];
+function generateMockCommits(startDate: Date, daysBack: number, skipDays: number[]): Commit[] {
+  const mockCommits: Commit[] = [];
+
+  for (let i = 0; i < daysBack; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() - i);
+
+    // Check if the current day should be skipped
+    if (skipDays.includes(date.getDay())) {
+      continue; // Skip this day
+    }
+
+    const commit: Commit = {
+      message: `Commit for ${date.toLocaleDateString("en-US", { weekday: "long" })}`,
+      oid: i.toString(),
+      additions: Math.floor(Math.random() * 200) + 50,
+      deletions: Math.floor(Math.random() * 100) + 20,
+      changedFilesIfAvailable: Math.floor(Math.random() * 6) + 1,
+      author: {
+        email: "author@example.com",
+      },
+      committedDate: date.toISOString(),
+    };
+
+    mockCommits.push(commit);
+  }
+
+  return mockCommits;
+}
 
 export async function fetchAllCommitsHandler(accountId: string) {
   try {
@@ -434,7 +395,9 @@ export async function fetchAllCommitsHandler(accountId: string) {
     }
 
     const uniqueCommits = sortAndRemoveDuplicates(allCommits);
-    const streak = hasCommitStreak(mockCommits);
+    const mockData = generateMockCommits(new Date(), 8, [0, 6]);
+    console.log(mockData);
+    const streak = hasCommitStreak(mockData);
 
     console.log(streak);
 
