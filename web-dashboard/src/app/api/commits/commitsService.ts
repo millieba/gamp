@@ -443,9 +443,14 @@ function getStreakCandidates(commits: Commit[]): string[] {
   return Array.from(commitDates);
 }
 
-function calculateStrictStreak(commitDates: string[]): { strictStreak: number; strictTodayNeeded: boolean } {
+function calculateStrictStreak(commitDates: string[]): {
+  strictStreak: number;
+  strictTodayNeeded: boolean;
+  strictStreakToContinue: number | null;
+} {
   let strictStreak = 0;
   let strictTodayNeeded = false;
+  let strictStreakToContinue = null;
 
   const today = new Date();
   const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -464,13 +469,24 @@ function calculateStrictStreak(commitDates: string[]): { strictStreak: number; s
   } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
     // If today has no commit, but yesterday has a commit
     strictTodayNeeded = true;
+    let currentDate = new Date(yesterday);
+    while (dateSet.has(currentDate.toISOString().split("T")[0])) {
+      strictStreakToContinue = strictStreakToContinue === null ? 1 : strictStreakToContinue + 1;
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
   }
 
-  return { strictStreak, strictTodayNeeded };
+  return { strictStreak, strictTodayNeeded, strictStreakToContinue };
 }
-function calculateWorkdayStreak(commitDates: string[]): { workdayStreak: number; workdayTodayNeeded: boolean } {
+
+function calculateWorkdayStreak(commitDates: string[]): {
+  workdayStreak: number;
+  workdayTodayNeeded: boolean;
+  workdayStreakToContinue: number | null;
+} {
   let workdayStreak = 0;
   let workdayTodayNeeded = false;
+  let workdayStreakToContinue = null;
 
   const mostRecentDate = new Date(commitDates[0]);
   const today = new Date();
@@ -479,27 +495,44 @@ function calculateWorkdayStreak(commitDates: string[]): { workdayStreak: number;
   if (mostRecentDate.toDateString() === today.toDateString()) {
     // If today has a commit
     workdayTodayNeeded = false;
-    workdayStreak = commitDates.length; // Since commitDates only contain consecutive days (not broken by weekends)
+    workdayStreak = commitDates.length; // Since commitDates only contain unique consecutive days (not broken by weekends)
   } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
     // If today has no commit, but yesterday has a commit
     workdayTodayNeeded = true;
+    workdayStreakToContinue = commitDates.length;
   }
 
-  return { workdayStreak, workdayTodayNeeded };
+  return { workdayStreak, workdayTodayNeeded, workdayStreakToContinue };
 }
 
 function getCommitStreak(commitDates: string[] | undefined): {
   workdayStreak: number;
-  strictStreak: number;
   workdayTodayNeeded: boolean;
+  workdayStreakToContinue: number | null;
+  strictStreak: number;
   strictTodayNeeded: boolean;
+  strictStreakToContinue: number | null;
 } {
   if (!commitDates || commitDates.length === 0) {
-    return { workdayStreak: 0, strictStreak: 0, workdayTodayNeeded: false, strictTodayNeeded: false };
+    return {
+      workdayStreak: 0,
+      workdayTodayNeeded: false,
+      workdayStreakToContinue: null,
+      strictStreak: 0,
+      strictTodayNeeded: false,
+      strictStreakToContinue: null,
+    };
   }
 
-  const { strictStreak, strictTodayNeeded } = calculateStrictStreak(commitDates);
-  const { workdayStreak, workdayTodayNeeded } = calculateWorkdayStreak(commitDates);
+  const { strictStreak, strictTodayNeeded, strictStreakToContinue } = calculateStrictStreak(commitDates);
+  const { workdayStreak, workdayTodayNeeded, workdayStreakToContinue } = calculateWorkdayStreak(commitDates);
 
-  return { workdayStreak, strictStreak, workdayTodayNeeded, strictTodayNeeded };
+  return {
+    workdayStreak,
+    workdayTodayNeeded,
+    workdayStreakToContinue,
+    strictStreak,
+    strictTodayNeeded,
+    strictStreakToContinue,
+  };
 }
