@@ -70,12 +70,12 @@ function getStreakCandidates(commits: Commit[]): string[] {
 // Calculates the strict streak, meaning how many days in a row the user has committed.
 // Any gap will break the strict streak, even if the gap is during the weekend.
 function calculateStrictStreak(commitDates: string[]): {
-  strictStreak: number;
-  strictTodayNeeded: boolean;
+  strictStreak: number | null;
+  strictStreakBrokenToday: boolean;
   strictStreakToContinue: number | null;
 } {
-  let strictStreak = 0;
-  let strictTodayNeeded = false;
+  let strictStreak = null;
+  let strictStreakBrokenToday = false;
   let strictStreakToContinue = null;
 
   const today = new Date();
@@ -86,15 +86,15 @@ function calculateStrictStreak(commitDates: string[]): {
 
   if (mostRecentDate.toDateString() === today.toDateString()) {
     // If today has a commit, the user can keep their streak without needing to commit
-    strictTodayNeeded = false;
+    strictStreakBrokenToday = false;
     let currentDate = new Date(today);
     while (dateSet.has(currentDate.toISOString().split("T")[0])) {
-      strictStreak++;
+      strictStreak = strictStreak === null ? 1 : strictStreak + 1;
       currentDate.setDate(currentDate.getDate() - 1);
     }
   } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
     // If today has no commit, but yesterday has a commit, the user needs to commit to keep their streak
-    strictTodayNeeded = true;
+    strictStreakBrokenToday = true;
     let currentDate = new Date(yesterday);
     while (dateSet.has(currentDate.toISOString().split("T")[0])) {
       // Get yesterday's streak as the strict streak to continue
@@ -103,18 +103,18 @@ function calculateStrictStreak(commitDates: string[]): {
     }
   }
 
-  return { strictStreak, strictTodayNeeded, strictStreakToContinue };
+  return { strictStreak, strictStreakBrokenToday, strictStreakToContinue };
 }
 
 // The workday streak allows the user to keep their streak even if there are no commits during the weekend
 // E.g. commits on wednesday, thursday, friday, and monday gives streak 4, not 1.
 function calculateWorkdayStreak(commitDates: string[]): {
-  workdayStreak: number;
-  workdayTodayNeeded: boolean;
+  workdayStreak: number | null;
+  workdayStreakBrokenToday: boolean;
   workdayStreakToContinue: number | null;
 } {
-  let workdayStreak = 0;
-  let workdayTodayNeeded = false;
+  let workdayStreak = null;
+  let workdayStreakBrokenToday = false;
   let workdayStreakToContinue = null;
 
   const mostRecentDate = new Date(commitDates[0]);
@@ -124,29 +124,29 @@ function calculateWorkdayStreak(commitDates: string[]): {
   if (mostRecentDate.toDateString() === today.toDateString()) {
     // If today has a commit, we know that the length of commitDates is equal to the workday streak
     // as commitDates was created by only adding unique, consecutive commit days with the exception of weekends
-    workdayTodayNeeded = false;
+    workdayStreakBrokenToday = false;
     workdayStreak = commitDates.length;
   } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
     // If today has no commit, but yesterday has a commit, the user needs to commit today to keep yesterday's streak
-    workdayTodayNeeded = true;
+    workdayStreakBrokenToday = true;
     workdayStreakToContinue = commitDates.length;
   }
 
-  return { workdayStreak, workdayTodayNeeded, workdayStreakToContinue };
+  return { workdayStreak, workdayStreakBrokenToday, workdayStreakToContinue };
 }
 
 export interface StreakResponse {
-  workdayStreak: number;
-  workdayTodayNeeded: boolean;
+  workdayStreak: number | null;
+  workdayStreakBrokenToday: boolean;
   workdayStreakToContinue: number | null;
-  strictStreak: number;
-  strictTodayNeeded: boolean;
+  strictStreak: number | null;
+  strictStreakBrokenToday: boolean;
   strictStreakToContinue: number | null;
 }
 
 export function getCommitStreak(commits: Commit[]): StreakResponse {
   const commitDates = getStreakCandidates(
-    generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
+    generateMockCommits(new Date(new Date().setDate(new Date().getDate() - 1)), 8, [0, 6])
   );
 
   //   const commitDates = getStreakCandidates(commits);
@@ -155,22 +155,22 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
   if (!commitDates || commitDates.length === 0) {
     return {
       workdayStreak: 0,
-      workdayTodayNeeded: false,
+      workdayStreakBrokenToday: false,
       workdayStreakToContinue: null,
       strictStreak: 0,
-      strictTodayNeeded: false,
+      strictStreakBrokenToday: false,
       strictStreakToContinue: null,
     };
   }
-  const { strictStreak, strictTodayNeeded, strictStreakToContinue } = calculateStrictStreak(commitDates);
-  const { workdayStreak, workdayTodayNeeded, workdayStreakToContinue } = calculateWorkdayStreak(commitDates);
+  const { strictStreak, strictStreakBrokenToday, strictStreakToContinue } = calculateStrictStreak(commitDates);
+  const { workdayStreak, workdayStreakBrokenToday, workdayStreakToContinue } = calculateWorkdayStreak(commitDates);
 
   return {
     workdayStreak,
-    workdayTodayNeeded,
+    workdayStreakBrokenToday,
     workdayStreakToContinue,
     strictStreak,
-    strictTodayNeeded,
+    strictStreakBrokenToday,
     strictStreakToContinue,
   };
 }
