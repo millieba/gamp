@@ -3,6 +3,7 @@ import StatBox from "@/components/atoms/StatBox";
 import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
+import ModificationsChart from "@/components/atoms/ModificationsChart";
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges } = useSyncContext();
@@ -89,14 +90,20 @@ const StatsPage = () => {
                 )
             )}
           </div>
-          <StatBox
-            name={"Most used languages"}
-            description={
-              "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
-            }
-            content={<LanguageChart />}
-            maxWidth="500px"
-          />
+          <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2">
+            <StatBox
+              name={"Most used languages"}
+              description={
+                "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+              }
+              content={<LanguageChart />}
+            />
+            <StatBox
+              name={"Additions and deletions"}
+              description={"Something something"}
+              content={<ModificationsChart />}
+            />
+          </div>
         </>
       )}
     </>
