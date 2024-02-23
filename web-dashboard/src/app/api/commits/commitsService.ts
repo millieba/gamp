@@ -3,6 +3,7 @@ import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
 import { graphql as graphql } from "@octokit/graphql";
 import { graphql as graphQLType } from "@octokit/graphql/dist-types/types";
+import { eachDayOfInterval, startOfWeek, endOfWeek, formatISO, parseISO, format, subWeeks } from "date-fns";
 
 interface PageInfo {
   hasNextPage: boolean;
@@ -369,6 +370,60 @@ export async function fetchAllCommitsHandler(accountId: string) {
     return uniqueCommits;
   } catch (error) {
     console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
+    throw error;
+  }
+}
+
+export async function fetchDailyAverageModifications(accountId: string) {
+  try {
+    let commits = await fetchAllCommitsHandler(accountId);
+
+    const oneWeekAgo = subWeeks(new Date(), 1);
+    console.log(oneWeekAgo);
+    console.log(format(oneWeekAgo, "eeee"));
+    const weekInterval = { start: oneWeekAgo, end: new Date() };
+    const datesOfWeek = eachDayOfInterval(weekInterval).map((date) => {
+      date.setHours(22, 0, 0, 0);
+      return date;
+    });
+
+    const sortedDates = datesOfWeek.sort((a, b) => a.getTime() - b.getTime());
+
+    let dailyAverages: { day: string; additions: number; deletions: number; dateOfDay: Date; totalCommits: number }[] =
+      [];
+
+    for (const date of sortedDates) {
+      const dayOfWeek = format(date, "eeee");
+      const commitsOnDate = commits.filter((commit) => {
+        const commitDate = parseISO(commit.committedDate);
+        return format(commitDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
+      });
+
+      const totalCommits = commitsOnDate.length;
+      let totalAdditions = 0;
+      let totalDeletions = 0;
+
+      for (const commit of commitsOnDate) {
+        totalAdditions += commit.additions;
+        totalDeletions += commit.deletions;
+      }
+
+      const dailyAverageAdditions = totalCommits > 0 ? totalAdditions / totalCommits : 0;
+      const dailyAverageDeletions = totalCommits > 0 ? totalDeletions / totalCommits : 0;
+
+      dailyAverages.push({
+        day: dayOfWeek,
+        additions: Math.round(dailyAverageAdditions),
+        deletions: Math.round(dailyAverageDeletions),
+        dateOfDay: date,
+        totalCommits: totalCommits,
+      });
+    }
+    dailyAverages = dailyAverages.sort((a, b) => a.dateOfDay.getTime() - b.dateOfDay.getTime());
+
+    return dailyAverages;
+  } catch (error) {
+    console.error(`Failed to fetch daily average modifications for account ${accountId}: ${error}`);
     throw error;
   }
 }

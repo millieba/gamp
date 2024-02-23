@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import { fetchAllCommitsHandler } from "./commitsService";
+import { fetchAllCommitsHandler, fetchDailyAverageModifications } from "./commitsService";
 
 export const GET = async () => {
   try {
@@ -10,7 +10,7 @@ export const GET = async () => {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    const commits = await fetchAllCommitsHandler(session.user.githubAccountId);
+    const commits = await fetchDailyAverageModifications(session.user.githubAccountId);
     return NextResponse.json(commits, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
