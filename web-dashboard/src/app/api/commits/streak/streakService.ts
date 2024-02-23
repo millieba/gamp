@@ -136,12 +136,11 @@ export interface StreakResponse {
 
 export function getCommitStreak(commits: Commit[]): StreakResponse {
   try {
-    const commitDates = getStreakCandidates(
-      generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
-    );
+    // const commitDates = getStreakCandidates(
+    //   generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
+    // );
 
-    //   const commitDates = getStreakCandidates(commits);
-    console.log(commitDates);
+    const commitDates = getStreakCandidates(commits);
 
     const { strictStreak, strictStreakToContinue } = calculateStrictStreak(commitDates);
     const { workdayStreak, workdayStreakToContinue } = calculateWorkdayStreak(commitDates);
