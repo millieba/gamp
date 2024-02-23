@@ -395,9 +395,10 @@ export async function fetchAllCommitsHandler(accountId: string) {
     }
 
     const uniqueCommits = sortAndRemoveDuplicates(allCommits);
-    const mockData = generateMockCommits(new Date(), 8, [0, 6]);
+    const mockData = generateMockCommits(new Date(new Date().setDate(new Date().getDate() - 1)), 8, [0, 6]);
     console.log(mockData);
-    const streak = hasCommitStreak(mockData);
+    const streakCandidates = getStreakCandidates(mockData);
+    const streak = getCommitStreak(streakCandidates);
 
     console.log(streak);
 
@@ -407,22 +408,75 @@ export async function fetchAllCommitsHandler(accountId: string) {
     throw error;
   }
 }
+function getStreakCandidates(commits: Commit[]) {
+  const commitDates = new Set<string>();
 
-function hasCommitStreak(commits: Commit[]): { workdayStreak: number; strictStreak: number } {
-  const commitDates = new Set<string>(commits.map((commit) => commit.committedDate.split("T")[0]));
-  const today = new Date();
+  for (let i = 0; i < commits.length; i++) {
+    const currentCommit = commits[i];
+    const currentDate = new Date(currentCommit.committedDate);
+    const currentDay = currentDate.getDay(); // 0 = Sunday, 1 = Monday ... 6 = Saturday
+
+    if (i === 0) {
+      commitDates.add(currentCommit.committedDate.split("T")[0]);
+    } else {
+      const previousCommit = commits[i - 1];
+      const previousDate = new Date(previousCommit.committedDate);
+      const previousDay = previousDate.getDay();
+
+      const dayDiff = (currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
+
+      if (dayDiff > 1) {
+        if (
+          (currentDay === 1 && (previousDay === 5 || previousDay === 6)) || // Gap with Friday/Saturday on one side, Monday on other
+          (previousDay === 1 && (currentDay === 5 || currentDay === 6))
+        ) {
+          commitDates.add(currentCommit.committedDate.split("T")[0]);
+          commitDates.add(previousCommit.committedDate.split("T")[0]);
+        } else {
+          break; // Break the loop if the gap is not during the weekend
+        }
+      } else {
+        commitDates.add(currentCommit.committedDate.split("T")[0]);
+      }
+    }
+  }
+  return Array.from(commitDates);
+}
+
+function getCommitStreak(commitDates: string[] | undefined): {
+  workdayStreak: number;
+  strictStreak: number;
+  todayNeeded: boolean;
+} {
+  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)); // Looks a bit weird but ... https://stackoverflow.com/a/51759591
   let workdayStreak = 0;
   let strictStreak = 0;
+  let todayNeeded = false;
 
-  while (commitDates.has(today.toISOString().split("T")[0])) {
-    console.log(today);
-    strictStreak++;
-    today.setDate(today.getDate() - 1);
+  if (!commitDates) {
+    return { workdayStreak, strictStreak, todayNeeded };
   }
 
-  // TODO: add logic for workdaystreak. E.g. A user commits on wednesday, thursday, friday. Streak is 3 on friday,
-  // but the user does not commit anything on saturday or sunday. This will however not break the streak, and when
-  // the user commits on monday, their streak will continue where it left off and be set to 4.
+  // Calculate strict streak
+  let streakStarted = false;
+  while (commitDates.includes(yesterday.toISOString().split("T")[0])) {
+    if (!streakStarted) {
+      streakStarted = true;
+      todayNeeded = !commitDates.includes(yesterday.toISOString().split("T")[0]); // Set to true only if today's commit is missing
+    }
+    strictStreak++;
+    yesterday.setDate(yesterday.getDate() - 1); // Move to the previous day
+  }
+  strictStreak++; // Include yesterday's commit in the strict streak
 
-  return { workdayStreak, strictStreak };
+  // Calculate workday streak
+  for (let date of commitDates) {
+    const commitDate = new Date(date);
+    const day = commitDate.getDay();
+    if (day !== 0 && day !== 6) {
+      workdayStreak++;
+    }
+  }
+
+  return { workdayStreak, strictStreak, todayNeeded };
 }
