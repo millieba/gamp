@@ -395,7 +395,7 @@ export async function fetchAllCommitsHandler(accountId: string) {
     }
 
     const uniqueCommits = sortAndRemoveDuplicates(allCommits);
-    const mockData = generateMockCommits(new Date(new Date().setDate(new Date().getDate() - 1)), 8, [0, 6]);
+    const mockData = generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6]);
     console.log(mockData);
     const streakCandidates = getStreakCandidates(mockData);
     const streak = getCommitStreak(streakCandidates);
@@ -408,7 +408,7 @@ export async function fetchAllCommitsHandler(accountId: string) {
     throw error;
   }
 }
-function getStreakCandidates(commits: Commit[]) {
+function getStreakCandidates(commits: Commit[]): string[] {
   const commitDates = new Set<string>();
 
   for (let i = 0; i < commits.length; i++) {
@@ -443,40 +443,63 @@ function getStreakCandidates(commits: Commit[]) {
   return Array.from(commitDates);
 }
 
+function calculateStrictStreak(commitDates: string[]): { strictStreak: number; strictTodayNeeded: boolean } {
+  let strictStreak = 0;
+  let strictTodayNeeded = false;
+
+  const today = new Date();
+  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+
+  const dateSet = new Set<string>(commitDates);
+  const mostRecentDate = new Date(commitDates[0]);
+
+  if (mostRecentDate.toDateString() === today.toDateString()) {
+    // If today has a commit
+    strictTodayNeeded = false;
+    let currentDate = new Date(today);
+    while (dateSet.has(currentDate.toISOString().split("T")[0])) {
+      strictStreak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+  } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
+    // If today has no commit, but yesterday has a commit
+    strictTodayNeeded = true;
+  }
+
+  return { strictStreak, strictTodayNeeded };
+}
+function calculateWorkdayStreak(commitDates: string[]): { workdayStreak: number; workdayTodayNeeded: boolean } {
+  let workdayStreak = 0;
+  let workdayTodayNeeded = false;
+
+  const mostRecentDate = new Date(commitDates[0]);
+  const today = new Date();
+  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+
+  if (mostRecentDate.toDateString() === today.toDateString()) {
+    // If today has a commit
+    workdayTodayNeeded = false;
+    workdayStreak = commitDates.length; // Since commitDates only contain consecutive days (not broken by weekends)
+  } else if (mostRecentDate.toDateString() === yesterday.toDateString()) {
+    // If today has no commit, but yesterday has a commit
+    workdayTodayNeeded = true;
+  }
+
+  return { workdayStreak, workdayTodayNeeded };
+}
+
 function getCommitStreak(commitDates: string[] | undefined): {
   workdayStreak: number;
   strictStreak: number;
-  todayNeeded: boolean;
+  workdayTodayNeeded: boolean;
+  strictTodayNeeded: boolean;
 } {
-  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)); // Looks a bit weird but ... https://stackoverflow.com/a/51759591
-  let workdayStreak = 0;
-  let strictStreak = 0;
-  let todayNeeded = false;
-
-  if (!commitDates) {
-    return { workdayStreak, strictStreak, todayNeeded };
+  if (!commitDates || commitDates.length === 0) {
+    return { workdayStreak: 0, strictStreak: 0, workdayTodayNeeded: false, strictTodayNeeded: false };
   }
 
-  // Calculate strict streak
-  let streakStarted = false;
-  while (commitDates.includes(yesterday.toISOString().split("T")[0])) {
-    if (!streakStarted) {
-      streakStarted = true;
-      todayNeeded = !commitDates.includes(yesterday.toISOString().split("T")[0]); // Set to true only if today's commit is missing
-    }
-    strictStreak++;
-    yesterday.setDate(yesterday.getDate() - 1); // Move to the previous day
-  }
-  strictStreak++; // Include yesterday's commit in the strict streak
+  const { strictStreak, strictTodayNeeded } = calculateStrictStreak(commitDates);
+  const { workdayStreak, workdayTodayNeeded } = calculateWorkdayStreak(commitDates);
 
-  // Calculate workday streak
-  for (let date of commitDates) {
-    const commitDate = new Date(date);
-    const day = commitDate.getDay();
-    if (day !== 0 && day !== 6) {
-      workdayStreak++;
-    }
-  }
-
-  return { workdayStreak, strictStreak, todayNeeded };
+  return { workdayStreak, strictStreak, workdayTodayNeeded, strictTodayNeeded };
 }
