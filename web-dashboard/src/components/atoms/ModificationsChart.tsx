@@ -44,10 +44,24 @@ const data = [
 ];
 
 const ModificationsChart = () => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 min-w-[100px]">
+          <b>{label}</b>
+          <p>Additions: {payload[1].value}</p>
+          <p>Deletions: {payload[0].value}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
-        width={1000}
+        // width={1000}
         height={300}
         data={data}
         margin={{
@@ -60,7 +74,7 @@ const ModificationsChart = () => {
         <CartesianGrid strokeDasharray="5 5" stroke="#8C9BAB" />
         <XAxis dataKey="name" stroke={colors?.DarkNeutral1000} />
         <YAxis stroke={colors?.DarkNeutral1000} />
-        <Tooltip />
+        <Tooltip content={CustomTooltip} />
         <Legend />
         <Line type="monotone" dataKey="deletions" stroke={colors?.Red600} strokeWidth={3} />
         <Line type="monotone" dataKey="additions" stroke={colors?.Lime600} strokeWidth={3} />

@@ -74,35 +74,40 @@ const StatsPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="flex flex-wrap">
             {data.map(
               (item, index: number) =>
                 (item.number !== 0 || item.number !== null || stats !== undefined) && (
-                  <InfoCard
-                    key={index}
-                    icon={item.icon}
-                    heading={item.heading}
-                    subheading={item.subheading}
-                    number={Number(item.number)}
-                    unit={item.unit}
-                    description={item.description}
-                  />
+                  <div className="flex-grow" key={index}>
+                    <InfoCard
+                      icon={item.icon}
+                      heading={item.heading}
+                      subheading={item.subheading}
+                      number={Number(item.number)}
+                      unit={item.unit}
+                      description={item.description}
+                    />
+                  </div>
                 )
             )}
           </div>
-          <div className="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2">
-            <StatBox
-              name={"Most used languages"}
-              description={
-                "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
-              }
-              content={<LanguageChart />}
-            />
-            <StatBox
-              name={"Additions and deletions"}
-              description={"Something something"}
-              content={<ModificationsChart />}
-            />
+          <div className="lg:flex">
+            <div className="lg:flex-1">
+              <StatBox
+                name={"Most used languages"}
+                description={
+                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                }
+                content={<LanguageChart />}
+              />
+            </div>
+            <div className="lg:flex-1">
+              <StatBox
+                name={"Additions and deletions"}
+                description={"Something something"}
+                content={<ModificationsChart />}
+              />
+            </div>
           </div>
         </>
       )}
