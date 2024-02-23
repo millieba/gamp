@@ -41,19 +41,17 @@ function getStreakCandidates(commits: Commit[]): string[] {
     if (i === 0) {
       commitDates.add(currentCommit.committedDate.split("T")[0]);
     } else {
-      const previousCommit = commits[i - 1];
+      const previousCommit = commits[i - 1]; // More recent than currentCommit (commits are sorted new to old)
       const previousDate = new Date(previousCommit.committedDate);
       const previousDay = previousDate.getDay();
 
-      const dayDiff = (currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
-      console.log("curr", currentDate, "prev", previousDate);
+      const dayDiff = (previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24); // Get difference in days between two commits
 
       if (dayDiff > 1) {
         if (
           (currentDay === 1 && (previousDay === 5 || previousDay === 6)) || // Gap with Friday/Saturday on one side, Monday on other
           (previousDay === 1 && (currentDay === 5 || currentDay === 6))
         ) {
-          console.log("Added even if", "curr", currentDate, currentDay, "prev", previousDate, previousDay);
           commitDates.add(currentCommit.committedDate.split("T")[0]);
           commitDates.add(previousCommit.committedDate.split("T")[0]);
         } else {
@@ -139,11 +137,11 @@ export interface StreakResponse {
 }
 
 export function getCommitStreak(commits: Commit[]): StreakResponse {
-  //   const commitDates = getStreakCandidates(
-  //     generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
-  //   );
+  const commitDates = getStreakCandidates(
+    generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
+  );
 
-  const commitDates = getStreakCandidates(commits);
+  //   const commitDates = getStreakCandidates(commits);
   console.log(commitDates);
 
   if (!commitDates || commitDates.length === 0) {
