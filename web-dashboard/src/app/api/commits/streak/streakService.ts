@@ -118,17 +118,32 @@ function calculateWorkdayStreak(commitDates: Set<string>): {
   const mostRecentDay = mostRecentDate.getDay();
 
   if (mostRecentDate.toDateString() === today.toDateString()) {
-    // If today has a commit, we know that the length of commitDates is equal to the workday streak
-    // as commitDates was created by only adding unique, consecutive commit days with the exception of weekends
-    workdayStreak = commitDates.size;
+    // If today has a commit, count only workdays
+    workdayStreak = countWorkdays(commitDates);
   } else if (
     mostRecentDate.toDateString() === yesterday.toDateString() || // If yesterday has a streak to be continued
-    ((mostRecentDay === 5 || mostRecentDay === 6) && (todayDay === 0 || todayDay === 1)) // Streak can be continued even with gaps during weekend
+    ((mostRecentDay === 5 || mostRecentDay === 6) && (todayDay === 0 || todayDay === 1)) // Streak to be continued after the weekend
   ) {
-    workdayStreakToContinue = commitDates.size;
+    workdayStreakToContinue = countWorkdays(commitDates);
   }
 
   return { workdayStreak, workdayStreakToContinue };
+}
+
+// Helper function to count workdays
+function countWorkdays(commitDates: Set<string>): number {
+  let count = 0;
+
+  commitDates.forEach((dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDay();
+    if (day !== 6 && day !== 0) {
+      // Count all days with commits except Saturday and Sunday
+      count++;
+    }
+  });
+
+  return count;
 }
 
 export interface StreakResponse {
