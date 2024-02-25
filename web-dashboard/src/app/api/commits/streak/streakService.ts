@@ -122,8 +122,8 @@ function calculateWorkdayStreak(commitDates: Set<string>): {
     // as commitDates was created by only adding unique, consecutive commit days with the exception of weekends
     workdayStreak = commitDates.size;
   } else if (
-    mostRecentDate.toDateString() === yesterday.toDateString() ||
-    ((mostRecentDay === 5 || mostRecentDay === 6) && (todayDay === 6 || todayDay === 0 || todayDay === 1))
+    mostRecentDate.toDateString() === yesterday.toDateString() || // If yesterday has a streak to be continued
+    ((mostRecentDay === 5 || mostRecentDay === 6) && (todayDay === 0 || todayDay === 1)) // Streak can be continued even with gaps during weekend
   ) {
     workdayStreakToContinue = commitDates.size;
   }
