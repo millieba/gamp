@@ -1,6 +1,7 @@
 "use client";
 
 import BadgeCard from "@/components/atoms/BadgeCard";
+import BadgesWrap from "@/components/atoms/BadgesWrap";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const BadgesPage = () => {
@@ -14,23 +15,9 @@ const BadgesPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <p>Badges you've earned: </p>
-          {badges?.map((badge) => (
-            <BadgeCard
-              key={badge.id}
-              name={badge.name}
-              image={badge.image}
-              description={badge.description}
-              points={badge.points}
-              progress={stats?.commitCount || 0}
-              threshold={badge.threshold}
-              achieved={true}
-            />
-          ))}
-          <p>Badges yet to achieve: </p>
-          {allBadges
-            ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
-            .map((badge) => (
+          <BadgesWrap
+            title="Badges you've earned:"
+            cards={badges?.map((badge) => (
               <BadgeCard
                 key={badge.id}
                 name={badge.name}
@@ -39,9 +26,27 @@ const BadgesPage = () => {
                 points={badge.points}
                 progress={stats?.commitCount || 0}
                 threshold={badge.threshold}
-                achieved={false}
+                achieved={true}
               />
             ))}
+          />
+          <BadgesWrap
+            title="Badges yet to achieve:"
+            cards={allBadges
+              ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
+              .map((badge) => (
+                <BadgeCard
+                  key={badge.id}
+                  name={badge.name}
+                  image={badge.image}
+                  description={badge.description}
+                  points={badge.points}
+                  progress={stats?.commitCount || 0}
+                  threshold={badge.threshold}
+                  achieved={false}
+                />
+              ))}
+          />
         </>
       )}
     </div>
