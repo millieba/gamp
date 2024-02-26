@@ -72,7 +72,6 @@ export async function languagesServices(accountId: string) {
 
         hasNextPageOrg = result.user.organizations.pageInfo.hasNextPage;
         afterCursorOrg = result.user.organizations.pageInfo.endCursor;
-        console.log(hasNextPageOrg, hasNextPageOrgRepositories, hasNextPageRepositories);
       } catch (error) {
         console.error("An error occurred while paginating and fetching languages:", error);
         throw error;

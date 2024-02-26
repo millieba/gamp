@@ -74,16 +74,21 @@ model User {
 
 // Represents GitHub statistics for a user account
 model GitHubStats {
-  id                   String                @id @default(cuid())
-  accountId            String                @unique @map("account_id")
-  commitCount          Int?                  @map("commit_count")
-  repoCount            Int?                  @map("repo_count")
-  issueCount           Int?                  @map("issue_count")
-  avgTimeToCloseIssues Int?                  @map("avg_time_to_close_issues")
-  closedIssueCount     Int?                  @map("closed_issue_count")
-  languagesCount       Int?                  @map("languages_count")
-  createdPrs           Int?                  @map("created_prs")
-  createdAndMergedPrs  Int?                  @map("created_and_merged_prs")
+  id                      String @id @default(cuid())
+  accountId               String @unique @map("account_id")
+  commitCount             Int?   @map("commit_count")
+  repoCount               Int?   @map("repo_count")
+  issueCount              Int?   @map("issue_count")
+  avgTimeToCloseIssues    Int?   @map("avg_time_to_close_issues")
+  closedIssueCount        Int?   @map("closed_issue_count")
+  languagesCount          Int?   @map("languages_count")
+  createdPrs              Int?   @map("created_prs")
+  createdAndMergedPrs     Int?   @map("created_and_merged_prs")
+  strictStreak            Int?   @map("strict_streak")
+  strictStreakToContinue  Int?   @map("strict_streak_to_continue")
+  workdayStreak           Int?   @map("workday_streak")
+  workdayStreakToContinue Int?   @map("workday_streak_to_continue")
+
   programmingLanguages ProgrammingLanguage[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
