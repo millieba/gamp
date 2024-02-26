@@ -82,7 +82,7 @@ function calculateStrictStreak(commitDates: Set<string>): {
   const mostRecentDate = new Date(commitDates.values().next().value); // First (most recent) element in set. https://stackoverflow.com/a/72857508
 
   if (mostRecentDate.toDateString() === today.toDateString()) {
-    // If today has a commit, the user can keep their streak without needing to commit
+    // If today has a commit, the user has a streak
     let currentDate = new Date(today);
     while (commitDates.has(currentDate.toISOString().split("T")[0])) {
       strictStreak = strictStreak === null ? 1 : strictStreak + 1;
@@ -117,20 +117,20 @@ function calculateWorkdayStreak(commitDates: Set<string>): {
   const mostRecentDate = new Date(commitDates.values().next().value);
   const mostRecentDay = mostRecentDate.getDay();
 
-  // Calculate the start of the week (Sunday) for comparison
-  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() - (today.getDay() === 0 ? 7 : 0)));
+  const dayDiff = (today.setUTCHours(0, 0, 0, 0) - mostRecentDate.setUTCHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24);
 
   if (
-    mostRecentDate <= today || // If today has a commit,
-    (mostRecentDate >= startOfWeek && // or if most recent commit is within this week
+    mostRecentDate.toDateString() === today.toDateString() || // If today has a commit,
+    (dayDiff < 7 && // or if most recent commit is within this week
       (mostRecentDay === 5 || mostRecentDay === 6) && // and most recent commit day was on friday/saturday
       (todayDay === 6 || todayDay === 0)) // and today is the weekend,
   ) {
     workdayStreak = countWorkdays(commitDates); // set the streak to number of workdays in the commitDates set.
   } else if (
-    mostRecentDate.toDateString() === yesterday.toDateString() // If yesterday has a streak to be continued
+    mostRecentDate.toDateString() === yesterday.toDateString() || // If yesterday has a streak to be continued,
+    (today.getDay() === 1 && dayDiff <= 3) // or if today is Monday and most recent commit was up to 3 days ago (Friday or later),
   ) {
-    workdayStreakToContinue = countWorkdays(commitDates);
+    workdayStreakToContinue = countWorkdays(commitDates); // there is a streak that can be continued if the user commits today
   }
 
   return { workdayStreak, workdayStreakToContinue };
