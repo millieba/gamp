@@ -3,13 +3,14 @@ import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
 import { graphql as graphql } from "@octokit/graphql";
 import { graphql as graphQLType } from "@octokit/graphql/dist-types/types";
+import { StreakResponse, getCommitStreak } from "./streak/streakService";
 
 interface PageInfo {
   hasNextPage: boolean;
   endCursor: string;
 }
 
-interface Commit {
+export interface Commit {
   message: string;
   oid: string;
   additions: number;
@@ -356,7 +357,6 @@ export async function fetchAllCommitsHandler(accountId: string) {
     const { bestCaseCommits, fetchAloneRepos } = await getAllCommitsBestCase(graphqlWithAuth, userId);
 
     let allCommits: Commit[] = [...bestCaseCommits];
-    console.log(fetchAloneRepos);
     if (fetchAloneRepos.length > 0) {
       for (const { repoName, owner } of fetchAloneRepos) {
         const repoCommits = await getSingleRepoCommits(userId, repoName, owner, null, graphqlWithAuth);
@@ -369,6 +369,18 @@ export async function fetchAllCommitsHandler(accountId: string) {
     return uniqueCommits;
   } catch (error) {
     console.error(`Failed to fetch all commits for account ${accountId}: ${error}`);
+    throw error;
+  }
+}
+
+export async function prepareCommitsForDB(accountId: string): Promise<{ streak: StreakResponse; commits: Commit[] }> {
+  try {
+    const commits = await fetchAllCommitsHandler(accountId);
+    const streak = getCommitStreak(commits);
+
+    return { streak: streak, commits: commits };
+  } catch (error) {
+    console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     throw error;
   }
 }
