@@ -1,9 +1,11 @@
 "use client";
 
+import BadgeCard from "@/components/atoms/BadgeCard";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const BadgesPage = () => {
-  const { badges, isLoading } = useSyncContext();
+  const { badges, isLoading, stats, allBadges } = useSyncContext();
+  const earnedBadgeIds = badges?.map((badge) => badge.id);
 
   return (
     <div>
@@ -11,15 +13,36 @@ const BadgesPage = () => {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:px-4 m-4">
+        <>
+          <p>Badges you've earned: </p>
           {badges?.map((badge) => (
-            <div key={badge.id} className="p-4 rounded-md shadow-md">
-              <p className="text-lg font-semibold mb-2">{badge.name}</p>
-              <img src={badge.image} alt="Badge" width={150} />
-              <p className="text-sm mt-6">{badge.description}</p>
-            </div>
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={stats?.commitCount || 0}
+              threshold={badge.threshold}
+              achieved={true}
+            />
           ))}
-        </div>
+          <p>Badges yet to achieve: </p>
+          {allBadges
+            ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
+            .map((badge) => (
+              <BadgeCard
+                key={badge.id}
+                name={badge.name}
+                image={badge.image}
+                description={badge.description}
+                points={badge.points}
+                progress={stats?.commitCount || 0}
+                threshold={badge.threshold}
+                achieved={false}
+              />
+            ))}
+        </>
       )}
     </div>
   );
