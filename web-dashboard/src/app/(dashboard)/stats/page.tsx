@@ -60,7 +60,7 @@ const StatsPage = () => {
       icon: "language",
       heading: "Languages",
       subheading: "Used languages",
-      number: stats?.programmingLanguages.length || 0,
+      number: stats?.programmingLanguages?.length || 0,
       unit: "languages",
       description: "This is how many languages you have used in your repositories!",
     },

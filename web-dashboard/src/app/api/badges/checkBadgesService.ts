@@ -3,12 +3,16 @@ import { Commit } from "../commits/commitsService";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
-    const commitCount = commits.length;
-
+    // Delete any existing badge awards, as we check all badges each time we sync and don't want duplicates
+    await prisma.badgeAward.deleteMany({
+      where: { accountId },
+    });
     // Fetch all badges of type "commits_count" from the database
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "commits_count" },
     });
+
+    const commitCount = commits.length;
 
     for (const badge of badges) {
       if (commitCount >= badge.threshold) {
