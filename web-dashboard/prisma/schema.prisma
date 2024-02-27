@@ -11,18 +11,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Represents badges that can be awarded to user accounts
-model Badge {
-  id          String    @id
-  name        String    @unique
+// Represents the definition of a badge that can be awarded to user accounts
+model BadgeDefinition {
+  id          String       @id
+  name        String       @unique
   description String
   image       String
   points      Int
   type        String
   threshold   Int
-  accounts    Account[]
+  BadgeAward  BadgeAward[]
 
-  @@map("badges")
+  @@map("badge_definitions")
+}
+
+// Represents the instance of a badge being earned by a user
+model BadgeAward {
+  id         String   @id @default(cuid())
+  badgeId    String   @unique @map("badge_id")
+  accountId  String   @unique @map("account_id")
+  timeEarned DateTime @map("time_earned")
+
+  badge   BadgeDefinition @relation(fields: [badgeId], references: [id])
+  account Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("badge_awards")
 }
 
 // One user can have multiple accounts with different providers.
@@ -41,7 +54,7 @@ model Account {
   id_token                 String?      @db.Text
   session_state            String?
   githubStats              GitHubStats?
-  badges                   Badge[]
+  badges                   BadgeAward[] // List of badges the user has been awarded with
   lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
