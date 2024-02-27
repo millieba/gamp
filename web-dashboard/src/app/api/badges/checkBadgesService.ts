@@ -1,11 +1,9 @@
 import prisma from "@/utils/prisma";
-import { fetchCommitCount } from "../commits/commitsService";
+import { Commit } from "../commits/commitsService";
 
-async function checkCommitCountBadges(accountId: string) {
+async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
-    // TODO: Consider calling getCommitCountFromDB() instead of fetchCommitCount() to avoid unnecessary API calls.
-    // However, would have to make sure that stats are synced before checking badges.
-    const commitCount = (await fetchCommitCount(accountId)).commitCount;
+    const commitCount = commits.length;
 
     // Fetch all badges of type "commits_count" from the database
     const badges = await prisma.badgeDefinition.findMany({
@@ -14,12 +12,16 @@ async function checkCommitCountBadges(accountId: string) {
 
     for (const badge of badges) {
       if (commitCount >= badge.threshold) {
+        const thresholdIndex = commitCount - badge.threshold; // Get the index of the commit at the threshold, e.g. a user's 100th commit
+
+        const timeEarned = commits[thresholdIndex]?.committedDate || new Date();
+
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({
           data: {
             badgeId: badge.id,
             accountId: accountId,
-            timeEarned: new Date(), // TODO: change to date the threshold was reached
+            timeEarned: timeEarned,
           },
         });
 
@@ -40,9 +42,9 @@ async function checkCommitCountBadges(accountId: string) {
   }
 }
 
-export async function checkBadges(accountId: string) {
+export async function checkBadges(commits: Commit[], accountId: string) {
   try {
-    await checkCommitCountBadges(accountId);
+    await checkCommitCountBadges(commits, accountId);
   } catch (error) {
     console.error(`An error occurred while checking badges for account ${accountId}:`, error);
     throw error;

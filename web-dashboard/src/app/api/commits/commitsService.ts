@@ -373,12 +373,16 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
-export async function prepareCommitsForDB(accountId: string): Promise<{ streak: StreakResponse; commits: Commit[] }> {
+export async function prepareCommitsForDB(accountId: string): Promise<{
+  streak: StreakResponse;
+  commits: Commit[];
+  commitCount: number;
+}> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
 
-    return { streak: streak, commits: commits };
+    return { streak: streak, commits: commits, commitCount: commits.length };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     throw error;
