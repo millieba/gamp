@@ -30,7 +30,7 @@ model BadgeAward {
   id         String   @id @default(cuid())
   badgeId    String   @unique @map("badge_id")
   accountId  String   @map("account_id")
-  timeEarned DateTime @map("time_earned")
+  dateEarned DateTime @map("date_earned")
 
   badgeDefinition BadgeDefinition @relation(fields: [badgeId], references: [id])
   account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)

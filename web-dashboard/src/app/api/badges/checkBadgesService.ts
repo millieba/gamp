@@ -14,14 +14,14 @@ async function checkCommitCountBadges(commits: Commit[], accountId: string) {
       if (commitCount >= badge.threshold) {
         const thresholdIndex = commitCount - badge.threshold; // Get the index of the commit at the threshold, e.g. a user's 100th commit
 
-        const timeEarned = commits[thresholdIndex]?.committedDate || new Date();
+        const dateEarned = commits[thresholdIndex]?.committedDate || new Date();
 
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({
           data: {
             badgeId: badge.id,
             accountId: accountId,
-            timeEarned: timeEarned,
+            dateEarned: dateEarned,
           },
         });
 
