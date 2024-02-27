@@ -1,3 +1,5 @@
+import { BadgeAward, BadgeDefinition } from "@prisma/client";
+
 export interface RepositoryDetails {
   name: string;
   owner: string;
@@ -17,14 +19,8 @@ export interface Commit {
   message: string;
 }
 
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  points: number;
-  type: string;
-  threshold: number;
+export interface Badge extends BadgeAward {
+  badgeDefinition: BadgeDefinition;
 }
 
 // GraphQL types
