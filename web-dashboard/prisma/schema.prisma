@@ -20,7 +20,7 @@ model BadgeDefinition {
   points      Int
   type        String
   threshold   Int
-  BadgeAward  BadgeAward[]
+  badgeAwards BadgeAward[] // One badge definition can be related to many badge awards
 
   @@map("badge_definitions")
 }
