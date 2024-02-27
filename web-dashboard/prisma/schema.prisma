@@ -115,7 +115,7 @@ model DailyModification {
   date          DateTime
   additions     Int
   deletions     Int
-  changedFiles  Int      @map("changed_files")
+  totalCommits  Int      @map("total_commits")
   githubStatsId String   @map("github_stats_id")
 
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)

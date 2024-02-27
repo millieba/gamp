@@ -11,11 +11,19 @@ export interface Stats {
   createdPrs: number;
   createdAndMergedPrs: number;
   programmingLanguages: ProgrammingLanguage[];
+  dailyModifications: DailyModification[];
 }
 
 export interface ProgrammingLanguage {
   name: string;
   bytesWritten: number;
+}
+
+export interface DailyModification {
+  date: Date;
+  additions: number;
+  deletions: number;
+  totalCommits: number;
 }
 
 export async function sync(

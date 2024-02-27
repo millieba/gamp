@@ -20,6 +20,16 @@ async function fetchData(accountId: string) {
     return { name: languageName, bytesWritten: languages[languageName] };
   });
 
+  const averageModificationsArray = streaks?.averageModifications?.map((modification) => {
+    // Convert the object into an array of language objects as expected by Prisma
+    return {
+      date: modification.dateOfDay,
+      additions: modification.additions,
+      deletions: modification.deletions,
+      totalCommits: modification.totalCommits,
+    };
+  });
+
   return {
     data: {
       commitCount: commitCount?.commitCount,
@@ -35,6 +45,7 @@ async function fetchData(accountId: string) {
       workdayStreakToContinue: streaks.streak.workdayStreakToContinue,
     },
     programmingLanguages: languagesArray,
+    dailyModifications: averageModificationsArray,
   };
 }
 
@@ -50,12 +61,19 @@ export async function syncStats(accountId: string) {
           deleteMany: {}, // Delete all existing languages, then re-create them
           create: data.programmingLanguages,
         },
+        dailyModifications: {
+          deleteMany: {}, // Delete all existing modifications, then re-create them
+          create: data.dailyModifications,
+        },
       },
       create: {
         accountId: accountId,
         ...data.data,
         programmingLanguages: {
           create: data.programmingLanguages,
+        },
+        dailyModifications: {
+          create: data.dailyModifications,
         },
       },
     });
@@ -85,6 +103,14 @@ export async function getStatsFromDB(accountId: string) {
           select: {
             name: true,
             bytesWritten: true,
+          },
+        },
+        dailyModifications: {
+          select: {
+            date: true,
+            additions: true,
+            deletions: true,
+            totalCommits: true,
           },
         },
       },
