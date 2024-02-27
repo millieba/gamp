@@ -3,14 +3,15 @@ import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
 import { graphql as graphql } from "@octokit/graphql";
 import { graphql as graphQLType } from "@octokit/graphql/dist-types/types";
-import { eachDayOfInterval, startOfWeek, endOfWeek, formatISO, parseISO, format, subWeeks } from "date-fns";
+import { eachDayOfInterval, parseISO, format, subWeeks } from "date-fns";
+import { StreakResponse, getCommitStreak } from "./streak/streakService";
 
 interface PageInfo {
   hasNextPage: boolean;
   endCursor: string;
 }
 
-interface Commit {
+export interface Commit {
   message: string;
   oid: string;
   additions: number;
@@ -20,6 +21,14 @@ interface Commit {
     email: string;
   };
   committedDate: string;
+}
+
+interface modifications {
+  day: string;
+  additions: number;
+  deletions: number;
+  dateOfDay: Date;
+  totalCommits: number;
 }
 
 interface Repo {
@@ -357,7 +366,6 @@ export async function fetchAllCommitsHandler(accountId: string) {
     const { bestCaseCommits, fetchAloneRepos } = await getAllCommitsBestCase(graphqlWithAuth, userId);
 
     let allCommits: Commit[] = [...bestCaseCommits];
-    console.log(fetchAloneRepos);
     if (fetchAloneRepos.length > 0) {
       for (const { repoName, owner } of fetchAloneRepos) {
         const repoCommits = await getSingleRepoCommits(userId, repoName, owner, null, graphqlWithAuth);
@@ -379,8 +387,6 @@ export async function fetchDailyAverageModifications(accountId: string) {
     let commits = await fetchAllCommitsHandler(accountId);
 
     const oneWeekAgo = subWeeks(new Date(), 1);
-    console.log(oneWeekAgo);
-    console.log(format(oneWeekAgo, "eeee"));
     const weekInterval = { start: oneWeekAgo, end: new Date() };
     const datesOfWeek = eachDayOfInterval(weekInterval).map((date) => {
       date.setHours(22, 0, 0, 0);
@@ -424,6 +430,20 @@ export async function fetchDailyAverageModifications(accountId: string) {
     return dailyAverages;
   } catch (error) {
     console.error(`Failed to fetch daily average modifications for account ${accountId}: ${error}`);
+  }
+}
+
+export async function prepareCommitsForDB(
+  accountId: string
+): Promise<{ streak: StreakResponse; commits: Commit[]; averageModifications?: modifications[] }> {
+  try {
+    const commits = await fetchAllCommitsHandler(accountId);
+    const streak = getCommitStreak(commits);
+    const averageAdditions = await fetchDailyAverageModifications(accountId);
+
+    return { streak: streak, commits: commits, averageModifications: averageAdditions };
+  } catch (error) {
+    console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     throw error;
   }
 }
