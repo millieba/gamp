@@ -17,6 +17,7 @@ export const GET = async () => {
     while (retries < maxRetries) {
       try {
         commits = await prepareCommitsForDB(session.user.githubAccountId);
+        console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries}`}`);
         break; // Break out of the retry loop if successful
       } catch (error) {
         retries++;
