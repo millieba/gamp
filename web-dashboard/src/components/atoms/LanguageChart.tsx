@@ -23,7 +23,8 @@ const LanguageChart = () => {
 
   useEffect(() => {
     const sizes: { [key: string]: number } = {};
-    stats?.programmingLanguages.forEach((repo: ProgrammingLanguage) => {
+    stats?.programmingLanguages &&
+    stats.programmingLanguages.forEach((repo: ProgrammingLanguage) => {
       if (sizes[repo.name]) {
         sizes[repo.name] += repo.bytesWritten;
       } else {
@@ -31,6 +32,7 @@ const LanguageChart = () => {
       }
     });
     setLanguageSizes(sizes);
+  
   }, [stats]);
 
   // Sort the languages by decreasing size in bytes
