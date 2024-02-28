@@ -17,11 +17,13 @@ export const GET = async () => {
     while (retries < maxRetries) {
       try {
         commits = await prepareCommitsForDB(session.user.githubAccountId);
-        console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries}`}`);
+        console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
         break; // Break out of the retry loop if successful
       } catch (error) {
         retries++;
-        console.error(`Failed to fetch all commits on attempt ${retries}. Retrying ...`);
+        console.error(
+          `Failed to fetch all commits after ${retries} ${retries === 1 ? "retry" : "retries"}. Retrying ...`
+        );
         continue;
       }
     }
