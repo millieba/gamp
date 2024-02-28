@@ -1,54 +1,69 @@
 import prisma from "@/utils/prisma";
-import { fetchCommitCount } from "../commits/commitsService";
+import { Commit } from "../commits/commitsService";
 
-async function checkCommitCountBadges(accountId: string) {
-    try {
-        // TODO: Consider calling getCommitCountFromDB() instead of fetchCommitCount() to avoid unnecessary API calls.
-        // However, would have to make sure that stats are synced before checking badges.
-        const commitCount = (await fetchCommitCount(accountId)).commitCount;
+async function checkCommitCountBadges(commits: Commit[], accountId: string) {
+  try {
+    const commitCount = commits.length;
 
-        // Fetch all badges of type "commits_count" from the database
-        const badges = await prisma.badge.findMany({
-            where: { type: "commits_count" },
+    // Fetch all badges of type "commits_count" from the database
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "commits_count" },
+    });
+
+    for (const badge of badges) {
+      if (commitCount >= badge.threshold) {
+        const thresholdIndex = commitCount - badge.threshold; // Get the index of the commit at the threshold, e.g. a user's 100th commit
+
+        const dateEarned = commits[thresholdIndex]?.committedDate || new Date();
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
         });
 
-        for (const badge of badges) {
-            if (commitCount >= badge.threshold) {
-                // Assign the badge to the user by adding it to the user's account
-                await prisma.account.update({
-                    where: { id: accountId },
-                    data: {
-                        badges: {
-                            connect: { id: badge.id },
-                        },
-                    },
-                });
-            }
-        }
-    } catch (error) {
-        console.error(`An error occurred while checking commit count badges for account ${accountId}:`, error);
-        throw error;
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
     }
+  } catch (error) {
+    console.error(`An error occurred while checking commit count badges for account ${accountId}:`, error);
+    throw error;
+  }
 }
 
-export async function checkBadges(accountId: string) {
-    try {
-        await checkCommitCountBadges(accountId);
-    } catch (error) {
-        console.error(`An error occurred while checking badges for account ${accountId}:`, error);
-        throw error;
-    }
+export async function checkBadges(commits: Commit[], accountId: string) {
+  try {
+    await checkCommitCountBadges(commits, accountId);
+  } catch (error) {
+    console.error(`An error occurred while checking badges for account ${accountId}:`, error);
+    throw error;
+  }
 }
 
 export async function getBadgesFromDB(accountId: string) {
-    try {
-        const badges = await prisma.account.findUnique({ // Get badges from database
-            where: { id: accountId },
-            select: { badges: true },
-        });
-        return badges;
-    } catch (error) {
-        console.error(`An error occurred while getting badges for account ${accountId} from the database:`, error);
-        throw error;
-    }
+  try {
+    const badges = await prisma.account.findUnique({
+      where: { id: accountId },
+      select: {
+        badges: {
+          include: { badgeDefinition: true }, // Include the associated BadgeDefinition for each BadgeAward
+        },
+      },
+    });
+    return badges;
+  } catch (error) {
+    console.error(`An error occurred while getting badges for account ${accountId} from the database:`, error);
+    throw error;
+  }
 }

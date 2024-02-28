@@ -1,79 +1,37 @@
 import prisma from "@/utils/prisma";
-import { fetchCommitCount, prepareCommitsForDB } from "../commits/commitsService";
-import { fetchRepoCount } from "../repos/repoService";
-import { calculateLanguageSizes } from "../languages/languagesService";
-import { fetchIssueVariables } from "../issues/issuesService";
-import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
+import { DBStats } from "../sync/syncService";
+import { ProgrammingLanguage } from "@/contexts/SyncContext";
+import { Modification } from "../commits/commitsService";
 
-async function fetchData(accountId: string) {
-  const [commitCount, repoCount, issueVariables, prVariables, languages, streaks] = await Promise.all([
-    fetchCommitCount(accountId),
-    fetchRepoCount(accountId),
-    fetchIssueVariables(accountId),
-    fetchPullRequestVariables(accountId),
-    calculateLanguageSizes(accountId),
-    prepareCommitsForDB(accountId),
-  ]);
-
-  const languagesArray = Object.keys(languages).map((languageName) => {
-    // Convert the object into an array of language objects as expected by Prisma
-    return { name: languageName, bytesWritten: languages[languageName] };
-  });
-
-  const averageModificationsArray = streaks?.averageModifications?.map((modification) => {
-    // Convert the object into an array of language objects as expected by Prisma
-    return {
-      date: modification.dateOfDay,
-      additions: modification.additions,
-      deletions: modification.deletions,
-      totalCommits: modification.totalCommits,
-    };
-  });
-
-  return {
-    data: {
-      commitCount: commitCount?.commitCount,
-      repoCount: repoCount?.repoCount,
-      issueCount: issueVariables?.issueCount,
-      avgTimeToCloseIssues: issueVariables?.avgTimeToCloseIssues,
-      closedIssueCount: issueVariables?.closedIssueCount,
-      createdPrs: prVariables?.createdPrs,
-      createdAndMergedPrs: prVariables?.createdAndMergedPrs,
-      strictStreak: streaks.streak.strictStreak,
-      strictStreakToContinue: streaks.streak.strictStreakToContinue,
-      workdayStreak: streaks.streak.workdayStreak,
-      workdayStreakToContinue: streaks.streak.workdayStreakToContinue,
-    },
-    programmingLanguages: languagesArray,
-    dailyModifications: averageModificationsArray,
-  };
-}
-
-export async function syncStats(accountId: string) {
+// export async function syncStats(accountId: string) {
+export async function syncStats(
+  statsData: DBStats,
+  programmingLanguages: ProgrammingLanguage[],
+  dailyModifications: Modification[],
+  accountId: string
+) {
   try {
-    const data = await fetchData(accountId);
-
     await prisma.gitHubStats.upsert({
       where: { accountId: accountId },
       update: {
-        ...data.data,
+        ...statsData,
         programmingLanguages: {
           deleteMany: {}, // Delete all existing languages, then re-create them
-          create: data.programmingLanguages,
+          create: programmingLanguages,
         },
         dailyModifications: {
           deleteMany: {}, // Delete all existing modifications, then re-create them
-          create: data.dailyModifications,
+          create: dailyModifications,
         },
       },
       create: {
         accountId: accountId,
-        ...data.data,
+        ...statsData,
         programmingLanguages: {
-          create: data.programmingLanguages,
+          create: programmingLanguages,
         },
         dailyModifications: {
-          create: data.dailyModifications,
+          create: dailyModifications,
         },
       },
     });

@@ -433,15 +433,18 @@ export async function fetchDailyAverageModifications(accountId: string) {
   }
 }
 
-export async function prepareCommitsForDB(
-  accountId: string
-): Promise<{ streak: StreakResponse; commits: Commit[]; averageModifications?: modifications[] }> {
+export async function prepareCommitsForDB(accountId: string): Promise<{
+  streak: StreakResponse;
+  commits: Commit[];
+  commitCount: number;
+  averageModifications?: modifications[];
+}> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
     const averageAdditions = await fetchDailyAverageModifications(accountId);
 
-    return { streak: streak, commits: commits, averageModifications: averageAdditions };
+    return { streak: streak, commits: commits, commitCount: commits.length, averageModifications: averageAdditions };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     throw error;

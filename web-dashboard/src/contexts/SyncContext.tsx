@@ -2,6 +2,7 @@
 import { createContext, useContext, ReactNode, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Badge } from "@/utils/types";
 import { useSession } from "next-auth/react";
+import { BadgeDefinition } from "@prisma/client";
 
 export interface Stats {
   commitCount: number;
@@ -29,7 +30,7 @@ export interface DailyModification {
 export async function sync(
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   setBadges: Dispatch<SetStateAction<Badge[]>>,
-  setAllBadges: Dispatch<SetStateAction<Badge[]>>,
+  setAllBadges: Dispatch<SetStateAction<BadgeDefinition[]>>,
   setStats: Dispatch<SetStateAction<Stats | undefined>>
 ) {
   try {
@@ -48,7 +49,7 @@ export async function sync(
 export async function fetchFromDB(
   setIsLoading: Dispatch<SetStateAction<boolean>>,
   setBadges: Dispatch<SetStateAction<Badge[]>>,
-  setAllBadges: Dispatch<SetStateAction<Badge[]>>,
+  setAllBadges: Dispatch<SetStateAction<BadgeDefinition[]>>,
   setStats: Dispatch<SetStateAction<Stats | undefined>>
 ) {
   try {
@@ -69,8 +70,8 @@ export async function fetchFromDB(
 interface SyncContextProps {
   badges: Badge[];
   setBadges: Dispatch<SetStateAction<Badge[]>>;
-  allBadges: Badge[];
-  setAllBadges: Dispatch<SetStateAction<Badge[]>>;
+  allBadges: BadgeDefinition[];
+  setAllBadges: Dispatch<SetStateAction<BadgeDefinition[]>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   stats: Stats | undefined;
@@ -81,7 +82,7 @@ const SyncContext = createContext<SyncContextProps | undefined>(undefined);
 
 export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [allBadges, setAllBadges] = useState<Badge[]>([]);
+  const [allBadges, setAllBadges] = useState<BadgeDefinition[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [stats, setStats] = useState<Stats | undefined>();
   const { data: session, status } = useSession();
