@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { checkBadges } from "../badges/checkBadgesService";
 import { syncStats } from "../stats/statsSyncService";
-import { Commit, prepareCommitsForDB } from "../commits/commitsService";
+import { Commit, Modification, prepareCommitsForDB } from "../commits/commitsService";
 import { fetchIssueVariables } from "../issues/issuesService";
 import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
@@ -21,6 +21,7 @@ export interface SyncData {
   data: DBStats;
   programmingLanguages: ProgrammingLanguage[];
   commits: Commit[];
+  dailyModifications: Modification[];
 }
 
 export interface DBStats {
@@ -51,6 +52,13 @@ async function fetchData(accountId: string): Promise<SyncData> {
     return { name: languageName, bytesWritten: languages[languageName] };
   });
 
+  // const averageModificationsArray = commitData?.averageModifications?.map((modification) => {
+  //   console.log("modification", modification);
+  //   return {
+  //     modification,
+  //   };
+  // });
+
   return {
     data: {
       // Data that can be inserted directly to database
@@ -67,7 +75,8 @@ async function fetchData(accountId: string): Promise<SyncData> {
       workdayStreakToContinue: commitData?.streak?.workdayStreakToContinue,
     },
     programmingLanguages: languagesArray,
-    commits: commitData.commits,
+    commits: commitData?.commits,
+    dailyModifications: commitData?.averageModifications,
   };
 }
 
@@ -91,7 +100,7 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
 
     await checkBadges(data.commits, accountId);
-    await syncStats(data.data, data.programmingLanguages, accountId);
+    await syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId);
 
     await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } });
   } catch (error) {

@@ -23,11 +23,10 @@ export interface Commit {
   committedDate: string;
 }
 
-interface modifications {
-  day: string;
+export interface Modification {
+  date: Date;
   additions: number;
   deletions: number;
-  dateOfDay: Date;
   totalCommits: number;
 }
 
@@ -395,8 +394,7 @@ export async function fetchDailyAverageModifications(accountId: string) {
 
     const sortedDates = datesOfWeek.sort((a, b) => a.getTime() - b.getTime());
 
-    let dailyAverages: { day: string; additions: number; deletions: number; dateOfDay: Date; totalCommits: number }[] =
-      [];
+    let dailyAverages: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
 
     for (const date of sortedDates) {
       const dayOfWeek = format(date, "eeee");
@@ -418,14 +416,13 @@ export async function fetchDailyAverageModifications(accountId: string) {
       const dailyAverageDeletions = totalCommits > 0 ? totalDeletions / totalCommits : 0;
 
       dailyAverages.push({
-        day: dayOfWeek,
+        date: date,
         additions: Math.round(dailyAverageAdditions),
         deletions: Math.round(dailyAverageDeletions),
-        dateOfDay: date,
         totalCommits: totalCommits,
       });
     }
-    dailyAverages = dailyAverages.sort((a, b) => a.dateOfDay.getTime() - b.dateOfDay.getTime());
+    dailyAverages = dailyAverages.sort((a, b) => a.date.getTime() - b.date.getTime());
 
     return dailyAverages;
   } catch (error) {
@@ -437,14 +434,19 @@ export async function prepareCommitsForDB(accountId: string): Promise<{
   streak: StreakResponse;
   commits: Commit[];
   commitCount: number;
-  averageModifications?: modifications[];
+  averageModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
     const averageAdditions = await fetchDailyAverageModifications(accountId);
 
-    return { streak: streak, commits: commits, commitCount: commits.length, averageModifications: averageAdditions };
+    return {
+      streak: streak,
+      commits: commits,
+      commitCount: commits.length,
+      averageModifications: averageAdditions || [],
+    };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     throw error;
