@@ -1,54 +1,38 @@
 "use client";
-import React, { PureComponent } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LegendProps,
+} from "recharts";
 import tailwindConfig from "../../../tailwind.config";
+import { useSyncContext } from "@/contexts/SyncContext";
+import { format } from "date-fns";
 
 const colors = tailwindConfig?.theme?.extend?.colors as Record<string, string>;
 
-const data = [
-  {
-    name: "Monday",
-    additions: 4000,
-    deletions: 2400,
-  },
-  {
-    name: "Tuesday",
-    additions: 3000,
-    deletions: 1398,
-  },
-  {
-    name: "Wednesday",
-    additions: 2000,
-    deletions: 9800,
-  },
-  {
-    name: "Thursday",
-    additions: 2780,
-    deletions: 3908,
-  },
-  {
-    name: "Friday",
-    additions: 1890,
-    deletions: 4800,
-  },
-  {
-    name: "Saturday",
-    additions: 2390,
-    deletions: 3800,
-  },
-  {
-    name: "Sunday",
-    additions: 3490,
-    deletions: 4300,
-  },
-];
-
 const ModificationsChart = () => {
+  const { stats } = useSyncContext();
+
+  const formatDateToWeekdayAndDate = (tickItem: string) => {
+    return format(new Date(tickItem), "EEEE do MMMM");
+  };
+
+  const formatDateToWeekday = (tickItem: string) => {
+    return format(new Date(tickItem), "EEEE");
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 min-w-[100px]">
-          <b>{label}</b>
+          <b>{formatDateToWeekdayAndDate(label)}</b>
           <p>Additions: {payload[1].value}</p>
           <p>Deletions: {payload[0].value}</p>
         </div>
@@ -63,7 +47,7 @@ const ModificationsChart = () => {
       <LineChart
         // width={1000}
         height={300}
-        data={data}
+        data={stats?.dailyModifications}
         margin={{
           top: 15,
           left: 5,
@@ -72,7 +56,7 @@ const ModificationsChart = () => {
         }}
       >
         <CartesianGrid strokeDasharray="5 5" stroke="#8C9BAB" />
-        <XAxis dataKey="name" stroke={colors?.DarkNeutral1000} />
+        <XAxis dataKey="date" tickFormatter={formatDateToWeekday} stroke={colors?.DarkNeutral1000} />
         <YAxis stroke={colors?.DarkNeutral1000} />
         <Tooltip content={CustomTooltip} />
         <Legend />
