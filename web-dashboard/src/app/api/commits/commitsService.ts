@@ -373,7 +373,10 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
-export async function prepareCommitsForDB(accountId: string): Promise<{
+export async function prepareCommitsForDB(
+  accountId: string,
+  retries = 0
+): Promise<{
   streak: StreakResponse;
   commits: Commit[];
   commitCount: number;
@@ -381,10 +384,15 @@ export async function prepareCommitsForDB(accountId: string): Promise<{
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
+    console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
     return { streak: streak, commits: commits, commitCount: commits.length };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
+    if (retries <= 3) {
+      console.error(`Retrying... Attempt ${retries + 1}`);
+      return prepareCommitsForDB(accountId, retries + 1); // Recursively retry with incremented retry count
+    }
     throw error;
   }
 }
