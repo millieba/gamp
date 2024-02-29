@@ -28,7 +28,7 @@ model BadgeDefinition {
 // Represents the instance of a badge being earned by a user
 model BadgeAward {
   id         String   @id @default(cuid())
-  badgeId    String   @unique @map("badge_id")
+  badgeId    String   @map("badge_id")
   accountId  String   @map("account_id")
   dateEarned DateTime @map("date_earned")
 
