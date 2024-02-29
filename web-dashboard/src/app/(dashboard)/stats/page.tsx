@@ -104,7 +104,9 @@ const StatsPage = () => {
             <div className="lg:flex-1">
               <StatBox
                 name={"Additions and deletions"}
-                description={"Something something"}
+                description={
+                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                }
                 content={<ModificationsChart />}
               />
             </div>

@@ -76,7 +76,7 @@ async function fetchData(accountId: string): Promise<SyncData> {
     },
     programmingLanguages: languagesArray,
     commits: commitData?.commits,
-    dailyModifications: commitData?.averageModifications,
+    dailyModifications: commitData?.dailyModifications,
   };
 }
 

@@ -381,7 +381,7 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
-export async function fetchDailyAverageModifications(accountId: string) {
+export async function fetchDailyModifications(accountId: string) {
   try {
     let commits = await fetchAllCommitsHandler(accountId);
 
@@ -394,7 +394,7 @@ export async function fetchDailyAverageModifications(accountId: string) {
 
     const sortedDates = datesOfWeek.sort((a, b) => a.getTime() - b.getTime());
 
-    let dailyAverages: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
+    let dailyModifications: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
 
     for (const date of sortedDates) {
       const dayOfWeek = format(date, "eeee");
@@ -412,19 +412,16 @@ export async function fetchDailyAverageModifications(accountId: string) {
         totalDeletions += commit.deletions;
       }
 
-      const dailyAverageAdditions = totalCommits > 0 ? totalAdditions / totalCommits : 0;
-      const dailyAverageDeletions = totalCommits > 0 ? totalDeletions / totalCommits : 0;
-
-      dailyAverages.push({
+      dailyModifications.push({
         date: date,
-        additions: Math.round(dailyAverageAdditions),
-        deletions: Math.round(dailyAverageDeletions),
+        additions: Math.round(totalAdditions),
+        deletions: Math.round(totalDeletions),
         totalCommits: totalCommits,
       });
     }
-    dailyAverages = dailyAverages.sort((a, b) => a.date.getTime() - b.date.getTime());
+    dailyModifications = dailyModifications.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    return dailyAverages;
+    return dailyModifications;
   } catch (error) {
     console.error(`Failed to fetch daily average modifications for account ${accountId}: ${error}`);
   }
@@ -434,18 +431,18 @@ export async function prepareCommitsForDB(accountId: string): Promise<{
   streak: StreakResponse;
   commits: Commit[];
   commitCount: number;
-  averageModifications: Modification[];
+  dailyModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
-    const averageAdditions = await fetchDailyAverageModifications(accountId);
+    const dailyModifications = await fetchDailyModifications(accountId);
 
     return {
       streak: streak,
       commits: commits,
       commitCount: commits.length,
-      averageModifications: averageAdditions || [],
+      dailyModifications: dailyModifications || [],
     };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);

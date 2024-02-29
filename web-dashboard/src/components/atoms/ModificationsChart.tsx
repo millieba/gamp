@@ -1,16 +1,6 @@
 "use client";
 import React from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LegendProps,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import tailwindConfig from "../../../tailwind.config";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { format } from "date-fns";
@@ -25,7 +15,7 @@ const ModificationsChart = () => {
   };
 
   const formatDateToWeekday = (tickItem: string) => {
-    return format(new Date(tickItem), "EEEE");
+    return format(new Date(tickItem), "ccc");
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -47,7 +37,7 @@ const ModificationsChart = () => {
       <LineChart
         // width={1000}
         height={300}
-        data={stats?.dailyModifications}
+        data={stats?.dailyModifications.slice(1)}
         margin={{
           top: 15,
           left: 5,
@@ -55,7 +45,7 @@ const ModificationsChart = () => {
           bottom: 5,
         }}
       >
-        <CartesianGrid strokeDasharray="5 5" stroke="#8C9BAB" />
+        <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="#8C9BAB" />
         <XAxis dataKey="date" tickFormatter={formatDateToWeekday} stroke={colors?.DarkNeutral1000} />
         <YAxis stroke={colors?.DarkNeutral1000} />
         <Tooltip content={CustomTooltip} />
