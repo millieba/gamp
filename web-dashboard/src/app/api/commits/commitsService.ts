@@ -397,7 +397,6 @@ export async function fetchDailyModifications(accountId: string) {
     let dailyModifications: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
 
     for (const date of sortedDates) {
-      const dayOfWeek = format(date, "eeee");
       const commitsOnDate = commits.filter((commit) => {
         const commitDate = parseISO(commit.committedDate);
         return format(commitDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");

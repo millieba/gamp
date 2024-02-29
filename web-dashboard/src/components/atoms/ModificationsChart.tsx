@@ -9,6 +9,7 @@ const colors = tailwindConfig?.theme?.extend?.colors as Record<string, string>;
 
 const ModificationsChart = () => {
   const { stats } = useSyncContext();
+  const error = console.error;
 
   const formatDateToWeekdayAndDate = (tickItem: string) => {
     return format(new Date(tickItem), "EEEE do MMMM");
@@ -32,6 +33,11 @@ const ModificationsChart = () => {
     return null;
   };
 
+  console.error = (...args: any) => {
+    if (/defaultProps/.test(args[0])) return;
+    error(...args);
+  };
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -46,12 +52,17 @@ const ModificationsChart = () => {
         }}
       >
         <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="#8C9BAB" />
-        <XAxis dataKey="date" tickFormatter={formatDateToWeekday} stroke={colors?.DarkNeutral1000} />
-        <YAxis stroke={colors?.DarkNeutral1000} />
+        <XAxis
+          dataKey="date"
+          tickFormatter={formatDateToWeekday}
+          stroke={colors?.DarkNeutral1000}
+          className="text-sm"
+        />
+        <YAxis stroke={colors?.DarkNeutral1000} className="text-sm" />
         <Tooltip content={CustomTooltip} />
         <Legend />
-        <Line type="monotone" dataKey="deletions" stroke={colors?.Red600} strokeWidth={3} />
-        <Line type="monotone" dataKey="additions" stroke={colors?.Lime600} strokeWidth={3} />
+        <Line type="monotone" dataKey="deletions" stroke={colors?.Red500} strokeWidth={3} />
+        <Line type="monotone" dataKey="additions" stroke={colors?.Lime500} strokeWidth={3} />
       </LineChart>
     </ResponsiveContainer>
   );
