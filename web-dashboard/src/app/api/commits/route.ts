@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import { fetchAllCommitsHandler, fetchDailyAverageModifications, prepareCommitsForDB } from "./commitsService";
+import { prepareCommitsForDB } from "./commitsService";
 
 export const GET = async () => {
   try {
@@ -9,7 +9,29 @@ export const GET = async () => {
     if (!session || !session.user.githubAccountId) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
-    const commits = await prepareCommitsForDB(session.user.githubAccountId);
+
+    const maxRetries = 5;
+    let retries = 0;
+    let commits;
+
+    while (retries < maxRetries) {
+      try {
+        commits = await prepareCommitsForDB(session.user.githubAccountId);
+        console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
+        break; // Break out of the retry loop if successful
+      } catch (error) {
+        retries++;
+        console.error(
+          `Failed to fetch all commits after ${retries} ${retries === 1 ? "retry" : "retries"}. Retrying ...`
+        );
+        continue;
+      }
+    }
+
+    if (!commits) {
+      return NextResponse.json({ error: "Failed to fetch commits after multiple attempts" }, { status: 500 });
+    }
+
     return NextResponse.json(commits, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
