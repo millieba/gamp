@@ -52,13 +52,6 @@ async function fetchData(accountId: string): Promise<SyncData> {
     return { name: languageName, bytesWritten: languages[languageName] };
   });
 
-  // const averageModificationsArray = commitData?.averageModifications?.map((modification) => {
-  //   console.log("modification", modification);
-  //   return {
-  //     modification,
-  //   };
-  // });
-
   return {
     data: {
       // Data that can be inserted directly to database

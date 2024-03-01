@@ -388,15 +388,12 @@ export async function fetchDailyModifications(accountId: string) {
     const oneWeekAgo = subWeeks(new Date(), 1);
     const weekInterval = { start: oneWeekAgo, end: new Date() };
     const datesOfWeek = eachDayOfInterval(weekInterval).map((date) => {
-      date.setHours(22, 0, 0, 0);
       return date;
     });
 
-    const sortedDates = datesOfWeek.sort((a, b) => a.getTime() - b.getTime());
-
     let dailyModifications: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
 
-    for (const date of sortedDates) {
+    for (const date of datesOfWeek) {
       const commitsOnDate = commits.filter((commit) => {
         const commitDate = parseISO(commit.committedDate);
         return format(commitDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
@@ -418,7 +415,6 @@ export async function fetchDailyModifications(accountId: string) {
         totalCommits: totalCommits,
       });
     }
-    dailyModifications = dailyModifications.sort((a, b) => a.date.getTime() - b.date.getTime());
 
     return dailyModifications;
   } catch (error) {
