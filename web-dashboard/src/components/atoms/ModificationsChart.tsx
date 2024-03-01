@@ -33,6 +33,7 @@ const ModificationsChart = () => {
     return null;
   };
 
+  // To ignore the warning about defaultProps in recharts being outdated in a major future release
   console.error = (...args: any) => {
     if (/defaultProps/.test(args[0])) return;
     error(...args);
@@ -43,7 +44,7 @@ const ModificationsChart = () => {
       <LineChart
         // width={1000}
         height={300}
-        data={stats?.dailyModifications.slice(1)}
+        data={stats?.dailyModifications?.slice(1)}
         margin={{
           top: 15,
           left: 5,

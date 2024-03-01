@@ -381,10 +381,8 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
-export async function fetchDailyModifications(accountId: string) {
+export async function fetchDailyModifications(commits: Commit[]) {
   try {
-    let commits = await fetchAllCommitsHandler(accountId);
-
     const oneWeekAgo = subWeeks(new Date(), 1);
     const weekInterval = { start: oneWeekAgo, end: new Date() };
     const datesOfWeek = eachDayOfInterval(weekInterval).map((date) => {
@@ -434,7 +432,7 @@ export async function prepareCommitsForDB(
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
-    const dailyModifications = await fetchDailyModifications(accountId);
+    const dailyModifications = await fetchDailyModifications(commits);
     console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
     return {
