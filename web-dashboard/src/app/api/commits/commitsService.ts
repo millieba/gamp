@@ -3,6 +3,7 @@ import prisma from "@/utils/prisma";
 import { getLoggedInAccount } from "@/utils/user";
 import { graphql as graphql } from "@octokit/graphql";
 import { graphql as graphQLType } from "@octokit/graphql/dist-types/types";
+import { eachDayOfInterval, parseISO, format, subWeeks } from "date-fns";
 import { StreakResponse, getCommitStreak } from "./streak/streakService";
 
 interface PageInfo {
@@ -20,6 +21,13 @@ export interface Commit {
     email: string;
   };
   committedDate: string;
+}
+
+export interface Modification {
+  date: Date;
+  additions: number;
+  deletions: number;
+  totalCommits: number;
 }
 
 interface Repo {
@@ -373,6 +381,45 @@ export async function fetchAllCommitsHandler(accountId: string) {
   }
 }
 
+export async function fetchDailyModifications(commits: Commit[]) {
+  try {
+    const oneWeekAgo = subWeeks(new Date(), 1);
+    const weekInterval = { start: oneWeekAgo, end: new Date() };
+    const datesOfWeek = eachDayOfInterval(weekInterval).map((date) => {
+      return date;
+    });
+
+    let dailyModifications: { date: Date; additions: number; deletions: number; totalCommits: number }[] = [];
+
+    for (const date of datesOfWeek) {
+      const commitsOnDate = commits.filter((commit) => {
+        const commitDate = parseISO(commit.committedDate);
+        return format(commitDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
+      });
+
+      const totalCommits = commitsOnDate.length;
+      let totalAdditions = 0;
+      let totalDeletions = 0;
+
+      for (const commit of commitsOnDate) {
+        totalAdditions += commit.additions;
+        totalDeletions += commit.deletions;
+      }
+
+      dailyModifications.push({
+        date: date,
+        additions: Math.round(totalAdditions),
+        deletions: Math.round(totalDeletions),
+        totalCommits: totalCommits,
+      });
+    }
+
+    return dailyModifications;
+  } catch (error) {
+    console.error(`Failed to fetch daily average modifications for account ${accountId}: ${error}`);
+  }
+}
+
 export async function prepareCommitsForDB(
   accountId: string,
   retries = 0
@@ -380,13 +427,20 @@ export async function prepareCommitsForDB(
   streak: StreakResponse;
   commits: Commit[];
   commitCount: number;
+  dailyModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
+    const dailyModifications = await fetchDailyModifications(commits);
     console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
-    return { streak: streak, commits: commits, commitCount: commits.length };
+    return {
+      streak: streak,
+      commits: commits,
+      commitCount: commits.length,
+      dailyModifications: dailyModifications || [],
+    };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
     if (retries <= 3) {

@@ -103,6 +103,7 @@ model GitHubStats {
   workdayStreakToContinue Int?   @map("workday_streak_to_continue")
 
   programmingLanguages ProgrammingLanguage[]
+  dailyModifications   DailyModification[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
@@ -119,4 +120,18 @@ model ProgrammingLanguage {
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 
   @@map("programming_languages")
+}
+
+// Represents the daily modifications (code lines added, deleted etc.) for an account
+model DailyModification {
+  id            String   @id @default(cuid())
+  date          DateTime
+  additions     Int
+  deletions     Int
+  totalCommits  Int      @map("total_commits")
+  githubStatsId String   @map("github_stats_id")
+
+  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
+
+  @@map("daily_modifications")
 }

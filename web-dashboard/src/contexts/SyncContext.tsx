@@ -3,6 +3,7 @@ import { createContext, useContext, ReactNode, useEffect, useState, Dispatch, Se
 import { Badge } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { BadgeDefinition } from "@prisma/client";
+import { Modification } from "@/app/api/commits/commitsService";
 
 export interface Stats {
   commitCount: number;
@@ -12,6 +13,7 @@ export interface Stats {
   createdPrs: number;
   createdAndMergedPrs: number;
   programmingLanguages: ProgrammingLanguage[];
+  dailyModifications: Modification[];
 }
 
 export interface ProgrammingLanguage {

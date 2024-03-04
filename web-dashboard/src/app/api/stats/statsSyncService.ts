@@ -1,8 +1,15 @@
 import prisma from "@/utils/prisma";
 import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
+import { Modification } from "../commits/commitsService";
 
-export async function syncStats(statsData: DBStats, programmingLanguages: ProgrammingLanguage[], accountId: string) {
+// export async function syncStats(accountId: string) {
+export async function syncStats(
+  statsData: DBStats,
+  programmingLanguages: ProgrammingLanguage[],
+  dailyModifications: Modification[],
+  accountId: string
+) {
   try {
     await prisma.gitHubStats.upsert({
       where: { accountId: accountId },
@@ -12,12 +19,19 @@ export async function syncStats(statsData: DBStats, programmingLanguages: Progra
           deleteMany: {}, // Delete all existing languages, then re-create them
           create: programmingLanguages,
         },
+        dailyModifications: {
+          deleteMany: {}, // Delete all existing modifications, then re-create them
+          create: dailyModifications,
+        },
       },
       create: {
         accountId: accountId,
         ...statsData,
         programmingLanguages: {
           create: programmingLanguages,
+        },
+        dailyModifications: {
+          create: dailyModifications,
         },
       },
     });
@@ -47,6 +61,14 @@ export async function getStatsFromDB(accountId: string) {
           select: {
             name: true,
             bytesWritten: true,
+          },
+        },
+        dailyModifications: {
+          select: {
+            date: true,
+            additions: true,
+            deletions: true,
+            totalCommits: true,
           },
         },
       },
