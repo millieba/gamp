@@ -173,7 +173,7 @@ export async function getAllCommitsBestCase(graphqlWithAuth: graphQLType, userId
                                     defaultBranchRef {
                                         target {
                                             ... on Commit {
-                                                history(first: 100, author: {id: $userId}){
+                                                history(first: 50, author: {id: $userId}){
                                                     pageInfo {
                                                         hasNextPage
                                                         endCursor
