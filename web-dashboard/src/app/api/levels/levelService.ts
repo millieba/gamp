@@ -18,8 +18,8 @@ export async function checkLevel(accountId: string) {
       orderBy: { threshold: "desc" }, // Sort levels by threshold in descending order
     });
 
-    // Find the new level based on total points
     const newLevel = levels.find((level) => {
+      // Returns the first level that satisfies the condition below. Since we sort in descending order of points, this will be the highest level the user qualifies for
       return account.totalPoints >= level.threshold;
     });
 
