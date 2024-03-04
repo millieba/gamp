@@ -86,6 +86,7 @@ export async function fetchPullRequestVariables(accountId: string) {
     return {
       createdPrs: createdPrs,
       createdAndMergedPrs: createdAndMergedPrs,
+      pullRequests: data.PRData,
     };
   } catch (error) {
     console.error("An error occurred while fetching pull request variables:", error);
