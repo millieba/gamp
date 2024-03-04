@@ -40,8 +40,46 @@ async function checkCommitCountBadges(commits: Commit[], accountId: string) {
         });
       }
     }
+
+    await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
     console.error(`An error occurred while checking commit count badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
+async function updateTotalPoints(accountId: string) {
+  try {
+    const account = await prisma.account.findUnique({
+      where: { id: accountId },
+      include: {
+        badges: {
+          include: {
+            badgeDefinition: true, // Include associated BadgeDefinition for each BadgeAward
+          },
+        },
+      },
+    });
+
+    if (!account) {
+      throw new Error(`Account with id ${accountId} not found.`);
+    }
+
+    let totalPoints = 0;
+    for (const badge of account.badges) {
+      if (badge.badgeDefinition) {
+        totalPoints += badge.badgeDefinition.points;
+      }
+    }
+
+    await prisma.account.update({
+      where: { id: accountId },
+      data: {
+        totalPoints: totalPoints,
+      },
+    });
+  } catch (error) {
+    console.error(`An error occurred while updating total points for account ${accountId}:`, error);
     throw error;
   }
 }

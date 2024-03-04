@@ -7,6 +7,7 @@ import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
+import { checkLevel } from "../levels/levelService";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -90,12 +91,17 @@ export async function syncWithGithub(accountId: string) {
         retryAfter
       );
     }
+
     const data = await fetchData(accountId);
+    await Promise.all([
+      // Use Promise.all for independent tasks that can run concurrently
+      checkBadges(data.commits, accountId),
+      syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId),
+    ]);
 
-    await checkBadges(data.commits, accountId);
-    await syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId);
+    await checkLevel(accountId); // Check level after badges are checked (total score depends on how many badges a user has)
 
-    await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } });
+    await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } }); // Update last sync timestamp
   } catch (error) {
     if (error instanceof TooManyRequestsError) {
       console.error("Throttling sync for account " + accountId + " for " + error.retryAfter + " seconds");
