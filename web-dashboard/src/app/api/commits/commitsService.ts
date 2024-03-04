@@ -416,7 +416,7 @@ export async function fetchDailyModifications(commits: Commit[]) {
 
     return dailyModifications;
   } catch (error) {
-    console.error(`Failed to fetch daily average modifications for account ${accountId}: ${error}`);
+    console.error(`Failed to fetch daily average modifications because of the following error: ${error}`);
   }
 }
 
