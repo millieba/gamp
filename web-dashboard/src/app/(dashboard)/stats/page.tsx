@@ -20,6 +20,30 @@ const StatsPage = () => {
 
   const data = [
     {
+      icon: "fire",
+      heading: "Strict Streak",
+      subheading: stats?.strictStreak
+        ? "Consecutive days with commits"
+        : stats?.strictStreakToContinue
+        ? `Commit today to continue your streak of ${stats?.strictStreakToContinue} days`
+        : "",
+      number: stats?.strictStreak || 0,
+      unit: stats?.strictStreak === 1 ? "day" : "days",
+      description: "This is how many days in a row you have committed",
+    },
+    {
+      icon: "fire",
+      heading: "Workday Streak",
+      subheading: stats?.workdayStreak
+        ? "Consecutive workdays with commits"
+        : stats?.workdayStreakToContinue
+        ? `Commit today to continue your streak of ${stats?.workdayStreakToContinue} days`
+        : "",
+      number: stats?.workdayStreak || 0,
+      unit: stats?.workdayStreak === 1 ? "workday" : "workdays",
+      description: "This is how many weekdays (Monday to Friday) in a row you have committed",
+    },
+    {
       icon: "star",
       heading: "Achievements",
       subheading: "Badges earned",

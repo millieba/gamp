@@ -5,6 +5,7 @@ import {
   PuzzlePieceIcon,
   SparklesIcon,
   StarIcon,
+  FireIcon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 
@@ -27,6 +28,7 @@ const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, un
     sparkles: SparklesIcon,
     star: StarIcon,
     language: LanguageIcon,
+    fire: FireIcon
   };
 
   const IconComponent = iconComponents[icon];
