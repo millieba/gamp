@@ -1,74 +1,81 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PrQueryResult, PRData } from "./pullrequestsUtils";
+import { pullrequestsQuery, PrQueryResult, PRServiceResponse, PRQueryResponse } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
-export async function pullrequestsService(accountId: string) {
+export async function pullrequestsService(accountId: string): Promise<PRServiceResponse> {
   const loggedInAccount = await getLoggedInAccount(accountId);
-
   const graphqlWithAuth = graphql.defaults({
     headers: {
       authorization: `token ${loggedInAccount?.access_token}`,
     },
   });
 
-  const username = (
-    await graphqlWithAuth<{ viewer: { login: string } }>(`
-      query {
-        viewer {
-          login
-        }
-      }
-    `)
-  ).viewer.login;
-
-  let allData = [];
+  const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`query { viewer { login } }`)).viewer.login;
+  let allData: PRQueryResponse[] = [];
   let totalPRCount = 0;
-
   let hasNextPagePr = true;
   let afterPr = null;
-
   let hasNextPageCmt = true;
   let afterCmt = null;
-
   let hasNextPageReview = true;
   let afterReview = null;
 
   while (hasNextPagePr) {
     try {
       const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(pullrequestsQuery, {
-        username: username,
-        afterPr: afterPr,
-        afterCmt: afterCmt,
-        afterReview: afterReview,
+        username,
+        afterPr,
+        afterCmt,
+        afterReview,
       });
-
       const user = result.user;
 
-      if (!totalPRCount) {
-        totalPRCount = user.pullRequests.totalCount;
-      }
-
-      if (hasNextPagePr) {
-        if (user.pullRequests) {
-          allData.push(...user.pullRequests.edges.map((edge) => edge.node));
-        }
-        hasNextPagePr = user.pullRequests.pageInfo.hasNextPage;
-        afterPr = user.pullRequests.pageInfo.endCursor;
-      }
+      if (!totalPRCount) totalPRCount = user.pullRequests.totalCount;
 
       for (const edge of user.pullRequests.edges) {
-        if (hasNextPageCmt && edge.node.comments.pageInfo.hasNextPage) {
-          allData.push(...edge.node.comments.edges.map((edge) => edge.node));
-          hasNextPageCmt = edge.node.comments.pageInfo.hasNextPage;
+        const prData: PRQueryResponse = {
+          id: edge.node.id,
+          comments: edge.node.comments
+            ? {
+                pageInfo: edge.node.comments.pageInfo,
+                edges: edge.node.comments.edges.map((commentEdge) => ({
+                  node: {
+                    body: commentEdge.node.body,
+                    url: commentEdge.node.url,
+                    author: { url: commentEdge.node.author.url },
+                  },
+                })),
+              }
+            : undefined,
+          title: edge.node.title,
+          merged: edge.node.merged,
+          createdAt: edge.node.createdAt,
+          mergedAt: edge.node.mergedAt,
+          reviews: edge.node.reviews
+            ? {
+                pageInfo: edge.node.reviews.pageInfo,
+                edges: edge.node.reviews.edges.map((reviewEdge) => ({
+                  node: {
+                    body: reviewEdge.node.body,
+                    author: { avatarUrl: reviewEdge.node.author.avatarUrl },
+                  },
+                })),
+              }
+            : undefined,
+        };
+        allData.push(prData);
+        if (edge.node.comments && edge.node.comments.pageInfo.hasNextPage) {
+          hasNextPageCmt = true;
           afterCmt = edge.node.comments.pageInfo.endCursor;
         }
-        if (hasNextPageReview && edge.node.reviews.pageInfo.hasNextPage) {
-          allData.push(...edge.node.reviews.edges.map((edge) => edge.node));
-          hasNextPageReview = edge.node.reviews.pageInfo.hasNextPage;
+        if (edge.node.reviews && edge.node.reviews.pageInfo.hasNextPage) {
+          hasNextPageReview = true;
           afterReview = edge.node.reviews.pageInfo.endCursor;
         }
       }
+      hasNextPagePr = user.pullRequests.pageInfo.hasNextPage;
+      afterPr = user.pullRequests.pageInfo.endCursor;
     } catch (error) {
       console.error("An error occurred while fetching pull requests:", error);
       throw error;
@@ -82,7 +89,7 @@ export async function fetchPullRequestVariables(accountId: string) {
   try {
     const data = await pullrequestsService(accountId);
     const createdPrs = data.createdPrs;
-    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data.PRData);
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
     return {
       createdPrs: createdPrs,
       createdAndMergedPrs: createdAndMergedPrs,
@@ -95,10 +102,10 @@ export async function fetchPullRequestVariables(accountId: string) {
 }
 
 // function to fetch the number of created and merged pull requests
-export function calculateMergedAndCreatedPrs(data: PRData[]) {
+export function calculateMergedAndCreatedPrs(data: PRServiceResponse) {
   let count = 0;
-  for (const pr of data) {
-    if (pr?.merged) {
+  for (const pr of data.PRData) {
+    if (pr) {
       count++;
     }
   }

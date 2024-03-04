@@ -25,8 +25,8 @@ export interface PrQueryResult {
           };
           title: string;
           merged: boolean;
-          createdAt: Date;
-          mergedAt: Date;
+          createdAt: string;
+          mergedAt: string;
           reviews: {
             pageInfo: PageInfo;
             edges: {
@@ -44,16 +44,13 @@ export interface PrQueryResult {
   };
 }
 
-export type PRData = {
-  body?: string;
-  url?: string;
-  author?: {
-    url?: string;
-    avatarUrl?: string;
-  };
-  id?: string;
+export interface PRQueryResponse {
+  id: string;
   comments?: {
-    pageInfo: PageInfo;
+    pageInfo: {
+      endCursor: string | null;
+      hasNextPage: boolean;
+    };
     edges: {
       node: {
         body: string;
@@ -64,12 +61,15 @@ export type PRData = {
       };
     }[];
   };
-  title?: string;
-  merged?: boolean;
-  createdAt?: Date;
-  mergedAt?: Date;
+  title: string;
+  merged: boolean;
+  createdAt: string;
+  mergedAt: string | null;
   reviews?: {
-    pageInfo?: PageInfo;
+    pageInfo: {
+      endCursor: string | null;
+      hasNextPage: boolean;
+    };
     edges?: {
       node?: {
         body?: string;
@@ -79,7 +79,12 @@ export type PRData = {
       };
     }[];
   };
-};
+}
+
+export interface PRServiceResponse {
+  PRData: PRQueryResponse[];
+  createdPrs: number;
+}
 
 export const pullrequestsQuery = `
 query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
