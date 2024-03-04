@@ -25,6 +25,8 @@ export interface PrQueryResult {
           };
           title: string;
           merged: boolean;
+          createdAt: string;
+          mergedAt: string;
           reviews: {
             pageInfo: PageInfo;
             edges: {
@@ -64,6 +66,8 @@ export type PRData = {
   };
   title?: string;
   merged?: boolean;
+  createdAt?: string;
+  mergedAt?: string;
   reviews?: {
     pageInfo?: PageInfo;
     edges?: {
@@ -106,6 +110,8 @@ query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: Str
           },
           title,
           merged,
+          createdAt,
+          mergedAt,
           reviews(first: 100, after: $afterReview) {
             pageInfo {
               endCursor
