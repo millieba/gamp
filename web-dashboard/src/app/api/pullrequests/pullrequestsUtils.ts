@@ -25,8 +25,8 @@ export interface PrQueryResult {
           };
           title: string;
           merged: boolean;
-          createdAt: string;
-          mergedAt: string;
+          createdAt: Date;
+          mergedAt: Date;
           reviews: {
             pageInfo: PageInfo;
             edges: {
@@ -66,8 +66,8 @@ export type PRData = {
   };
   title?: string;
   merged?: boolean;
-  createdAt?: string;
-  mergedAt?: string;
+  createdAt?: Date;
+  mergedAt?: Date;
   reviews?: {
     pageInfo?: PageInfo;
     edges?: {

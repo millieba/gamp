@@ -52,6 +52,16 @@ async function checkPrOpenedBadges(prs: PRData[], accountId: string) {
       where: { type: "prs_opened_count" },
     });
 
+    prs.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } else if (a.createdAt) {
+        return -1; // a is greater if b.createdAt is undefined
+      } else {
+        return 1; // b is greater if a.createdAt is undefined
+      }
+    });
+
     const pullrequestsCount = prs.length;
 
     for (const badge of badges) {
@@ -101,6 +111,16 @@ async function checkPrMergedBadges(prs: PRData[], accountId: string) {
         mergedPrs.push(pr);
       }
     }
+
+    mergedPrs.sort((a, b) => {
+      if (a.mergedAt && b.mergedAt) {
+        return new Date(b.mergedAt).getTime() - new Date(a.mergedAt).getTime();
+      } else if (a.mergedAt) {
+        return -1; // a is greater if b.mergedAt is undefined
+      } else {
+        return 1; // b is greater if a.mergedAt is undefined
+      }
+    });
 
     // The number of merged PRs
     const mergedPrsCount = mergedPrs.length;
