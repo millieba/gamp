@@ -14,6 +14,10 @@ export interface Stats {
   createdAndMergedPrs: number;
   programmingLanguages: ProgrammingLanguage[];
   dailyModifications: Modification[];
+  strictStreak: number | null;
+  strictStreakToContinue: number | null;
+  workdayStreak: number | null;
+  workdayStreakToContinue: number | null;
 }
 
 export interface ProgrammingLanguage {
