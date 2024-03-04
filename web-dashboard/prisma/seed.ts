@@ -41,6 +41,88 @@ const badgeConfigs: BadgeConfig[] = [
       },
     ],
   },
+  {
+    type: "prs_opened_count",
+    prefix: "prs-opened",
+    badges: [
+      {
+        name: "Pull Request Novice",
+        description: "Earned by opening 5 pull requests.",
+        points: 1000,
+        threshold: 5,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Pull Request Trooper",
+        description: "Earned by opening 10 pull requests.",
+        points: 2000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Pull Request Expert",
+        description: "Earned by opening 30 pull requests.",
+        points: 3000,
+        threshold: 30,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Pull Request Master",
+        description: "Earned by opening 50 pull requests.",
+        points: 4000,
+        threshold: 50,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Pull Request Legend",
+        description: "Earned by opening 100 pull requests.",
+        points: 5000,
+        threshold: 100,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
+  {
+    type: "prs_merged_count",
+    prefix: "prs-merged",
+    badges: [
+      {
+        name: "Collaborator Novice",
+        description: "Earned by getting 5 of your pull request merged.",
+        points: 1000,
+        threshold: 5,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Collaborator Maverick",
+        description: "Earned by getting 10 of your pull requests merged.",
+        points: 2000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Collaborator Picasso",
+        description: "Earned by getting 30 of your pull requests merged.",
+        points: 3000,
+        threshold: 30,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Collaborator Magician",
+        description: "Earned by getting 50 of your pull requests merged.",
+        points: 4000,
+        threshold: 50,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Collaborator Maestro",
+        description: "Earned by getting 100 of your pull requests merged.",
+        points: 5000,
+        threshold: 100,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
 ];
 
 const levelConfig: Level[] = [

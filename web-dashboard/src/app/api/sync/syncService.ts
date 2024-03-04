@@ -8,6 +8,7 @@ import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { checkLevel } from "../levels/levelService";
+import { PRData } from "../pullrequests/pullrequestsUtils";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -22,6 +23,7 @@ export interface SyncData {
   data: DBStats;
   programmingLanguages: ProgrammingLanguage[];
   commits: Commit[];
+  pullRequests: PRData[];
   dailyModifications: Modification[];
 }
 
@@ -70,6 +72,7 @@ async function fetchData(accountId: string): Promise<SyncData> {
     },
     programmingLanguages: languagesArray,
     commits: commitData?.commits,
+    pullRequests: prVariables?.pullRequests,
     dailyModifications: commitData?.dailyModifications,
   };
 }
@@ -95,7 +98,7 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
-      checkBadges(data.commits, accountId),
+      checkBadges(data.commits, data.pullRequests, accountId),
       syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId),
     ]);
 
