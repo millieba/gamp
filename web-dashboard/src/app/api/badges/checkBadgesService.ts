@@ -37,8 +37,6 @@ async function checkCommitCountBadges(commits: Commit[], accountId: string) {
         });
       }
     }
-
-    await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
     console.error(`An error occurred while checking commit count badges for account ${accountId}:`, error);
     throw error;
@@ -52,7 +50,7 @@ async function checkPrOpenedBadges(prs: PRData[], accountId: string) {
       where: { type: "prs_opened_count" },
     });
 
-    prs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    prs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
     const pullrequestsCount = prs.length;
 
@@ -81,8 +79,6 @@ async function checkPrOpenedBadges(prs: PRData[], accountId: string) {
         });
       }
     }
-
-    await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
     console.error(`An error occurred while checking opened PR badges for account ${accountId}:`, error);
     throw error;
@@ -104,10 +100,9 @@ async function checkPrMergedBadges(prs: PRData[], accountId: string) {
       }
     }
 
-    mergedPrs.sort((a, b) => new Date(b.mergedAt).getTime() - new Date(a.mergedAt).getTime());
+    mergedPrs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
-    // The number of merged PRs
-    const mergedPrsCount = mergedPrs.length;
+    const mergedPrsCount = mergedPrs.length; // The number of merged PRs
 
     for (const badge of badges) {
       if (mergedPrsCount >= badge.threshold) {
@@ -134,8 +129,6 @@ async function checkPrMergedBadges(prs: PRData[], accountId: string) {
         });
       }
     }
-
-    await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
     console.error(`An error occurred while checking merged PR badges for account ${accountId}:`, error);
     throw error;
@@ -183,9 +176,12 @@ export async function checkBadges(commits: Commit[], prs: PRData[], accountId: s
     await prisma.badgeAward.deleteMany({
       where: { accountId },
     });
-    await checkCommitCountBadges(commits, accountId);
-    await checkPrOpenedBadges(prs, accountId);
-    await checkPrMergedBadges(prs, accountId);
+    await Promise.all([
+      await checkCommitCountBadges(commits, accountId),
+      await checkPrOpenedBadges(prs, accountId),
+      await checkPrMergedBadges(prs, accountId),
+    ]);
+    await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
     console.error(`An error occurred while checking badges for account ${accountId}:`, error);
     throw error;

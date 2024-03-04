@@ -66,8 +66,8 @@ export type PRData = {
   };
   title?: string;
   merged?: boolean;
-  createdAt: Date;
-  mergedAt: Date;
+  createdAt?: Date;
+  mergedAt?: Date;
   reviews?: {
     pageInfo?: PageInfo;
     edges?: {
