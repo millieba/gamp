@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Level, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 interface BadgeConfig {
@@ -43,6 +43,12 @@ const badgeConfigs: BadgeConfig[] = [
   },
 ];
 
+const levelConfig: Level[] = [
+  { id: 1, name: "Aspiring Beginner", threshold: 1000 },
+  { id: 2, name: "Budding Learner", threshold: 10000 },
+  { id: 3, name: "Eager Explorer", threshold: 100000 },
+];
+
 async function createBadges(badgeConfigs: BadgeConfig[]) {
   const badgePromises = badgeConfigs.flatMap((config) =>
     config.badges.map(async (badge) => {
@@ -67,9 +73,28 @@ async function createBadges(badgeConfigs: BadgeConfig[]) {
   console.log("All badges created successfully.");
 }
 
+async function createLevels(levelConfig: Level[]) {
+  const levelPromises = levelConfig.map(async (level) => {
+    await prisma.level.upsert({
+      where: { name: level.name },
+      update: {},
+      create: {
+        id: level.id,
+        name: level.name,
+        threshold: level.threshold,
+      },
+    });
+    console.log(`Created level ${level.name}`);
+  });
+
+  await Promise.all(levelPromises);
+  console.log("All levels created successfully.");
+}
+
 async function main() {
   try {
     await createBadges(badgeConfigs);
+    await createLevels(levelConfig);
   } catch (error) {
     console.error(error);
     process.exit(1);

@@ -42,6 +42,7 @@ model BadgeAward {
 model Account {
   id                       String       @id @default(cuid())
   userId                   String       @map("user_id")
+  levelId                  Int
   type                     String
   provider                 String
   providerAccountId        String       @map("provider_account_id")
@@ -57,10 +58,21 @@ model Account {
   badges                   BadgeAward[] // List of badges the user has been awarded with
   lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level Level @relation(fields: [levelId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+}
+
+// Represents the user's level
+model Level {
+  id        Int       @id
+  name      String    @unique
+  threshold Int
+  accounts  Account[]
+
+  @@map("levels")
 }
 
 model Session {
