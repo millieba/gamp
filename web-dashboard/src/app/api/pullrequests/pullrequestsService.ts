@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PrQueryResult, PRServiceResponse, PRQueryResponse } from "./pullrequestsUtils";
+import { pullrequestsQuery, PRsGraphQLResponse, PRServiceResponse, PRQueryResponse } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
@@ -23,7 +23,7 @@ export async function pullrequestsService(accountId: string): Promise<PRServiceR
 
   while (hasNextPagePr) {
     try {
-      const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(pullrequestsQuery, {
+      const result: PRsGraphQLResponse = await graphqlWithAuth<PRsGraphQLResponse>(pullrequestsQuery, {
         username,
         afterPr,
         afterCmt,

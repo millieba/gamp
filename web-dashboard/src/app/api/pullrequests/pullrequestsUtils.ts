@@ -3,7 +3,7 @@ export interface PageInfo {
   hasNextPage: boolean;
 }
 
-export interface PrQueryResult {
+export interface PRsGraphQLResponse {
   user: {
     pullRequests: {
       totalCount: number;
