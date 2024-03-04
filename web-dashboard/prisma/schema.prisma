@@ -42,10 +42,11 @@ model BadgeAward {
 model Account {
   id                       String       @id @default(cuid())
   userId                   String       @map("user_id")
-  levelId                  Int
+  levelId                  Int          @default(1) @map("level_id") // Default level is 1
   type                     String
   provider                 String
   providerAccountId        String       @map("provider_account_id")
+  totalPoints              Int          @default(0) @map("total_points") // Total points earned from badges
   refresh_token            String?      @db.Text
   refresh_token_expires_in Int?
   access_token             String?      @db.Text

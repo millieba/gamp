@@ -7,6 +7,7 @@ import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
+import { checkLevel } from "../levels/levelService";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -94,6 +95,7 @@ export async function syncWithGithub(accountId: string) {
 
     await checkBadges(data.commits, accountId);
     await syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId);
+    await checkLevel(accountId);
 
     await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } });
   } catch (error) {

@@ -45,8 +45,8 @@ const badgeConfigs: BadgeConfig[] = [
 
 const levelConfig: Level[] = [
   { id: 1, name: "Aspiring Beginner", threshold: 1000 },
-  { id: 2, name: "Budding Learner", threshold: 10000 },
-  { id: 3, name: "Eager Explorer", threshold: 100000 },
+  { id: 2, name: "Budding Learner", threshold: 2500 },
+  { id: 3, name: "Eager Explorer", threshold: 5000 },
 ];
 
 async function createBadges(badgeConfigs: BadgeConfig[]) {
