@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { Commit } from "../commits/commitsService";
-import { PRQueryResponse } from "../pullrequests/pullrequestsUtils";
+import { PRData } from "../pullrequests/pullrequestsUtils";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
@@ -43,7 +43,7 @@ async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   }
 }
 
-async function checkPrOpenedBadges(prs: PRQueryResponse[], accountId: string) {
+async function checkPrOpenedBadges(prs: PRData[], accountId: string) {
   try {
     // Fetch all badges of type "commits_count" from the database
     const badges = await prisma.badgeDefinition.findMany({
@@ -85,7 +85,7 @@ async function checkPrOpenedBadges(prs: PRQueryResponse[], accountId: string) {
   }
 }
 
-async function checkPrMergedBadges(prs: PRQueryResponse[], accountId: string) {
+async function checkPrMergedBadges(prs: PRData[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "prs_merged_count" },
@@ -171,7 +171,7 @@ async function updateTotalPoints(accountId: string) {
   }
 }
 
-export async function checkBadges(commits: Commit[], prs: PRQueryResponse[], accountId: string) {
+export async function checkBadges(commits: Commit[], prs: PRData[], accountId: string) {
   try {
     await prisma.badgeAward.deleteMany({
       where: { accountId },

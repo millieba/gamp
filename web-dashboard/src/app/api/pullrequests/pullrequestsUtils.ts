@@ -43,7 +43,7 @@ export interface PRsGraphQLResponse {
   };
 }
 
-export interface PRQueryResponse {
+export interface PRData {
   id: string;
   comments: CommentNode[];
   title: string;

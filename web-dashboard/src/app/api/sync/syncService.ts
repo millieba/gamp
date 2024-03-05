@@ -8,7 +8,7 @@ import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { checkLevel } from "../levels/levelService";
-import { PRQueryResponse } from "../pullrequests/pullrequestsUtils";
+import { PRData } from "../pullrequests/pullrequestsUtils";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -23,7 +23,7 @@ export interface SyncData {
   data: DBStats;
   programmingLanguages: ProgrammingLanguage[];
   commits: Commit[];
-  pullRequests: PRQueryResponse[];
+  pullRequests: PRData[];
   dailyModifications: Modification[];
 }
 

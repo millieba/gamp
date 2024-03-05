@@ -1,9 +1,9 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PRsGraphQLResponse, PRQueryResponse } from "./pullrequestsUtils";
+import { pullrequestsQuery, PRsGraphQLResponse, PRData } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
-export async function fetchAllPullRequests(accountId: string): Promise<PRQueryResponse[]> {
+export async function fetchAllPullRequests(accountId: string): Promise<PRData[]> {
   const loggedInAccount = await getLoggedInAccount(accountId);
   const graphqlWithAuth = graphql.defaults({
     headers: {
@@ -12,7 +12,7 @@ export async function fetchAllPullRequests(accountId: string): Promise<PRQueryRe
   });
 
   const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`query { viewer { login } }`)).viewer.login;
-  let allData: PRQueryResponse[] = [];
+  let allData: PRData[] = [];
   let hasNextPagePr = true;
   let afterPr = null;
 
@@ -65,7 +65,7 @@ export async function fetchPullRequestVariables(accountId: string) {
 }
 
 // function to fetch the number of created and merged pull requests
-export function calculateMergedAndCreatedPrs(data: PRQueryResponse[]) {
+export function calculateMergedAndCreatedPrs(data: PRData[]) {
   let count = 0;
   for (const pr of data) {
     if (pr) {
