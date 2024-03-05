@@ -3,7 +3,7 @@ import { pullrequestsQuery, PRsGraphQLResponse, PRQueryResponse } from "./pullre
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
-export async function pullrequestsService(accountId: string) {
+export async function fetchAllPullRequests(accountId: string): Promise<PRQueryResponse[]> {
   const loggedInAccount = await getLoggedInAccount(accountId);
   const graphqlWithAuth = graphql.defaults({
     headers: {
@@ -13,7 +13,6 @@ export async function pullrequestsService(accountId: string) {
 
   const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`query { viewer { login } }`)).viewer.login;
   let allData: PRQueryResponse[] = [];
-  let totalPRCount = 0;
   let hasNextPagePr = true;
   let afterPr = null;
 
@@ -24,8 +23,6 @@ export async function pullrequestsService(accountId: string) {
         afterPr,
       });
       const user = result.user;
-
-      if (!totalPRCount) totalPRCount = user.pullRequests.totalCount;
 
       for (const edge of user.pullRequests.edges) {
         const comments = edge.node.comments ? edge.node.comments.edges.map((commentEdge) => commentEdge.node) : [];
@@ -49,18 +46,17 @@ export async function pullrequestsService(accountId: string) {
       throw error;
     }
   }
-  return { createdPrs: totalPRCount, PRData: allData };
+  return allData;
 }
 
 export async function fetchPullRequestVariables(accountId: string) {
   try {
-    const data = await pullrequestsService(accountId);
-    const createdPrs = data.createdPrs;
-    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data.PRData);
+    const data = await fetchAllPullRequests(accountId);
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
     return {
-      createdPrs: createdPrs,
+      createdPrs: data.length,
       createdAndMergedPrs: createdAndMergedPrs,
-      pullRequests: data.PRData,
+      pullRequests: data,
     };
   } catch (error) {
     console.error("An error occurred while fetching pull request variables:", error);

@@ -6,7 +6,6 @@ export interface PageInfo {
 export interface PRsGraphQLResponse {
   user: {
     pullRequests: {
-      totalCount: number;
       pageInfo: PageInfo;
       edges: {
         node: {
@@ -73,7 +72,6 @@ export const pullrequestsQuery = `
 query($username: String!, $afterPr: String) {
   user(login: $username) {
     pullRequests(first: 10, after: $afterPr) {
-      totalCount
       pageInfo {
         endCursor
         hasNextPage
