@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 import { graphql } from "@octokit/graphql";
-import { QueryResult, QueryResultEdges, QueryResultNode } from "./issuesUtils";
+import { IssueQueryResult, IssueQueryResultEdges, IssueQueryResultNode } from "./issuesUtils";
 import { getLoggedInAccount } from "@/utils/user";
 
 export async function fetchIssueCount(accountId: string) {
@@ -54,12 +54,9 @@ query ($afterIssues: String) {
 
     while (hasNextPageIssues) {
       try {
-        const result: QueryResult = await graphqlWithAuth<QueryResult>(
-          issuesQuery,
-          {
-            afterIssues: afterCursorIssues,
-          }
-        );
+        const result: IssueQueryResult = await graphqlWithAuth<IssueQueryResult>(issuesQuery, {
+          afterIssues: afterCursorIssues,
+        });
 
         if (!result.search) {
           throw new Error("No data returned from GraphQL server");
@@ -72,10 +69,7 @@ query ($afterIssues: String) {
         hasNextPageIssues = result.search.pageInfo.hasNextPage;
         afterCursorIssues = result.search.pageInfo.endCursor;
       } catch (error) {
-        console.error(
-          "An error occurred while paginating and fetching issues:",
-          error
-        );
+        console.error("An error occurred while paginating and fetching issues:", error);
         throw error;
       }
     }
@@ -96,12 +90,10 @@ export async function fetchIssueVariables(accountId: string) {
       issueCount: issueCount,
       avgTimeToCloseIssues: avgTimeToCloseIssues,
       closedIssueCount: closedIssueCount,
+      data: data,
     };
   } catch (error) {
-    console.error(
-      "An error occured while trying to fetch the issueCount:",
-      error
-    );
+    console.error("An error occured while trying to fetch the issueCount:", error);
     throw error;
   }
 }
@@ -114,22 +106,19 @@ function calculateTimeDifference(createdAt: string, closedAt: string): number {
 }
 
 // Function to calculate average time
-export function calculateAvgTimeToCloseIssues(results: QueryResultEdges[]): number {
+export function calculateAvgTimeToCloseIssues(results: IssueQueryResultEdges[]): number {
   let total = 0;
   let count = 0;
 
   for (const result of results) {
-    result.edges.forEach((edge: QueryResultNode) => {
+    result.edges.forEach((edge: IssueQueryResultNode) => {
       if (edge.node.state === "CLOSED" && edge.node.createdAt && edge.node.closedAt) {
-        const diff = calculateTimeDifference(
-          edge.node.createdAt,
-          edge.node.closedAt
-        );
+        const diff = calculateTimeDifference(edge.node.createdAt, edge.node.closedAt);
         total += diff;
         count++;
       }
     });
-  };
+  }
 
   if (count === 0) {
     return 0; // return null if no closed issues were found
@@ -139,7 +128,7 @@ export function calculateAvgTimeToCloseIssues(results: QueryResultEdges[]): numb
 }
 
 // Function to calculate average time
-export function calculateClosedIssueCount(results: QueryResultEdges[]): number {
+export function calculateClosedIssueCount(results: IssueQueryResultEdges[]): number {
   let closedIssueCount = 0;
 
   results.forEach((result) => {
@@ -165,10 +154,7 @@ export async function getIssueVariablesFromDb(accountId: string) {
     });
     return issueData;
   } catch (error) {
-    console.error(
-      `An error occurred while getting issueCount for account ${accountId} from the database:`,
-      error
-    );
+    console.error(`An error occurred while getting issueCount for account ${accountId} from the database:`, error);
     throw error;
   }
 }

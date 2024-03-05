@@ -1,6 +1,7 @@
 import prisma from "@/utils/prisma";
 import { Commit } from "../commits/commitsService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
+import { IssueQueryResultEdges } from "../issues/issuesUtils";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
@@ -135,6 +136,98 @@ async function checkPrMergedBadges(prs: PRData[], accountId: string) {
   }
 }
 
+async function checkOpenedIssuesAssigned(issues: IssueQueryResultEdges[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "issues_opened_count" },
+    });
+
+    // Flatten the edges arrays into a single array
+    const allEdges = issues.flatMap((issue) => issue.edges);
+
+    const openedAssignedIssues = allEdges.length; // Opened issues assigned to the user
+
+    allEdges.sort((a, b) => new Date(b.node.createdAt).getTime() - new Date(a.node.createdAt).getTime());
+
+    for (const badge of badges) {
+      if (openedAssignedIssues >= badge.threshold) {
+        const thresholdIndex = openedAssignedIssues - badge.threshold;
+        const dateEarned = allEdges[thresholdIndex].node.createdAt || new Date();
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(`An error occurred while checking assigned opened issues badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
+async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "issues_closed_count" },
+    });
+
+    // Flatten the edges arrays into a single array
+    const allEdges = issues.flatMap((issue) => issue.edges);
+
+    let closedIssuesAssigned = allEdges.filter((edge) => edge.node.state === "CLOSED");
+
+    closedIssuesAssigned.sort(
+      (a, b) => new Date(b.node.closedAt || 0).getTime() - new Date(a.node.closedAt || 0).getTime()
+    );
+
+    const closedAssignedIssuesCount = closedIssuesAssigned.length; // Closed issues assigned to the user
+
+    for (const badge of badges) {
+      if (closedAssignedIssuesCount >= badge.threshold) {
+        const thresholdIndex = closedAssignedIssuesCount - badge.threshold;
+        const dateEarned = closedIssuesAssigned[thresholdIndex].node.closedAt || new Date();
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(`An error occurred while checking assigned closed issues badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
 async function updateTotalPoints(accountId: string) {
   try {
     const account = await prisma.account.findUnique({
@@ -171,7 +264,12 @@ async function updateTotalPoints(accountId: string) {
   }
 }
 
-export async function checkBadges(commits: Commit[], prs: PRData[], accountId: string) {
+export async function checkBadges(
+  commits: Commit[],
+  prs: PRData[],
+  issues: IssueQueryResultEdges[],
+  accountId: string
+) {
   try {
     await prisma.badgeAward.deleteMany({
       where: { accountId },
@@ -180,6 +278,8 @@ export async function checkBadges(commits: Commit[], prs: PRData[], accountId: s
       await checkCommitCountBadges(commits, accountId),
       await checkPrOpenedBadges(prs, accountId),
       await checkPrMergedBadges(prs, accountId),
+      await checkOpenedIssuesAssigned(issues, accountId),
+      await checkClosedIssuesAssigned(issues, accountId),
     ]);
     await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {
