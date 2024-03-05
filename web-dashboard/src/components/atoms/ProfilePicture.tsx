@@ -61,7 +61,7 @@ const ProfilePicture = () => {
       <span className="text-xs font-medium">
         {level?.nextLevel
           ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
-          : `You are already ${
+          : `You're already ${
               level?.currentLevel && level?.totalPoints - level?.currentLevel?.threshold
             } XP above the highest level!`}
       </span>
