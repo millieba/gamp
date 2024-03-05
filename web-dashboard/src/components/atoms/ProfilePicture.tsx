@@ -44,7 +44,9 @@ const ProfilePicture = () => {
 
       <div className="w-full bg-DarkNeutral350 rounded-full h-2.5 mb-12">
         <div className="bg-Magenta600 h-2.5 rounded-full w-1/2"></div>
-        <span className="text-xs font-medium">You need {level?.nextLevel?.threshold}XP to reach level 3!</span>
+        <span className="text-xs font-medium">
+          You need {level?.nextLevel && level?.nextLevel?.threshold - level?.totalPoints}XP to reach level 3!
+        </span>
       </div>
 
       <button

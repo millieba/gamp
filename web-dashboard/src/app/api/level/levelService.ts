@@ -46,6 +46,7 @@ export async function getLevelFromDB(accountId: string) {
     const currentLevel = await prisma.account.findUnique({
       where: { id: accountId },
       select: {
+        totalPoints: true,
         level: true,
       },
     });
@@ -60,7 +61,7 @@ export async function getLevelFromDB(accountId: string) {
       where: { id: nextLevelId },
     });
 
-    return { currentLevel, nextLevel };
+    return { currentLevel: currentLevel.level, totalPoints: currentLevel.totalPoints, nextLevel: nextLevel };
   } catch (error) {
     console.error(`An error occurred while getting levels for account ${accountId} from the database:`, error);
     throw error;

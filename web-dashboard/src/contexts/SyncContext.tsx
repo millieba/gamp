@@ -27,7 +27,8 @@ export interface ProgrammingLanguage {
 
 export interface LevelData {
   currentLevel: Level;
-  nextLevel: Level;
+  nextLevel: Level | null;
+  totalPoints: number;
 }
 
 export async function sync(
