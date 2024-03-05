@@ -3,7 +3,7 @@ export interface PageInfo {
   hasNextPage: boolean;
 }
 
-export interface QueryResult {
+export interface IssueQueryResult {
   search: {
     issueCount: number;
     pageInfo: PageInfo;
@@ -20,26 +20,27 @@ export interface QueryResult {
   };
 }
 
-export interface QueryResultEdges {
+export interface IssueQueryResultEdges {
   edges: {
     node: {
       title: string;
       url: string;
       createdAt: string;
-      closedAt: string;
+      closedAt: string | null;
       number: number;
       state: string;
     };
   }[];
 }
 
-export interface QueryResultNode {
-    node: {
-      title: string;
-      url: string;
-      createdAt: string;
-      closedAt: string;
-      number: number;
-      state: string;
-    };
-  }[];
+export interface IssueQueryResultNode {
+  node: {
+    title: string;
+    url: string;
+    createdAt: string;
+    closedAt: string | null;
+    number: number;
+    state: string;
+  };
+}
+[];
