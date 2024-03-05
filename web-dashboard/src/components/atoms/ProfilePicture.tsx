@@ -44,12 +44,20 @@ const ProfilePicture = () => {
       ) : (
         "No photo available"
       )}
-      <span className="text-lg font-semibold mt-3 mb-6">{session?.user?.name}</span>
-      <div className="flex justify-between w-full my-2 text-sm font-medium">
-        <span className="italic">{level?.currentLevel?.name}</span>
+      <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
+      {level?.nextLevel && <span className="italic mb-4">{level?.currentLevel?.name}</span>}
 
-        <span>Level {level?.nextLevel?.id ?? level?.currentLevel?.id}</span>
-      </div>
+      {level?.nextLevel ? (
+        <div className="flex justify-between w-full my-1 text-sm font-medium">
+          <span>{level.currentLevel.id}</span>
+          <span>{level?.nextLevel?.id ?? level?.currentLevel?.id}</span>
+        </div>
+      ) : (
+        <div className="flex justify-between w-full my-1 text-sm font-medium mt-4 mb-2">
+          <span className="italic">{level?.currentLevel.name}</span>
+          <span>{level?.nextLevel?.id ?? level?.currentLevel?.id}</span>
+        </div>
+      )}
 
       <div className="flex items-center w-full bg-DarkNeutral350 rounded-full h-2.5 relative mb-4">
         <div
