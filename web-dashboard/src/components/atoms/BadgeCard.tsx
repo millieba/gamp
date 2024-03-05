@@ -17,8 +17,8 @@ const BadgeCard: React.FC<BadgeDetails> = ({ name, image, description, points, p
   const remainingProgress = threshold - progress;
 
   return (
-    <div className={`p-8 m-2 rounded-lg shadow-md ${bgColor} max-w-[300px] flex-grow flex flex-col items-center`}>
-      <img src={image} alt="Badge" className="mb-4" />
+    <div className={`p-8 m-2 rounded-lg shadow-md ${bgColor} flex flex-col items-center flex-grow`}>
+      <img src={image} alt="Badge" className="mb-4 w-[200px] bouncy" />
       <h1 className="text-xl font-bold mb-4 pr-4 text-DarkNeutral1000 text-center">{name}</h1>
       <p className="text-DarkNeutral1100 pr-4 mb-4 text-center">{description}</p>
       {achieved ? (
@@ -28,7 +28,8 @@ const BadgeCard: React.FC<BadgeDetails> = ({ name, image, description, points, p
         </div>
       ) : (
         <>
-          <div className="flex justify-between mb-1 w-full">
+          <p>Sorry, we are experiencing some issues right now.</p>
+          {/* <div className="flex justify-between mb-1 w-full">
             <span className="text-sm font-medium text-DarkNeutral1000">0</span>
             <span className="text-sm font-medium text-DarkNeutral1000">{threshold}</span>
           </div>
@@ -40,7 +41,7 @@ const BadgeCard: React.FC<BadgeDetails> = ({ name, image, description, points, p
           </div>
           <div className="text-DarkNeutral1000 text-center">
             You only need {remainingProgress} more commits to achieve this! Achieving this badge gives you {points}XP!
-          </div>
+          </div> */}
         </>
       )}
     </div>

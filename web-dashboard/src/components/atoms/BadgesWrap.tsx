@@ -11,7 +11,7 @@ const BadgesWrap: React.FC<BadgeCards> = ({ title, cards }) => {
   return (
     <>
       <h1>{title}</h1>
-      <div className={`p-4 m-2 rounded-lg shadow-md ${bgColor} gap-1 flex-grow flex flex-wrap`}>{cards}</div>
+      <div className={`p-4 m-2 rounded-lg shadow-md ${bgColor} flex-container`}>{cards}</div>
     </>
   );
 };
