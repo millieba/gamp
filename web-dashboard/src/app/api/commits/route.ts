@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import { fetchAllCommitsHandler, prepareCommitsForDB } from "./commitsService";
+import { prepareCommitsForDB } from "./commitsService";
 
 export const GET = async () => {
   try {
@@ -11,6 +11,7 @@ export const GET = async () => {
     }
 
     const commits = await prepareCommitsForDB(session.user.githubAccountId);
+
     return NextResponse.json(commits, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

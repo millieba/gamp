@@ -3,6 +3,7 @@ import StatCard from "@/components/atoms/StatCard";
 import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
+import ModificationsChart from "@/components/atoms/ModificationsChart";
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges } = useSyncContext();
@@ -18,6 +19,30 @@ const StatsPage = () => {
   };
 
   const data = [
+    {
+      icon: "fire",
+      heading: "Strict Streak",
+      subheading: stats?.strictStreak
+        ? "Consecutive days with commits"
+        : stats?.strictStreakToContinue
+        ? `Commit today to continue your streak of ${stats?.strictStreakToContinue} days`
+        : "",
+      number: stats?.strictStreak || 0,
+      unit: stats?.strictStreak === 1 ? "day" : "days",
+      description: "This is how many days in a row you have committed",
+    },
+    {
+      icon: "fire",
+      heading: "Workday Streak",
+      subheading: stats?.workdayStreak
+        ? "Consecutive workdays with commits"
+        : stats?.workdayStreakToContinue
+        ? `Commit today to continue your streak of ${stats?.workdayStreakToContinue} days`
+        : "",
+      number: stats?.workdayStreak || 0,
+      unit: stats?.workdayStreak === 1 ? "workday" : "workdays",
+      description: "This is how many weekdays (Monday to Friday) in a row you have committed",
+    },
     {
       icon: "star",
       heading: "Achievements",
@@ -60,7 +85,7 @@ const StatsPage = () => {
       icon: "language",
       heading: "Languages",
       subheading: "Used languages",
-      number: stats?.programmingLanguages.length || 0,
+      number: stats?.programmingLanguages?.length || 0,
       unit: "languages",
       description: "This is how many languages you have used in your repositories!",
     },
@@ -73,30 +98,43 @@ const StatsPage = () => {
         <p>Loading...</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="flex flex-wrap">
             {data.map(
               (item, index: number) =>
                 (item.number !== 0 || item.number !== null || stats !== undefined) && (
-                  <InfoCard
-                    key={index}
-                    icon={item.icon}
-                    heading={item.heading}
-                    subheading={item.subheading}
-                    number={Number(item.number)}
-                    unit={item.unit}
-                    description={item.description}
-                  />
+                  <div className="flex-grow" key={index}>
+                    <InfoCard
+                      icon={item.icon}
+                      heading={item.heading}
+                      subheading={item.subheading}
+                      number={Number(item.number)}
+                      unit={item.unit}
+                      description={item.description}
+                    />
+                  </div>
                 )
             )}
           </div>
-          <StatCard
-            name={"Most used languages"}
-            description={
-              "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
-            }
-            content={<LanguageChart />}
-            maxWidth="500px"
-          />
+          <div className="lg:flex">
+            <div className="lg:flex-1">
+              <StatCard
+                name={"Most used languages"}
+                description={
+                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                }
+                content={<LanguageChart />}
+              />
+            </div>
+            <div className="lg:flex-1">
+              <StatCard
+                name={"Additions and deletions"}
+                description={
+                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                }
+                content={<ModificationsChart />}
+              />
+            </div>
+          </div>
         </>
       )}
     </>

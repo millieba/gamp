@@ -11,27 +11,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Represents badges that can be awarded to user accounts
-model Badge {
-  id          String    @id
-  name        String    @unique
+// Represents the definition of a badge that can be awarded to user accounts
+model BadgeDefinition {
+  id          String       @id
+  name        String       @unique
   description String
   image       String
   points      Int
   type        String
   threshold   Int
-  accounts    Account[]
+  badgeAwards BadgeAward[] // One badge definition can be related to many badge awards
 
-  @@map("badges")
+  @@map("badge_definitions")
+}
+
+// Represents the instance of a badge being earned by a user
+model BadgeAward {
+  id         String   @id @default(cuid())
+  badgeId    String   @map("badge_id")
+  accountId  String   @map("account_id")
+  dateEarned DateTime @map("date_earned")
+
+  badgeDefinition BadgeDefinition @relation(fields: [badgeId], references: [id])
+  account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("badge_awards")
 }
 
 // One user can have multiple accounts with different providers.
 model Account {
   id                       String       @id @default(cuid())
   userId                   String       @map("user_id")
+  levelId                  Int          @default(1) @map("level_id") // Default level is 1
   type                     String
   provider                 String
   providerAccountId        String       @map("provider_account_id")
+  totalPoints              Int          @default(0) @map("total_points") // Total points earned from badges
   refresh_token            String?      @db.Text
   refresh_token_expires_in Int?
   access_token             String?      @db.Text
@@ -41,13 +56,24 @@ model Account {
   id_token                 String?      @db.Text
   session_state            String?
   githubStats              GitHubStats?
-  badges                   Badge[]
+  badges                   BadgeAward[] // List of badges the user has been awarded with
   lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level Level @relation(fields: [levelId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+}
+
+// Represents the user's level
+model Level {
+  id        Int       @id
+  name      String    @unique
+  threshold Int
+  accounts  Account[]
+
+  @@map("levels")
 }
 
 model Session {
@@ -90,6 +116,7 @@ model GitHubStats {
   workdayStreakToContinue Int?   @map("workday_streak_to_continue")
 
   programmingLanguages ProgrammingLanguage[]
+  dailyModifications   DailyModification[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
@@ -106,4 +133,18 @@ model ProgrammingLanguage {
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 
   @@map("programming_languages")
+}
+
+// Represents the daily modifications (code lines added, deleted etc.) for an account
+model DailyModification {
+  id            String   @id @default(cuid())
+  date          DateTime
+  additions     Int
+  deletions     Int
+  totalCommits  Int      @map("total_commits")
+  githubStatsId String   @map("github_stats_id")
+
+  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
+
+  @@map("daily_modifications")
 }

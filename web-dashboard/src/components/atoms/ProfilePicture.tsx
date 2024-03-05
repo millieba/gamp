@@ -7,11 +7,11 @@ import { redirect } from 'next/navigation';
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
-  const { setBadges, setStats, setIsLoading, isLoading } = useSyncContext();
+  const { setBadges, setAllBadges, setStats, setIsLoading, isLoading } = useSyncContext();
 
   const handleClick = async () => {
     try {
-      await sync(setIsLoading, setBadges, setStats);
+      await sync(setIsLoading, setBadges, setAllBadges, setStats);
     } catch (err) {
       (err instanceof Error) && setError(err.message);
       console.error(err);

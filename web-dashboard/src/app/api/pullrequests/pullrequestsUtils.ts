@@ -3,10 +3,9 @@ export interface PageInfo {
   hasNextPage: boolean;
 }
 
-export interface PrQueryResult {
+export interface PRsGraphQLResponse {
   user: {
     pullRequests: {
-      totalCount: number;
       pageInfo: PageInfo;
       edges: {
         node: {
@@ -25,6 +24,8 @@ export interface PrQueryResult {
           };
           title: string;
           merged: boolean;
+          createdAt: string;
+          mergedAt: string;
           reviews: {
             pageInfo: PageInfo;
             edges: {
@@ -42,46 +43,35 @@ export interface PrQueryResult {
   };
 }
 
-export type PRData = {
-  body?: string;
-  url?: string;
-  author?: {
-    url?: string;
-    avatarUrl?: string;
+export interface PRData {
+  id: string;
+  comments: CommentNode[];
+  title: string;
+  merged: boolean;
+  createdAt: string;
+  mergedAt: string | null;
+  reviews: ReviewNode[];
+}
+
+export interface CommentNode {
+  body: string;
+  url: string;
+  author: {
+    url: string;
   };
-  id?: string;
-  comments?: {
-    pageInfo: PageInfo;
-    edges: {
-      node: {
-        body: string;
-        url: string;
-        author: {
-          url: string;
-        };
-      };
-    }[];
+}
+
+export interface ReviewNode {
+  body: string;
+  author: {
+    avatarUrl: string;
   };
-  title?: string;
-  merged?: boolean;
-  reviews?: {
-    pageInfo?: PageInfo;
-    edges?: {
-      node?: {
-        body?: string;
-        author?: {
-          avatarUrl?: string;
-        };
-      };
-    }[];
-  };
-};
+}
 
 export const pullrequestsQuery = `
-query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
+query($username: String!, $afterPr: String) {
   user(login: $username) {
-    pullRequests(first: 100, after: $afterPr) {
-      totalCount
+    pullRequests(first: 10, after: $afterPr) {
       pageInfo {
         endCursor
         hasNextPage
@@ -89,7 +79,7 @@ query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: Str
       edges {
         node {
           id,
-          comments(first: 100, after: $afterCmt){
+          comments(first: 100){
             pageInfo {
               endCursor
               hasNextPage
@@ -106,7 +96,9 @@ query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: Str
           },
           title,
           merged,
-          reviews(first: 100, after: $afterReview) {
+          createdAt,
+          mergedAt,
+          reviews(first: 100) {
             pageInfo {
               endCursor
               hasNextPage
