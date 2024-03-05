@@ -18,6 +18,15 @@ const ProfilePicture = () => {
     }
   };
 
+  const calculateProgressBarPercentage = () => {
+    if (!level?.nextLevel) {
+      return 100; // User is already at the highest level
+    }
+    const pointsNeeded = level.nextLevel.threshold - level.totalPoints;
+    const progressPercentage = ((level.currentLevel.threshold - pointsNeeded) / level.currentLevel.threshold) * 100;
+    return Math.min(progressPercentage, 100); // Cap at 100% just in case
+  };
+
   useEffect(() => {
     if (status === "unauthenticated" || session?.error === "RefreshAccessTokenError") {
       redirect("/api/auth/signin"); // Redirect to the sign in page if the user is unauthenticated or their access token has expired
@@ -35,23 +44,31 @@ const ProfilePicture = () => {
       ) : (
         "No photo available"
       )}
-      <span className="text-lg font-semibold mt-3">{session?.user?.name}</span>
-      <span className="text-sm font-medium italic mt-2">Budding learner</span>
-      <div className="flex justify-between w-full mt-2">
-        <span className="text-sm font-medium">{level?.currentLevel?.id}</span>
-        <span className="text-sm font-medium">{level?.nextLevel?.id}</span>
+      <span className="text-lg font-semibold mt-3 mb-6">{session?.user?.name}</span>
+      <div className="flex justify-between w-full my-2 text-sm font-medium">
+        <span className="italic">{level?.currentLevel?.name}</span>
+
+        <span>Level {level?.nextLevel?.id ?? level?.currentLevel?.id}</span>
       </div>
 
-      <div className="w-full bg-DarkNeutral350 rounded-full h-2.5 mb-12">
-        <div className="bg-Magenta600 h-2.5 rounded-full w-1/2"></div>
-        <span className="text-xs font-medium">
-          You need {level?.nextLevel && level?.nextLevel?.threshold - level?.totalPoints}XP to reach level 3!
-        </span>
+      <div className="flex items-center w-full bg-DarkNeutral350 rounded-full h-2.5 relative mb-4">
+        <div
+          className="bg-Magenta600 h-2.5 rounded-full"
+          style={{ width: `${calculateProgressBarPercentage()}%` }}
+        ></div>
       </div>
+
+      <span className="text-xs font-medium">
+        {level?.nextLevel
+          ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
+          : `You are already ${
+              level?.currentLevel && level?.totalPoints - level?.currentLevel?.threshold
+            } XP above the highest level!`}
+      </span>
 
       <button
         onClick={handleClick}
-        className="flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full bg-Magenta600 hover:bg-pink-600"
+        className="mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full bg-Magenta600 hover:bg-pink-600"
       >
         <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
         {isLoading ? "Syncing ..." : "Sync"}
