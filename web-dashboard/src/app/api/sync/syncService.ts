@@ -7,7 +7,7 @@ import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
 import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
-import { checkLevel } from "../levels/levelService";
+import { checkLevel } from "../level/levelService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
 import { IssueQueryResultEdges } from "../issues/issuesUtils";
 

@@ -40,3 +40,29 @@ export async function checkLevel(accountId: string) {
     throw error;
   }
 }
+
+export async function getLevelFromDB(accountId: string) {
+  try {
+    const currentLevel = await prisma.account.findUnique({
+      where: { id: accountId },
+      select: {
+        level: true,
+      },
+    });
+
+    if (!currentLevel) {
+      throw new Error(`Account with ID ${accountId} not found.`);
+    }
+
+    const nextLevelId = currentLevel.level.id + 1;
+
+    const nextLevel = await prisma.level.findUnique({
+      where: { id: nextLevelId },
+    });
+
+    return { currentLevel, nextLevel };
+  } catch (error) {
+    console.error(`An error occurred while getting levels for account ${accountId} from the database:`, error);
+    throw error;
+  }
+}
