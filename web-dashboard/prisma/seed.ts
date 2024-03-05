@@ -123,6 +123,74 @@ const badgeConfigs: BadgeConfig[] = [
       },
     ],
   },
+  {
+    type: "issues_opened_count",
+    prefix: "issues-opened",
+    badges: [
+      {
+        name: "Junior Assignee",
+        description: "Earned by being assigned to 10 issues.",
+        points: 1000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Intermediate Assignee",
+        description: "Earned by being assigned to 50 issues.",
+        points: 2000,
+        threshold: 50,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Expert Assignee",
+        description: "Earned by being assigned to 100 issues.",
+        points: 3000,
+        threshold: 100,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Elite Assignee",
+        description: "Earned by being assigned to 150 issues.",
+        points: 4000,
+        threshold: 150,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
+  {
+    type: "issues_closed_count",
+    prefix: "issues-closed",
+    badges: [
+      {
+        name: "Problem Solver",
+        description: "Earned by being assigned to 10 closed issues.",
+        points: 1000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Issue Crusher",
+        description: "Earned by being assigned to 50 closed issues.",
+        points: 2000,
+        threshold: 50,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Solution Master",
+        description: "Earned by being assigned to 100 closed issues.",
+        points: 3000,
+        threshold: 100,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Issue Terminator",
+        description: "Earned by being assigned to 150 closed issues.",
+        points: 4000,
+        threshold: 150,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
 ];
 
 const levelConfig: Level[] = [
