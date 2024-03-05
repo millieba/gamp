@@ -46,42 +46,33 @@ export interface PRsGraphQLResponse {
 
 export interface PRQueryResponse {
   id: string;
-  comments?: {
-    edges: {
-      node: {
-        body: string;
-        url: string;
-        author: {
-          url: string;
-        };
-      };
-    }[];
-  };
+  comments: CommentNode[];
   title: string;
   merged: boolean;
   createdAt: string;
   mergedAt: string | null;
-  reviews?: {
-    edges?: {
-      node?: {
-        body?: string;
-        author?: {
-          avatarUrl?: string;
-        };
-      };
-    }[];
+  reviews: ReviewNode[];
+}
+
+export interface CommentNode {
+  body: string;
+  url: string;
+  author: {
+    url: string;
   };
 }
 
-export interface PRServiceResponse {
-  PRData: PRQueryResponse[];
-  createdPrs: number;
+export interface ReviewNode {
+  body: string;
+  author: {
+    avatarUrl: string;
+  };
 }
 
 export const pullrequestsQuery = `
-query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: String) {
+query($username: String!, $afterPr: String) {
   user(login: $username) {
-    pullRequests(first: 100, after: $afterPr) {
+    pullRequests(first: 10, after: $afterPr) {
       totalCount
       pageInfo {
         endCursor
@@ -90,7 +81,7 @@ query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: Str
       edges {
         node {
           id,
-          comments(first: 100, after: $afterCmt){
+          comments(first: 100){
             pageInfo {
               endCursor
               hasNextPage
@@ -109,7 +100,7 @@ query($username: String!, $afterPr: String, $afterCmt: String, $afterReview: Str
           merged,
           createdAt,
           mergedAt,
-          reviews(first: 100, after: $afterReview) {
+          reviews(first: 100) {
             pageInfo {
               endCursor
               hasNextPage

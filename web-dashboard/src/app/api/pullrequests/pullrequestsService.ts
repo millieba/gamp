@@ -1,9 +1,9 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PRsGraphQLResponse, PRServiceResponse, PRQueryResponse } from "./pullrequestsUtils";
+import { pullrequestsQuery, PRsGraphQLResponse, PRQueryResponse } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
-export async function pullrequestsService(accountId: string): Promise<PRServiceResponse> {
+export async function pullrequestsService(accountId: string) {
   const loggedInAccount = await getLoggedInAccount(accountId);
   const graphqlWithAuth = graphql.defaults({
     headers: {
@@ -16,62 +16,32 @@ export async function pullrequestsService(accountId: string): Promise<PRServiceR
   let totalPRCount = 0;
   let hasNextPagePr = true;
   let afterPr = null;
-  let hasNextPageCmt = true;
-  let afterCmt = null;
-  let hasNextPageReview = true;
-  let afterReview = null;
 
   while (hasNextPagePr) {
     try {
       const result: PRsGraphQLResponse = await graphqlWithAuth<PRsGraphQLResponse>(pullrequestsQuery, {
         username,
         afterPr,
-        afterCmt,
-        afterReview,
       });
       const user = result.user;
 
       if (!totalPRCount) totalPRCount = user.pullRequests.totalCount;
 
       for (const edge of user.pullRequests.edges) {
-        const prData: PRQueryResponse = {
+        const comments = edge.node.comments ? edge.node.comments.edges.map((commentEdge) => commentEdge.node) : [];
+        const reviews = edge.node.reviews ? edge.node.reviews.edges.map((reviewEdge) => reviewEdge.node) : [];
+
+        allData.push({
           id: edge.node.id,
-          comments: edge.node.comments
-            ? {
-                edges: edge.node.comments.edges.map((commentEdge) => ({
-                  node: {
-                    body: commentEdge.node.body,
-                    url: commentEdge.node.url,
-                    author: { url: commentEdge.node.author.url },
-                  },
-                })),
-              }
-            : undefined,
           title: edge.node.title,
-          merged: edge.node.merged,
           createdAt: edge.node.createdAt,
+          merged: edge.node.merged,
           mergedAt: edge.node.mergedAt,
-          reviews: edge.node.reviews
-            ? {
-                edges: edge.node.reviews.edges.map((reviewEdge) => ({
-                  node: {
-                    body: reviewEdge.node.body,
-                    author: { avatarUrl: reviewEdge.node.author.avatarUrl },
-                  },
-                })),
-              }
-            : undefined,
-        };
-        allData.push(prData);
-        if (edge.node.comments && edge.node.comments.pageInfo.hasNextPage) {
-          hasNextPageCmt = true;
-          afterCmt = edge.node.comments.pageInfo.endCursor;
-        }
-        if (edge.node.reviews && edge.node.reviews.pageInfo.hasNextPage) {
-          hasNextPageReview = true;
-          afterReview = edge.node.reviews.pageInfo.endCursor;
-        }
+          comments: comments,
+          reviews: reviews,
+        });
       }
+
       hasNextPagePr = user.pullRequests.pageInfo.hasNextPage;
       afterPr = user.pullRequests.pageInfo.endCursor;
     } catch (error) {
@@ -79,7 +49,6 @@ export async function pullrequestsService(accountId: string): Promise<PRServiceR
       throw error;
     }
   }
-
   return { createdPrs: totalPRCount, PRData: allData };
 }
 
@@ -87,7 +56,7 @@ export async function fetchPullRequestVariables(accountId: string) {
   try {
     const data = await pullrequestsService(accountId);
     const createdPrs = data.createdPrs;
-    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data.PRData);
     return {
       createdPrs: createdPrs,
       createdAndMergedPrs: createdAndMergedPrs,
@@ -100,9 +69,9 @@ export async function fetchPullRequestVariables(accountId: string) {
 }
 
 // function to fetch the number of created and merged pull requests
-export function calculateMergedAndCreatedPrs(data: PRServiceResponse) {
+export function calculateMergedAndCreatedPrs(data: PRQueryResponse[]) {
   let count = 0;
-  for (const pr of data.PRData) {
+  for (const pr of data) {
     if (pr) {
       count++;
     }
