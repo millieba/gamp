@@ -12,7 +12,6 @@ export const GET = async () => {
 
     const pullrequests = await getPrVariablesFromDb(session.user.githubAccountId);
     return NextResponse.json(pullrequests, { status: 200 });
-
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

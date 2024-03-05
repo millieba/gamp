@@ -1,92 +1,62 @@
 import { graphql } from "@octokit/graphql";
-import { pullrequestsQuery, PrQueryResult, PRData } from "./pullrequestsUtils";
+import { pullrequestsQuery, PRsGraphQLResponse, PRData } from "./pullrequestsUtils";
 import { getLoggedInAccount } from "@/utils/user";
 import prisma from "@/utils/prisma";
 
-export async function pullrequestsService(accountId: string) {
+export async function fetchAllPullRequests(accountId: string): Promise<PRData[]> {
   const loggedInAccount = await getLoggedInAccount(accountId);
-
   const graphqlWithAuth = graphql.defaults({
     headers: {
       authorization: `token ${loggedInAccount?.access_token}`,
     },
   });
 
-  const username = (
-    await graphqlWithAuth<{ viewer: { login: string } }>(`
-      query {
-        viewer {
-          login
-        }
-      }
-    `)
-  ).viewer.login;
-
-  let allData = [];
-  let totalPRCount = 0;
-
+  const username = (await graphqlWithAuth<{ viewer: { login: string } }>(`query { viewer { login } }`)).viewer.login;
+  let allData: PRData[] = [];
   let hasNextPagePr = true;
   let afterPr = null;
 
-  let hasNextPageCmt = true;
-  let afterCmt = null;
-
-  let hasNextPageReview = true;
-  let afterReview = null;
-
   while (hasNextPagePr) {
     try {
-      const result: PrQueryResult = await graphqlWithAuth<PrQueryResult>(pullrequestsQuery, {
-        username: username,
-        afterPr: afterPr,
-        afterCmt: afterCmt,
-        afterReview: afterReview,
+      const result: PRsGraphQLResponse = await graphqlWithAuth<PRsGraphQLResponse>(pullrequestsQuery, {
+        username,
+        afterPr,
       });
-
       const user = result.user;
 
-      if (!totalPRCount) {
-        totalPRCount = user.pullRequests.totalCount;
-      }
-
-      if (hasNextPagePr) {
-        if (user.pullRequests) {
-          allData.push(...user.pullRequests.edges.map((edge) => edge.node));
-        }
-        hasNextPagePr = user.pullRequests.pageInfo.hasNextPage;
-        afterPr = user.pullRequests.pageInfo.endCursor;
-      }
-
       for (const edge of user.pullRequests.edges) {
-        if (hasNextPageCmt && edge.node.comments.pageInfo.hasNextPage) {
-          allData.push(...edge.node.comments.edges.map((edge) => edge.node));
-          hasNextPageCmt = edge.node.comments.pageInfo.hasNextPage;
-          afterCmt = edge.node.comments.pageInfo.endCursor;
-        }
-        if (hasNextPageReview && edge.node.reviews.pageInfo.hasNextPage) {
-          allData.push(...edge.node.reviews.edges.map((edge) => edge.node));
-          hasNextPageReview = edge.node.reviews.pageInfo.hasNextPage;
-          afterReview = edge.node.reviews.pageInfo.endCursor;
-        }
+        const comments = edge.node.comments ? edge.node.comments.edges.map((commentEdge) => commentEdge.node) : [];
+        const reviews = edge.node.reviews ? edge.node.reviews.edges.map((reviewEdge) => reviewEdge.node) : [];
+
+        allData.push({
+          id: edge.node.id,
+          title: edge.node.title,
+          createdAt: edge.node.createdAt,
+          merged: edge.node.merged,
+          mergedAt: edge.node.mergedAt,
+          comments: comments,
+          reviews: reviews,
+        });
       }
+
+      hasNextPagePr = user.pullRequests.pageInfo.hasNextPage;
+      afterPr = user.pullRequests.pageInfo.endCursor;
     } catch (error) {
       console.error("An error occurred while fetching pull requests:", error);
       throw error;
     }
   }
-
-  return { createdPrs: totalPRCount, PRData: allData };
+  return allData;
 }
 
 export async function fetchPullRequestVariables(accountId: string) {
   try {
-    const data = await pullrequestsService(accountId);
-    const createdPrs = data.createdPrs;
-    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data.PRData);
+    const data = await fetchAllPullRequests(accountId);
+    const createdAndMergedPrs = calculateMergedAndCreatedPrs(data);
     return {
-      createdPrs: createdPrs,
+      createdPrs: data.length,
       createdAndMergedPrs: createdAndMergedPrs,
-      pullRequests: data.PRData,
+      pullRequests: data,
     };
   } catch (error) {
     console.error("An error occurred while fetching pull request variables:", error);
@@ -98,7 +68,7 @@ export async function fetchPullRequestVariables(accountId: string) {
 export function calculateMergedAndCreatedPrs(data: PRData[]) {
   let count = 0;
   for (const pr of data) {
-    if (pr?.merged) {
+    if (pr) {
       count++;
     }
   }

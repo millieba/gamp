@@ -3,7 +3,6 @@ import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { Modification } from "../commits/commitsService";
 
-// export async function syncStats(accountId: string) {
 export async function syncStats(
   statsData: DBStats,
   programmingLanguages: ProgrammingLanguage[],
