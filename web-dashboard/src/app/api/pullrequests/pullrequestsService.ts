@@ -38,7 +38,6 @@ export async function pullrequestsService(accountId: string): Promise<PRServiceR
           id: edge.node.id,
           comments: edge.node.comments
             ? {
-                pageInfo: edge.node.comments.pageInfo,
                 edges: edge.node.comments.edges.map((commentEdge) => ({
                   node: {
                     body: commentEdge.node.body,
@@ -54,7 +53,6 @@ export async function pullrequestsService(accountId: string): Promise<PRServiceR
           mergedAt: edge.node.mergedAt,
           reviews: edge.node.reviews
             ? {
-                pageInfo: edge.node.reviews.pageInfo,
                 edges: edge.node.reviews.edges.map((reviewEdge) => ({
                   node: {
                     body: reviewEdge.node.body,

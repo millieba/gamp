@@ -47,10 +47,6 @@ export interface PRsGraphQLResponse {
 export interface PRQueryResponse {
   id: string;
   comments?: {
-    pageInfo: {
-      endCursor: string | null;
-      hasNextPage: boolean;
-    };
     edges: {
       node: {
         body: string;
@@ -66,10 +62,6 @@ export interface PRQueryResponse {
   createdAt: string;
   mergedAt: string | null;
   reviews?: {
-    pageInfo: {
-      endCursor: string | null;
-      hasNextPage: boolean;
-    };
     edges?: {
       node?: {
         body?: string;
