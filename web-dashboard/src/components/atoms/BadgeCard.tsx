@@ -1,6 +1,5 @@
-import { useSyncContext } from "@/contexts/SyncContext";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import React, { ReactElement } from "react";
+import React from "react";
 
 export interface BadgeDetails {
   name: string;
@@ -13,8 +12,6 @@ export interface BadgeDetails {
   date?: Date;
 }
 
-const validPrefixes = ["prs-opened", "prs-merged", "cc", "issues-opened", "issues-closed"];
-
 const BadgeCard: React.FC<BadgeDetails> = ({
   name,
   image,
@@ -25,11 +22,8 @@ const BadgeCard: React.FC<BadgeDetails> = ({
   achieved,
   date,
 }) => {
-  const { badges, isLoading, stats, allBadges } = useSyncContext();
   const bgColor = "bg-DarkNeutral300";
-
   const percentage = Math.floor((progress / threshold) * 100);
-  const remainingProgress = threshold - progress;
 
   return (
     <div
@@ -49,13 +43,13 @@ const BadgeCard: React.FC<BadgeDetails> = ({
         </div>
       ) : (
         <>
-          <div className="flex justify-between mb-1 w-full">
+          <div className="flex justify-between w-full">
             <span className="text-sm font-medium text-DarkNeutral1000">0</span>
             <span className="text-sm font-medium text-DarkNeutral1000">{threshold}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 text-DarkNeutral1000">
+          <div className="w-full bg-DarkNeutral350 rounded-full h-2.5 text-DarkNeutral1000">
             <div
-              className="bg-blue-600 h-2.5 rounded-full text-DarkNeutral1000"
+              className="bg-Magenta600 h-2.5 rounded-full text-DarkNeutral1000"
               style={{ width: `${percentage}%` }}
             ></div>
           </div>
