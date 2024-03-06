@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { StarIcon } from "@heroicons/react/24/solid";
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
 
@@ -48,11 +49,14 @@ const ProfilePicture = () => {
       <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
       <span className="italic">{level?.currentLevel?.name}</span>
 
-      {/* Container for circle and progress bar */}
+      {/* Container for star and progress bar */}
       <div className="flex items-center w-full mb-4 mt-6">
-        {/* Circle with level number inside */}
-        <div className="bg-sky-800 rounded-full w-7 h-7 flex items-center justify-center mr-[-4%] z-10">
-          <span className="text-sm text-bold">{level?.currentLevel && level.currentLevel.id}</span>
+        {/* Star with level number inside */}
+        <div className="relative mr-[-1em] z-10 mt-[-0.4em]">
+          <StarIcon className="w-11 h-11 text-sky-800 stroke-sky-400 stroke-[0.2px]" />
+          <span className="absolute inset-0 flex items-center justify-center text-sm text-bold mb-[-0.2em]">
+            {level?.currentLevel && level.currentLevel.id}
+          </span>
         </div>
 
         {/* Progress bar */}
