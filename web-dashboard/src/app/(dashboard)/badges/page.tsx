@@ -2,6 +2,7 @@
 
 import BadgeCard from "@/components/atoms/BadgeCard";
 import BadgesWrap from "@/components/atoms/BadgesWrap";
+import DropDown from "@/components/atoms/DropDown";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const BadgesPage = () => {
@@ -36,6 +37,7 @@ const BadgesPage = () => {
         <p>Loading...</p>
       ) : (
         <>
+          <DropDown firstOption="Show the dropdown" />
           <BadgesWrap
             title="Badges you've earned:"
             cards={badges?.map((badge) => (
