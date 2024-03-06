@@ -5,6 +5,26 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
 
+const LevelSkeleton = () => (
+  <>
+    <div className="italic bg-gray-200 w-36 h-4 animate-pulse rounded-full"></div>
+    <div className="flex items-center py-2 w-full mb-4 mt-6">
+      <div className="relative mr-[-1em] z-10 mt-[-0.4em]">
+        <StarIcon className="w-11 h-11 text-sky-800 stroke-sky-400 stroke-[0.2px] animate-pulse" />
+      </div>
+      <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative animate-pulse"></div>
+    </div>
+    <span className="ml-2 text-xs font-medium bg-gray-200 w-52 h-2 animate-pulse rounded-full"></span>
+  </>
+);
+
+const NameAndPictureSkeleton = () => (
+  <>
+    <div className="rounded-full w-24 h-24 mt-9 bg-gray-200 animate-pulse"></div>
+    <div className="text-lg font-semibold mt-3 mb-1 bg-gray-200 w-52 h-5 animate-pulse rounded-full"></div>
+  </>
+);
+
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
@@ -37,46 +57,54 @@ const ProfilePicture = () => {
   return (
     <div className="flex flex-col items-center">
       {/* Profile picture, name and level name */}
-      {session?.user?.image ? (
-        <img
-          src={session?.user?.image}
-          alt="Github profile picture"
-          className="rounded-full w-24 h-24 mt-9 shadow-sm"
-        />
+      {!(session?.user?.image && session?.user.name) ? (
+        <NameAndPictureSkeleton />
       ) : (
-        "No photo available"
+        <>
+          <img
+            src={session?.user?.image}
+            alt="Github profile picture"
+            className="rounded-full w-24 h-24 mt-9 shadow-sm"
+          />
+          <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
+        </>
       )}
-      <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
-      <span className="italic">{level?.currentLevel?.name}</span>
+      {isLoading || !level ? (
+        <LevelSkeleton />
+      ) : (
+        <>
+          <span className="italic">{level?.currentLevel?.name}</span>
 
-      {/* Container for star and progress bar */}
-      <div className="flex items-center w-full mb-4 mt-6">
-        {/* Star with level number inside */}
-        <div className="relative mr-[-1em] z-10 mt-[-0.4em]">
-          <StarIcon className="w-11 h-11 text-sky-800 stroke-sky-400 stroke-[0.2px]" />
-          <span className="absolute inset-0 flex items-center justify-center text-sm text-bold mb-[-0.2em]">
-            {level?.currentLevel && level.currentLevel.id}
+          {/* Container for star and progress bar */}
+          <div className="flex items-center w-full mb-4 mt-6">
+            {/* Star with level number inside */}
+            <div className="relative mr-[-1em] z-10 mt-[-0.4em]">
+              <StarIcon className="w-11 h-11 text-sky-800 stroke-sky-400 stroke-[0.2px]" />
+              <span className="absolute inset-0 flex items-center justify-center text-sm text-bold mb-[-0.2em]">
+                {level?.currentLevel && level.currentLevel.id}
+              </span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative">
+              <div className={`bg-Magenta600 h-full rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
+              {/* Text about max level reached */}
+              <span className="absolute inset-x-0 inset-y-3 flex items-center justify-center text-xs font-thin">
+                {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
+              </span>
+            </div>
+          </div>
+
+          {/* Text about closest level */}
+          <span className="ml-2 text-xs font-medium">
+            {level?.nextLevel
+              ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
+              : `You're already ${
+                  level?.currentLevel && level?.totalPoints - level?.currentLevel?.threshold
+                } XP above the highest level!`}
           </span>
-        </div>
-
-        {/* Progress bar */}
-        <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative">
-          <div className={`bg-Magenta600 h-full rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
-          {/* Text about max level reached */}
-          <span className="absolute inset-x-0 inset-y-3 flex items-center justify-center text-xs font-thin">
-            {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
-          </span>
-        </div>
-      </div>
-
-      {/* Text about closest level */}
-      <span className="ml-2 text-xs font-medium">
-        {level?.nextLevel
-          ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
-          : `You're already ${
-              level?.currentLevel && level?.totalPoints - level?.currentLevel?.threshold
-            } XP above the highest level!`}
-      </span>
+        </>
+      )}
 
       {/* Sync button */}
       <button
