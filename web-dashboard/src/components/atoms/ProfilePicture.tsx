@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { StarIcon } from "@heroicons/react/24/solid"; // Assuming there's a StarIcon available
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
 
@@ -45,20 +46,20 @@ const ProfilePicture = () => {
         "No photo available"
       )}
       <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
-      <span className="italic mb-4">{level?.currentLevel?.name}</span>
+      <span className="italic mb-8">{level?.currentLevel?.name}</span>
 
-      <div className="flex justify-between w-full text-sm font-medium mb-1">
-        <span>
-          {level?.nextLevel?.id ? level.currentLevel.id : level?.currentLevel.id && level.currentLevel.id - 1}
-        </span>
-        <span>{level?.nextLevel?.id ?? level?.currentLevel?.id}</span>
-      </div>
+      <div className="flex items-center w-full bg-DarkNeutral350 rounded-full h-4.5 mb-4 ml-4">
+        <div className="absolute w-9 h-9 bg-sky-800 font-thin left-2 rounded-full">
+          <div className="left-3 top-1.5 relative content-center">
+            {level?.nextLevel?.id ? level.nextLevel.id : level?.currentLevel.id}
+          </div>
+        </div>
 
-      <div className="flex items-center w-full bg-DarkNeutral350 rounded-full h-2.5 relative mb-4">
-        <div
-          className="bg-Magenta600 h-2.5 rounded-full"
-          style={{ width: `${calculateProgressBarPercentage()}%` }}
-        ></div>
+        <div className="bg-Magenta600 h-4.5 rounded-full" style={{ width: `${calculateProgressBarPercentage()}%` }}>
+          <span className="text-xs align-text-bottom ml-16 font-thin">
+            {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
+          </span>
+        </div>
       </div>
 
       <span className="text-xs font-medium">
