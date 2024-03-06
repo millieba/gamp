@@ -24,7 +24,7 @@ const ProfilePicture = () => {
     }
     const pointsNeeded = level.nextLevel.threshold - level.totalPoints;
     const progressPercentage = ((level.currentLevel.threshold - pointsNeeded) / level.currentLevel.threshold) * 100;
-    return Math.min(progressPercentage, 100); // Cap at 100% just in case
+    return Math.min(progressPercentage, 100).toFixed(); // Cap at 100% just in case, remove decimals
   };
 
   useEffect(() => {
@@ -46,23 +46,27 @@ const ProfilePicture = () => {
         "No photo available"
       )}
       <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
-      <span className="italic mb-8">{level?.currentLevel?.name}</span>
+      <span className="italic">{level?.currentLevel?.name}</span>
 
-      {/* Flex container for circle and progress bar */}
-      <div className="flex items-center w-full mb-4">
+      {/* Container for circle and progress bar */}
+      <div className="flex items-center w-full mb-4 mt-6">
         {/* Circle with level number inside */}
-        <div className="bg-sky-800 rounded-full w-7 h-7 flex items-center justify-center mr-[-4%] z-0">
-          <span className="text-sm text-bold">2</span>
+        <div className="bg-sky-800 rounded-full w-7 h-7 flex items-center justify-center mr-[-4%] z-10">
+          <span className="text-sm text-bold">{level?.currentLevel && level.currentLevel.id}</span>
         </div>
 
         {/* Progress bar */}
-        <div className="flex-grow bg-DarkNeutral350 rounded-full h-3.5">
-          <div className={`bg-Magenta600 h-3.5 rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
+        <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative">
+          <div className={`bg-Magenta600 h-full rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
+          {/* Text about max level reached */}
+          <span className="absolute inset-x-0 inset-y-3 flex items-center justify-center text-xs font-thin">
+            {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
+          </span>
         </div>
       </div>
 
       {/* Text about closest level */}
-      <span className="text-xs font-medium">
+      <span className="ml-2 text-xs font-medium">
         {level?.nextLevel
           ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
           : `You're already ${
