@@ -6,7 +6,28 @@ import { useSyncContext } from "@/contexts/SyncContext";
 
 const BadgesPage = () => {
   const { badges, isLoading, stats, allBadges } = useSyncContext();
-  const earnedBadgeIds = badges?.map((badge) => badge.id);
+  const earnedBadgeIds = badges?.map((badge) => badge.badgeId);
+  console.log(earnedBadgeIds);
+
+  const updateProgress = (id: string) => {
+    let progress = 0;
+
+    if (id.startsWith("prs-opened-")) {
+      progress = stats?.createdPrs || 0;
+    } else if (id.startsWith("prs-merged-")) {
+      progress = stats?.createdAndMergedPrs || 0;
+    } else if (id.startsWith("cc-")) {
+      progress = stats?.commitCount || 0;
+    } else if (id.startsWith("issues-opened-")) {
+      progress = stats?.issueCount || 0;
+    } else if (id.startsWith("issues-closed-")) {
+      progress = stats?.closedIssueCount || 0;
+    }
+
+    console.log(progress);
+
+    return progress;
+  };
 
   return (
     <div>
@@ -24,9 +45,10 @@ const BadgesPage = () => {
                 image={badge.badgeDefinition.image}
                 description={badge.badgeDefinition.description}
                 points={badge.badgeDefinition.points}
-                progress={stats?.commitCount || 0}
+                progress={updateProgress(badge.badgeId)}
                 threshold={badge.badgeDefinition.threshold}
                 achieved={true}
+                date={badge.dateEarned}
               />
             ))}
           />
@@ -41,7 +63,7 @@ const BadgesPage = () => {
                   image={badge.image}
                   description={badge.description}
                   points={badge.points}
-                  progress={stats?.commitCount || 0}
+                  progress={updateProgress(badge.id)}
                   threshold={badge.threshold}
                   achieved={false}
                 />
