@@ -197,6 +197,23 @@ const levelConfig: Level[] = [
   { id: 1, name: "Aspiring Beginner", threshold: 1000 },
   { id: 2, name: "Budding Learner", threshold: 2500 },
   { id: 3, name: "Eager Explorer", threshold: 5000 },
+  { id: 4, name: "Proficient Apprentice", threshold: 7500 },
+  { id: 5, name: "Curious Crusader", threshold: 10000 },
+  { id: 6, name: "Knowledge Climber", threshold: 12500 },
+  { id: 7, name: "Leaping Learner ", threshold: 15000 },
+  { id: 8, name: "Passionate Pathfinder", threshold: 17500 },
+  { id: 9, name: "Steady Strider", threshold: 20000 },
+  { id: 10, name: "Strategic Scholar", threshold: 25000 },
+  { id: 11, name: "Mastery Marathoner", threshold: 30000 },
+  { id: 12, name: "Adept Achiever", threshold: 35000 },
+  { id: 13, name: "Cosmic Compendium", threshold: 40000 },
+  { id: 14, name: "Visionary Virtuoso", threshold: 45000 },
+  { id: 15, name: "Masterful Maker", threshold: 50000 },
+  { id: 16, name: "Sagacious Sage", threshold: 60000 },
+  { id: 17, name: "Everlasting Learner", threshold: 70000 },
+  { id: 18, name: "Boundless Builder", threshold: 80000 },
+  { id: 19, name: "Empowered Expert", threshold: 90000 },
+  { id: 20, name: "Coding Champion", threshold: 100000 },
 ];
 
 async function createBadges(badgeConfigs: BadgeConfig[]) {
