@@ -37,6 +37,7 @@ function getStreakCandidates(commits: Commit[]): Set<string> {
   for (let i = 0; i < commits.length; i++) {
     const currentCommit = commits[i];
     const currentDate = new Date(currentCommit.committedDate);
+    currentDate.setUTCHours(0, 0, 0, 0);
     const currentDay = currentDate.getDay(); // 0 = Sunday, 1 = Monday ... 6 = Saturday
 
     if (i === 0) {
@@ -44,6 +45,7 @@ function getStreakCandidates(commits: Commit[]): Set<string> {
     } else {
       const previousCommit = commits[i - 1]; // More recent than currentCommit (commits are sorted new to old)
       const previousDate = new Date(previousCommit.committedDate);
+      previousDate.setUTCHours(0, 0, 0, 0);
       const previousDay = previousDate.getDay();
 
       const dayDiff = (previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24); // Get difference in days between two commits
