@@ -32,42 +32,8 @@ const DropDown = () => {
 
   return (
     <div className="mt-2 mb-2">
-      <div className="text-sm">
+      <div className="text-sm mb-5">
         {/* Showing the chosen tags */}
-        {selectedTags?.length ? (
-          <>
-            <p>Current chosen badges to show:</p>
-            <div className="relative text-xs flex flex-wrap gap-1 p-2">
-              {selectedTags.map((tag) => {
-                return (
-                  <div
-                    key={tag}
-                    className="bg-DarkNeutral1100 hover:bg-DarkNeutral1000 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350
-                flex items-center gap-2"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => setSelectedTags(selectedTags.filter((i) => i !== tag))}
-                  >
-                    {tag}
-                    <div>
-                      <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="w-[100%] text-left">
-                <span
-                  className="text-DarkNeutral1100 hover:text-DarkNeutral900 cursor-pointer"
-                  onClick={() => {
-                    setSelectedTags([]);
-                    inputRef.current?.focus();
-                  }}
-                >
-                  Clear all
-                </span>
-              </div>
-            </div>
-          </>
-        ) : null}
 
         {/* The search bar where the user can search for the wanted tag */}
         <div className="card flex items-center justify-between p-3 w-[90%] gap-2.5 rounded-lg bg-DarkNeutral350 text-DarkNeutral1100">
@@ -117,6 +83,40 @@ const DropDown = () => {
           </div>
         ) : null}
       </div>
+      {selectedTags?.length ? (
+        <>
+          <p>Current chosen badges to show:</p>
+          <div className="relative text-xs flex flex-wrap gap-1 p-2">
+            {selectedTags.map((tag) => {
+              return (
+                <div
+                  key={tag}
+                  className="bg-DarkNeutral1100 hover:bg-DarkNeutral1000 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350
+                    flex items-center gap-2"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setSelectedTags(selectedTags.filter((i) => i !== tag))}
+                >
+                  {tag}
+                  <div>
+                    <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+                  </div>
+                </div>
+              );
+            })}
+            <div className="w-[100%] text-left">
+              <span
+                className="text-DarkNeutral1100 hover:text-DarkNeutral900 cursor-pointer"
+                onClick={() => {
+                  setSelectedTags([]);
+                  inputRef.current?.focus();
+                }}
+              >
+                Clear all
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 };
