@@ -1,33 +1,123 @@
 import { useRef, useState } from "react";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-export interface DropDownProps {
-  firstOption: string;
-}
+// Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
-const DropDown: React.FC<DropDownProps> = ({ firstOption }) => {
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(true);
+export const tags = [
+  "Earned badges",
+  "Non earned badges",
+  "Badges for issues",
+  "Badges for commits",
+  "Badges for pull requests",
+  "Badges for miscellaneous",
+];
 
-  const inputRef = useRef(null);
+const DropDown = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>(tags.slice(0, 2)); // default selected tags are the two first in the tags array.
+  const [suggestionsOpen, setSuggestionOpen] = useState(false);
 
-  const tags = ["Tutorial", "HowTo", "DIY", "Review", "Tech", "Gaming", "Travel", "Fitness", "Cooking", "Vlog"];
+  const inputRef = useRef<HTMLInputElement>(null); // Add type annotation for inputRef
 
   const filteredTags = tags.filter(
-    (item) => item?.toLocaleLowerCase()?.includes(query.toLocaleLowerCase()?.trim()) && !selected.includes(item)
+    (item) =>
+      item?.toLocaleLowerCase()?.includes(searchQuery.toLocaleLowerCase()?.trim()) && !selectedTags.includes(item)
   );
 
+  // If the searchQuery is empty or if the selectedTags array contains the search query.
   const isDisable =
-    !query?.trim() ||
-    selected.filter((item) => item?.toLocaleLowerCase()?.trim() === query?.toLocaleLowerCase()?.trim())?.length;
+    !searchQuery?.trim() ||
+    selectedTags.filter((item) => item?.toLocaleLowerCase()?.trim() === searchQuery?.toLocaleLowerCase()?.trim())
+      ?.length;
+
   return (
-    <label className="relative">
-      <input type="checkbox" className="hidden peer" />
+    <div className="mt-2 mb-2">
+      <div className="text-sm">
+        {/* Showing the chosen tags */}
+        {selectedTags?.length ? (
+          <>
+            <p>Current chosen badges to show:</p>
+            <div className="relative text-xs flex flex-wrap gap-1 p-2">
+              {selectedTags.map((tag) => {
+                return (
+                  <div
+                    key={tag}
+                    className="bg-DarkNeutral1100 hover:bg-DarkNeutral1000 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350
+                flex items-center gap-2"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setSelectedTags(selectedTags.filter((i) => i !== tag))}
+                  >
+                    {tag}
+                    <div>
+                      <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="w-[100%] text-left">
+                <span
+                  className="text-DarkNeutral1100 hover:text-DarkNeutral900 cursor-pointer"
+                  onClick={() => {
+                    setSelectedTags([]);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  Clear all
+                </span>
+              </div>
+            </div>
+          </>
+        ) : null}
 
-      <div className="cursor-pointer after:content-['▼'] after:text-xs after:ml-1">{"Show the dropdown"}</div>
+        {/* The search bar where the user can search for the wanted tag */}
+        <div className="card flex items-center justify-between p-3 w-[90%] gap-2.5 rounded-lg bg-DarkNeutral350 text-DarkNeutral1100">
+          <MagnifyingGlassIcon className="w-[20px] text-darkNeutral1100" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value.trimStart())}
+            placeholder="Select the categories you want to show"
+            className="bg-transparent text-sm flex-1"
+            onFocus={() => setSuggestionOpen(true)}
+            onBlur={() => setSuggestionOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !isDisable) {
+                setSelectedTags((prev) => [...prev, searchQuery]);
+                setSearchQuery("");
+                setSuggestionOpen(true);
+              }
+            }}
+          />
+        </div>
 
-      <div className="hidden peer-checked:flex absolute bg-white border">{"Welcome to the dropdown"}</div>
-    </label>
+        {/* Dropdown scrollbar with the tags options */}
+        {suggestionsOpen ? (
+          <div className="card absolute w-[40%] max-h-52 p-1 ml-10 flex overflow-y-auto scrollbar-thin scrollbar-thumb-rounded z-50 bg-DarkNeutral1100 rounded-lg">
+            <ul className="w-full">
+              {filteredTags?.length ? (
+                filteredTags.map((tag, i) => (
+                  <li
+                    key={tag}
+                    className="p-2 cursor-pointer hover:bg-Magenta600 hover:bg-opacity-20 text-Magenta600 rounded-md w-full"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setSuggestionOpen(true);
+                      setSelectedTags((prev) => [...prev, tag]);
+                      setSearchQuery("");
+                    }}
+                  >
+                    {tag}
+                  </li>
+                ))
+              ) : (
+                <li className="p-2 text-DarkNeutral350">No options available</li>
+              )}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </div>
   );
 };
 
