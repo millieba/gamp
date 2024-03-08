@@ -1,5 +1,4 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface MultiSelectDropdownProps {
   options: string[];
@@ -22,6 +21,21 @@ const DropdownIcon: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, title }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
 
   const toggleOption = (option: string) => {
     setSelectedOptions((prevSelectedOptions) =>
@@ -40,7 +54,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, titl
   };
 
   return (
-    <div className="relative inline-block text-sm">
+    <div className="relative inline-block text-sm" ref={dropdownRef}>
       <div className="w-full">
         <button
           type="button"
