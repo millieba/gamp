@@ -4,7 +4,7 @@ import BadgesWrapped from "./BadgesWrapped";
 
 // Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
-const tags = [
+export const tags: string[] = [
   "Earned badges",
   "Non earned badges",
   "Badges for issues",

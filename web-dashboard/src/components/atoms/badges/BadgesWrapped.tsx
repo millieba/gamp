@@ -3,7 +3,7 @@
 import BadgeCard from "@/components/atoms/badges/BadgeCard";
 import BadgesWrap from "@/components/atoms/badges/BadgesWrap";
 import { useSyncContext } from "@/contexts/SyncContext";
-import tags from "./BadgesDropDown";
+import { tags } from "./BadgesDropDown";
 import { useEffect } from "react";
 
 type BadgesWrappedProps = {
@@ -13,7 +13,6 @@ type BadgesWrappedProps = {
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   const { badges, stats, allBadges } = useSyncContext();
   const earnedBadgeIds = badges?.map((badge) => badge.badgeId);
-
   useEffect(() => {}, [selectedTags]);
 
   const updateProgress = (id: string) => {
@@ -30,47 +29,49 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
     } else if (id.startsWith("issues-closed-")) {
       progress = stats?.closedIssueCount || 0;
     }
-
-    console.log(progress);
-
     return progress;
   };
 
   return (
     <>
-      <BadgesWrap
-        title="Badges you've earned:"
-        cards={badges?.map((badge) => (
-          <BadgeCard
-            key={badge.id}
-            name={badge.badgeDefinition.name}
-            image={badge.badgeDefinition.image}
-            description={badge.badgeDefinition.description}
-            points={badge.badgeDefinition.points}
-            progress={updateProgress(badge.badgeId)}
-            threshold={badge.badgeDefinition.threshold}
-            achieved={true}
-            date={badge.dateEarned}
-          />
-        ))}
-      />
-      <BadgesWrap
-        title="Badges yet to achieve:"
-        cards={allBadges
-          ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
-          .map((badge) => (
+      {selectedTags?.length === 0 && <p>No badges chosen! Pick from the list above.</p>}
+      {selectedTags.includes(tags[0]) && (
+        <BadgesWrap
+          title="Badges you've earned:"
+          cards={badges?.map((badge) => (
             <BadgeCard
               key={badge.id}
-              name={badge.name}
-              image={badge.image}
-              description={badge.description}
-              points={badge.points}
-              progress={updateProgress(badge.id)}
-              threshold={badge.threshold}
-              achieved={false}
+              name={badge.badgeDefinition.name}
+              image={badge.badgeDefinition.image}
+              description={badge.badgeDefinition.description}
+              points={badge.badgeDefinition.points}
+              progress={updateProgress(badge.badgeId)}
+              threshold={badge.badgeDefinition.threshold}
+              achieved={true}
+              date={badge.dateEarned}
             />
           ))}
-      />
+        />
+      )}
+      {selectedTags.includes(tags[1]) && (
+        <BadgesWrap
+          title="Badges yet to achieve:"
+          cards={allBadges
+            ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
+            .map((badge) => (
+              <BadgeCard
+                key={badge.id}
+                name={badge.name}
+                image={badge.image}
+                description={badge.description}
+                points={badge.points}
+                progress={updateProgress(badge.id)}
+                threshold={badge.threshold}
+                achieved={false}
+              />
+            ))}
+        />
+      )}
     </>
   );
 };
