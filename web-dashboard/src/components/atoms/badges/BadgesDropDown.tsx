@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import BadgesWrapped from "./BadgesWrapped";
 
 // Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
-export const tags = [
+const tags = [
   "Earned badges",
   "Non earned badges",
   "Badges for issues",
@@ -33,8 +34,6 @@ const DropDown = () => {
   return (
     <div className="mt-2 mb-2">
       <div className="text-sm mb-5">
-        {/* Showing the chosen tags */}
-
         {/* The search bar where the user can search for the wanted tag */}
         <div className="card flex items-center justify-between p-3 w-[90%] gap-2.5 rounded-lg bg-DarkNeutral350 text-DarkNeutral1100">
           <MagnifyingGlassIcon className="w-[20px] text-darkNeutral1100" />
@@ -43,7 +42,7 @@ const DropDown = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value.trimStart())}
-            placeholder="Select the categories you want to show"
+            placeholder="Select categories to show"
             className="bg-transparent text-sm flex-1"
             onFocus={() => setSuggestionOpen(true)}
             onBlur={() => setSuggestionOpen(false)}
@@ -58,7 +57,7 @@ const DropDown = () => {
         </div>
 
         {/* Dropdown scrollbar with the tags options */}
-        {suggestionsOpen ? (
+        {suggestionsOpen && (
           <div className="card absolute w-[40%] max-h-52 p-1 ml-10 flex overflow-y-auto scrollbar-thin scrollbar-thumb-rounded z-50 bg-DarkNeutral1100 rounded-lg">
             <ul className="w-full">
               {filteredTags?.length ? (
@@ -81,9 +80,9 @@ const DropDown = () => {
               )}
             </ul>
           </div>
-        ) : null}
+        )}
       </div>
-      {selectedTags?.length ? (
+      {selectedTags?.length && (
         <>
           <p>Current chosen badges to show:</p>
           <div className="relative text-xs flex flex-wrap gap-1 p-2">
@@ -115,8 +114,9 @@ const DropDown = () => {
               </span>
             </div>
           </div>
+          <BadgesWrapped selectedTags={selectedTags} />
         </>
-      ) : null}
+      )}
     </div>
   );
 };
