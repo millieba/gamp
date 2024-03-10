@@ -16,9 +16,18 @@ export interface InfoDetails {
   number: number;
   unit: string;
   description: string;
+  iconColour?: string;
 }
 
-const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, unit, description }) => {
+const InfoCard: React.FC<InfoDetails> = ({
+  icon,
+  heading,
+  subheading,
+  number,
+  unit,
+  description,
+  iconColour = "DarkNeutral1000", // Optional prop, default value is DarkNetral1100
+}) => {
   const gradientColor = "bg-DarkNeutral300";
   const [hover, setHover] = useState(false);
 
@@ -28,7 +37,7 @@ const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, un
     sparkles: SparklesIcon,
     star: StarIcon,
     language: LanguageIcon,
-    fire: FireIcon
+    fire: FireIcon,
   };
 
   const IconComponent = iconComponents[icon];
@@ -39,7 +48,7 @@ const InfoCard: React.FC<InfoDetails> = ({ icon, heading, subheading, number, un
     >
       <div className="flex items-center mb-1 justify-between">
         <div className="flex items-center">
-          {IconComponent && <IconComponent className="h-5 w-5 mr-2 text-DarkNeutral1000" />}
+          {IconComponent && <IconComponent className={`h-5 w-5 mr-2 text-${iconColour}`} />}
           <p className="text-DarkNeutral1000 font-semibold">{heading}</p>
         </div>
         <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} className="relative">
