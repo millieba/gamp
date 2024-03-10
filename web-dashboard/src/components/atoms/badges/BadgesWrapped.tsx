@@ -16,7 +16,6 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   let issueRelatedBadges = [];
   let commitsRelatedBadges = [];
   let prRelatedBadges = [];
-  let miscRelatedBadges = [];
 
   useEffect(() => {}, [selectedTags]);
 
@@ -65,8 +64,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   }
 
   return (
-    <div className="gap-5">
-      {selectedTags?.length === 0 && <p>No badges chosen! Pick from the list above.</p>}
+    <div className="flex flex-col gap-5">
       {selectedTags.includes(tags[0]) && (
         <BadgesWrap
           title="Badges you've earned:"

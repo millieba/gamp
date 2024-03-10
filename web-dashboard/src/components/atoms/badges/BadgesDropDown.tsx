@@ -13,7 +13,7 @@ export const tags: string[] = [
   "Badges for miscellaneous",
 ];
 
-const DropDown = () => {
+const BadgesDropDown = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>(tags.slice(0, 2)); // default selected tags are the two first in the tags array.
   const [suggestionsOpen, setSuggestionOpen] = useState(false);
@@ -76,13 +76,13 @@ const DropDown = () => {
                   </li>
                 ))
               ) : (
-                <li className="p-2 text-DarkNeutral350">No options available</li>
+                <li className="p-2 text-DarkNeutral350">You have chosen all available options.</li>
               )}
             </ul>
           </div>
         )}
       </div>
-      {selectedTags?.length && (
+      {!(selectedTags?.length === 0) ? (
         <>
           <p>Current chosen badges to show:</p>
           <div className="relative text-xs flex flex-wrap gap-1 p-2">
@@ -116,9 +116,11 @@ const DropDown = () => {
           </div>
           <BadgesWrapped selectedTags={selectedTags} />
         </>
+      ) : (
+        <p>No badge categories chosen! Pick from the list above.</p>
       )}
     </div>
   );
 };
 
-export default DropDown;
+export default BadgesDropDown;
