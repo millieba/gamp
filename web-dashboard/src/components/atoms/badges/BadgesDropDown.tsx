@@ -35,7 +35,7 @@ const DropDown = () => {
     <div className="mt-2 mb-2">
       <div className="text-sm mb-5">
         {/* The search bar where the user can search for the wanted tag */}
-        <div className="card flex items-center justify-between p-3 w-[90%] gap-2.5 rounded-lg bg-DarkNeutral350 text-DarkNeutral1100">
+        <div className="card flex items-center justify-between p-3 gap-2.5 rounded-lg w-[70%] min-w-[300px] bg-DarkNeutral350 text-DarkNeutral1100">
           <MagnifyingGlassIcon className="w-[20px] text-darkNeutral1100" />
           <input
             ref={inputRef}
@@ -63,7 +63,7 @@ const DropDown = () => {
               {filteredTags?.length ? (
                 filteredTags.map((tag, i) => (
                   <li
-                    key={tag}
+                    key={i}
                     className="p-2 cursor-pointer hover:bg-Magenta600 hover:bg-opacity-20 text-Magenta600 rounded-md w-full"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
