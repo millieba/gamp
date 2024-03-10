@@ -13,6 +13,11 @@ type BadgesWrappedProps = {
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   const { badges, stats, allBadges } = useSyncContext();
   const earnedBadgeIds = badges?.map((badge) => badge.badgeId);
+  let issueRelatedBadges = [];
+  let commitsRelatedBadges = [];
+  let prRelatedBadges = [];
+  let miscRelatedBadges = [];
+
   useEffect(() => {}, [selectedTags]);
 
   const updateProgress = (id: string) => {
@@ -32,8 +37,35 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
     return progress;
   };
 
+  for (const badge of allBadges) {
+    if (badge.id.startsWith("issues-opened-") || badge.id.startsWith("issues-closed-")) {
+      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
+      let dateAchieved;
+      if (isAchieved) {
+        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
+      }
+      issueRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
+    }
+    if (badge.id.startsWith("prs-merged-") || badge.id.startsWith("prs-opened-")) {
+      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
+      let dateAchieved;
+      if (isAchieved) {
+        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
+      }
+      prRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
+    }
+    if (badge.id.startsWith("cc-")) {
+      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
+      let dateAchieved;
+      if (isAchieved) {
+        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
+      }
+      commitsRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
+    }
+  }
+
   return (
-    <>
+    <div className="gap-5">
       {selectedTags?.length === 0 && <p>No badges chosen! Pick from the list above.</p>}
       {selectedTags.includes(tags[0]) && (
         <BadgesWrap
@@ -72,7 +104,62 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
             ))}
         />
       )}
-    </>
+      {selectedTags.includes(tags[2]) && (
+        <BadgesWrap
+          title={tags[2] + ":"}
+          cards={issueRelatedBadges.map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateProgress(badge.id)}
+              threshold={badge.threshold}
+              achieved={badge.achieved}
+              date={badge.achieved ? badge.dateAchieved : undefined}
+            />
+          ))}
+        />
+      )}
+      {selectedTags.includes(tags[3]) && (
+        <BadgesWrap
+          title={tags[3] + ":"}
+          cards={commitsRelatedBadges.map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateProgress(badge.id)}
+              threshold={badge.threshold}
+              achieved={badge.achieved}
+              date={badge.achieved ? badge.dateAchieved : undefined}
+            />
+          ))}
+        />
+      )}
+      {selectedTags.includes(tags[4]) && (
+        <BadgesWrap
+          title={tags[4] + ":"}
+          cards={prRelatedBadges.map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateProgress(badge.id)}
+              threshold={badge.threshold}
+              achieved={badge.achieved}
+              date={badge.achieved ? badge.dateAchieved : undefined}
+            />
+          ))}
+        />
+      )}
+      {selectedTags.includes(tags[5]) && <p>Currently we don't have badges for miscellaneous</p>}
+    </div>
   );
 };
 
