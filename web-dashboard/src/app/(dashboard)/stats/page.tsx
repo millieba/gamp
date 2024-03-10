@@ -21,25 +21,33 @@ const StatsPage = () => {
   const data = [
     {
       icon: "fire",
+      iconColour: stats?.strictStreak ? "orange-500" : undefined, // Set icon colour to orange if the user has committed today, otherwise use the default by not setting a specific colour
       heading: "Strict Streak",
-      subheading: stats?.strictStreak
-        ? "Consecutive days with commits"
-        : stats?.strictStreakToContinue
-        ? `Commit today to continue your streak of ${stats?.strictStreakToContinue} days`
-        : "",
-      number: stats?.strictStreak || 0,
+      subheading:
+        stats?.strictStreakToContinue !== null
+          ? `Commit today to extend your streak to ${
+              stats?.strictStreakToContinue && stats?.strictStreakToContinue + 1
+            } days`
+          : stats?.strictStreak !== null
+          ? "Consecutive days with commits"
+          : "Commit today to start a streak",
+      number: stats?.strictStreak !== null ? stats?.strictStreak : stats?.strictStreakToContinue || 0,
       unit: stats?.strictStreak === 1 ? "day" : "days",
       description: "This is how many days in a row you have committed",
     },
     {
       icon: "fire",
+      iconColour: stats?.workdayStreak ? "orange-500" : undefined,
       heading: "Workday Streak",
-      subheading: stats?.workdayStreak
-        ? "Consecutive workdays with commits"
-        : stats?.workdayStreakToContinue
-        ? `Commit today to continue your streak of ${stats?.workdayStreakToContinue} days`
-        : "",
-      number: stats?.workdayStreak || 0,
+      subheading:
+        stats?.workdayStreakToContinue !== null
+          ? `Commit today to extend your streak to ${
+              stats?.workdayStreakToContinue && stats?.workdayStreakToContinue + 1
+            } days`
+          : stats?.workdayStreak !== null
+          ? "Consecutive workdays with commits"
+          : "Commit today to start a streak",
+      number: stats?.workdayStreak !== null ? stats?.workdayStreak : stats?.workdayStreakToContinue || 0,
       unit: stats?.workdayStreak === 1 ? "workday" : "workdays",
       description: "This is how many weekdays (Monday to Friday) in a row you have committed",
     },
@@ -67,7 +75,7 @@ const StatsPage = () => {
       subheading: "Average time on each issue",
       number: convertMsToDays(stats?.avgTimeToCloseIssues || 0)[0],
       unit: convertMsToDays(stats?.avgTimeToCloseIssues || 0)[1],
-      description: `On an average, you spend ${convertMsToDays(stats?.avgTimeToCloseIssues || 0)[0]} ${
+      description: `On average, you spend ${convertMsToDays(stats?.avgTimeToCloseIssues || 0)[0]} ${
         convertMsToDays(stats?.avgTimeToCloseIssues || 0)[1]
       } on each issue!`,
     },
@@ -110,6 +118,7 @@ const StatsPage = () => {
                       number={Number(item.number)}
                       unit={item.unit}
                       description={item.description}
+                      iconColour={item.iconColour}
                     />
                   </div>
                 )
