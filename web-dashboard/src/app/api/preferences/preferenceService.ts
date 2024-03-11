@@ -20,3 +20,32 @@ export async function getPreferencesFromDB(accountId: string) {
     throw error;
   }
 }
+
+export interface Preferences {
+  excludeLanguages: string[];
+  showStrictStreak: boolean;
+  showWorkdayStreak: boolean;
+}
+
+export async function savePreferencesToDB(accountId: string, preferences: Preferences) {
+  try {
+    const updatedPreferences = await prisma.userPreferences.update({
+      where: { id: accountId },
+      data: {
+        excludeLanguages: preferences.excludeLanguages,
+        showStrictStreak: preferences.showStrictStreak,
+        showWorkdayStreak: preferences.showWorkdayStreak,
+      },
+      select: {
+        excludeLanguages: true,
+        showStrictStreak: true,
+        showWorkdayStreak: true,
+      },
+    });
+
+    return updatedPreferences;
+  } catch (error) {
+    console.error(`An error occurred while saving preferences for account ${accountId} to the database:`, error);
+    throw error;
+  }
+}
