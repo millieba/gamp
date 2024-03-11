@@ -1,5 +1,5 @@
 "use client";
-import StatBox from "@/components/atoms/StatBox";
+import StatCard from "@/components/atoms/StatCard";
 import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
@@ -126,7 +126,7 @@ const StatsPage = () => {
           </div>
           <div className="lg:flex">
             <div className="lg:flex-1">
-              <StatBox
+              <StatCard
                 name={"Most used languages"}
                 description={
                   "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
@@ -135,7 +135,7 @@ const StatsPage = () => {
               />
             </div>
             <div className="lg:flex-1">
-              <StatBox
+              <StatCard
                 name={"Additions and deletions"}
                 description={
                   "In the chart below, you can see the code lines added and deleted per day the last seven days."

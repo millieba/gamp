@@ -443,7 +443,7 @@ export async function prepareCommitsForDB(
     };
   } catch (error) {
     console.error(`Failed to prepare commit data for DB for account ${accountId}: ${error}`);
-    if (retries <= 3) {
+    if (retries <= 5) {
       console.error(`Retrying... Attempt ${retries + 1}`);
       return prepareCommitsForDB(accountId, retries + 1); // Recursively retry with incremented retry count
     }
