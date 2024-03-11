@@ -32,11 +32,24 @@ const SettingsPage = () => {
     setChangesMade(true);
   };
 
-  const handleSave = () => {
-    if (changesMade) {
-      console.log("Save button clicked");
-      // Add logic to save changes
+  const handleSave = async () => {
+    const preferences = {
+      excludeLanguages: programmingLanguages,
+      showStrictStreak: checkboxState.strictStreak,
+      showWorkdayStreak: checkboxState.workdayStreak,
+    };
+
+    try {
+      const res = await fetch("api/preferences", {
+        method: "POST",
+        body: JSON.stringify(preferences),
+        headers: {
+          "content-type": "application/json",
+        },
+      });
       setChangesMade(false); // Reset changesMade state
+    } catch (error) {
+      console.error(error);
     }
   };
 

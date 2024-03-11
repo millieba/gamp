@@ -29,8 +29,10 @@ export interface Preferences {
 
 export async function savePreferencesToDB(accountId: string, preferences: Preferences) {
   try {
+    console.log(preferences.excludeLanguages, preferences.showStrictStreak, preferences.showWorkdayStreak);
+
     const updatedPreferences = await prisma.userPreferences.update({
-      where: { id: accountId },
+      where: { accountId: accountId },
       data: {
         excludeLanguages: preferences.excludeLanguages,
         showStrictStreak: preferences.showStrictStreak,
@@ -42,6 +44,8 @@ export async function savePreferencesToDB(accountId: string, preferences: Prefer
         showWorkdayStreak: true,
       },
     });
+
+    console.log(`Preferences for account ${accountId} have been updated:`, updatedPreferences);
 
     return updatedPreferences;
   } catch (error) {

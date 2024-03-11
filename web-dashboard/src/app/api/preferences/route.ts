@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 import { getPreferencesFromDB, savePreferencesToDB } from "./preferenceService";
@@ -19,21 +19,24 @@ export const GET = async () => {
 };
 
 interface UpdatePreferencesRequest {
-  body: {
-    excludeLanguages: string[];
-    showStrictStreak: boolean;
-    showWorkdayStreak: boolean;
-  };
+  excludeLanguages: string[];
+  showStrictStreak: boolean;
+  showWorkdayStreak: boolean;
 }
 
-export const POST = async (req: UpdatePreferencesRequest) => {
+export const POST = async (req: NextRequest) => {
   try {
     const session = await getServerSession(options);
     if (!session || !session.user.githubAccountId) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
+    const { excludeLanguages, showStrictStreak, showWorkdayStreak }: UpdatePreferencesRequest = await req.json();
 
-    const updatedPreferences = await savePreferencesToDB(session.user.githubAccountId, req.body);
+    const updatedPreferences = await savePreferencesToDB(session.user.githubAccountId, {
+      excludeLanguages,
+      showStrictStreak,
+      showWorkdayStreak,
+    });
 
     return NextResponse.json(updatedPreferences, { status: 200 });
   } catch (error) {
