@@ -40,27 +40,28 @@ model BadgeAward {
 
 // One user can have multiple accounts with different providers.
 model Account {
-  id                       String       @id @default(cuid())
-  userId                   String       @map("user_id")
-  levelId                  Int          @default(1) @map("level_id") // Default level is 1
+  id                       String    @id @default(cuid())
+  userId                   String    @map("user_id")
+  levelId                  Int       @default(1) @map("level_id") // Default level is 1
   type                     String
   provider                 String
-  providerAccountId        String       @map("provider_account_id")
-  totalPoints              Int          @default(0) @map("total_points") // Total points earned from badges
-  refresh_token            String?      @db.Text
+  providerAccountId        String    @map("provider_account_id")
+  totalPoints              Int       @default(0) @map("total_points") // Total points earned from badges
+  refresh_token            String?   @db.Text
   refresh_token_expires_in Int?
-  access_token             String?      @db.Text
+  access_token             String?   @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String?      @db.Text
+  id_token                 String?   @db.Text
   session_state            String?
-  githubStats              GitHubStats?
-  badges                   BadgeAward[] // List of badges the user has been awarded with
-  lastSync                 DateTime?    @map("last_sync") // Timestamp of last sync (for badges and stats)
+  lastSync                 DateTime? @map("last_sync") // Timestamp of last sync (for badges and stats)
 
-  level Level @relation(fields: [levelId], references: [id])
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  githubStats GitHubStats?
+  preferences UserPreferences?
+  badges      BadgeAward[] // List of badges the user has been awarded with
+  level       Level            @relation(fields: [levelId], references: [id])
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -74,6 +75,16 @@ model Level {
   accounts  Account[]
 
   @@map("levels")
+}
+
+model UserPreferences {
+  id                String   @id @default(cuid())
+  accountId         String   @unique @map("account_id")
+  excludeLanguages  String[] @default([]) @map("exclude_languages") // Array of programming language names to exclude from stats
+  showStrictStreak  Boolean  @default(true) @map("show_strict_streak") // Whether to show strict streak in stats
+  showWorkdayStreak Boolean  @default(true) @map("show_workday_streak") // Whether to show workday streak in stats
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 model Session {
