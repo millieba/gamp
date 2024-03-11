@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+"use client";
+import { useState, useEffect, useRef } from "react";
 
 interface MultiSelectDropdownProps {
   options: string[];
   title: string;
+  onChange: () => void; // Callback function to notify parent of changes
 }
 
 const DropdownIcon: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
@@ -18,7 +20,7 @@ const DropdownIcon: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
   </svg>
 );
 
-const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, title }) => {
+const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, title, onChange }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,6 +45,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, titl
         ? prevSelectedOptions.filter((item) => item !== option)
         : [...prevSelectedOptions, option]
     );
+    onChange(); // Notify parent of changes
   };
 
   const toggleDropdown = () => {
@@ -51,6 +54,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, titl
 
   const selectAllOptions = () => {
     setSelectedOptions((prevSelectedOptions) => (prevSelectedOptions.length === options.length ? [] : [...options]));
+    onChange(); // Notify parent of changes
   };
 
   return (

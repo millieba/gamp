@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const SettingsPage = () => {
   const { isLoading, stats } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
+  const [changesMade, setChangesMade] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isLoading && stats?.programmingLanguages) {
@@ -13,6 +14,18 @@ const SettingsPage = () => {
       setProgrammingLanguages(languageNames);
     }
   }, [isLoading, stats]);
+
+  const handleDropdownChange = () => {
+    setChangesMade(true);
+  };
+
+  const handleSave = () => {
+    if (changesMade) {
+      console.log("Save button clicked");
+      // Add logic to save changes
+      setChangesMade(false); // Reset changesMade state
+    }
+  };
 
   return (
     <>
@@ -25,13 +38,27 @@ const SettingsPage = () => {
       {isLoading ? (
         <p>Loading programming languages ...</p>
       ) : (
-        <MultiSelectDropdown options={programmingLanguages} title="Select Languages to Exclude" />
+        <MultiSelectDropdown
+          options={programmingLanguages}
+          title="Select Languages to Exclude"
+          onChange={handleDropdownChange}
+        />
       )}
 
       <h2 className="text-md mt-6 font-bold">Delete your Account</h2>
       <p className="text-sm my-2">
         Deleting your account will also delete all your data from our systems. This action cannot be undone.
       </p>
+
+      {changesMade && (
+        <button
+          className="mt-5 text-DarkNeutral1100 font-semibold mb-4 px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600"
+          onClick={handleSave}
+          disabled={!changesMade}
+        >
+          Save
+        </button>
+      )}
     </>
   );
 };
