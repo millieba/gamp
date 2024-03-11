@@ -6,6 +6,10 @@ import { useSyncContext } from "@/contexts/SyncContext";
 const SettingsPage = () => {
   const { isLoading, stats } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
+  const [checkboxState, setCheckboxState] = useState<{ [key: string]: boolean }>({
+    strictStreak: false,
+    workdayStreak: false,
+  });
   const [changesMade, setChangesMade] = useState<boolean>(false);
 
   useEffect(() => {
@@ -16,6 +20,15 @@ const SettingsPage = () => {
   }, [isLoading, stats]);
 
   const handleDropdownChange = () => {
+    setChangesMade(true);
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target;
+    setCheckboxState((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
     setChangesMade(true);
   };
 
@@ -44,6 +57,33 @@ const SettingsPage = () => {
           onChange={handleDropdownChange}
         />
       )}
+
+      <h2 className="text-md mt-6 font-bold">Streak Types</h2>
+      <p className="text-sm my-2">
+        Choose which types of streaks you want to see in your stats. You can always change this later.
+      </p>
+      <div className="flex gap-6">
+        <label>
+          <input
+            className="mr-2"
+            type="checkbox"
+            name="strictStreak"
+            checked={checkboxState.streakType1}
+            onChange={handleCheckboxChange}
+          />
+          Strict streak
+        </label>
+        <label>
+          <input
+            className="mr-2"
+            type="checkbox"
+            name="workdayStreak"
+            checked={checkboxState.streakType2}
+            onChange={handleCheckboxChange}
+          />
+          Workday streak
+        </label>
+      </div>
 
       <h2 className="text-md mt-6 font-bold">Delete your Account</h2>
       <p className="text-sm my-2">
