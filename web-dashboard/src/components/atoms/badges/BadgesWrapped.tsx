@@ -5,9 +5,27 @@ import BadgesWrap from "@/components/atoms/badges/BadgesWrap";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { tags } from "./BadgesDropDown";
 import { useEffect } from "react";
+import { Stats } from "@/contexts/SyncContext";
 
 type BadgesWrappedProps = {
   selectedTags: string[];
+};
+
+export const updateProgress = (id: string, stats: Stats) => {
+  let progress = 0;
+
+  if (id.startsWith("prs-opened-")) {
+    progress = stats?.createdPrs || 0;
+  } else if (id.startsWith("prs-merged-")) {
+    progress = stats?.createdAndMergedPrs || 0;
+  } else if (id.startsWith("cc-")) {
+    progress = stats?.commitCount || 0;
+  } else if (id.startsWith("issues-opened-")) {
+    progress = stats?.issueCount || 0;
+  } else if (id.startsWith("issues-closed-")) {
+    progress = stats?.closedIssueCount || 0;
+  }
+  return progress;
 };
 
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
@@ -18,23 +36,6 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   let prRelatedBadges = [];
 
   useEffect(() => {}, [selectedTags]);
-
-  const updateProgress = (id: string) => {
-    let progress = 0;
-
-    if (id.startsWith("prs-opened-")) {
-      progress = stats?.createdPrs || 0;
-    } else if (id.startsWith("prs-merged-")) {
-      progress = stats?.createdAndMergedPrs || 0;
-    } else if (id.startsWith("cc-")) {
-      progress = stats?.commitCount || 0;
-    } else if (id.startsWith("issues-opened-")) {
-      progress = stats?.issueCount || 0;
-    } else if (id.startsWith("issues-closed-")) {
-      progress = stats?.closedIssueCount || 0;
-    }
-    return progress;
-  };
 
   for (const badge of allBadges) {
     if (badge.id.startsWith("issues-opened-") || badge.id.startsWith("issues-closed-")) {
@@ -75,7 +76,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.badgeDefinition.image}
               description={badge.badgeDefinition.description}
               points={badge.badgeDefinition.points}
-              progress={updateProgress(badge.badgeId)}
+              progress={stats ? updateProgress(badge.badgeId, stats) : 0}
               threshold={badge.badgeDefinition.threshold}
               achieved={true}
               date={badge.dateEarned}
@@ -95,7 +96,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
                 image={badge.image}
                 description={badge.description}
                 points={badge.points}
-                progress={updateProgress(badge.id)}
+                progress={stats ? updateProgress(badge.id, stats) : 0}
                 threshold={badge.threshold}
                 achieved={false}
               />
@@ -112,7 +113,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={updateProgress(badge.id)}
+              progress={stats ? updateProgress(badge.id, stats) : 0}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
@@ -130,7 +131,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={updateProgress(badge.id)}
+              progress={stats ? updateProgress(badge.id, stats) : 0}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
@@ -148,7 +149,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={updateProgress(badge.id)}
+              progress={stats ? updateProgress(badge.id, stats) : 0}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
