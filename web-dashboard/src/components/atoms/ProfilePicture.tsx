@@ -7,21 +7,21 @@ import { redirect } from "next/navigation";
 
 const LevelSkeleton = () => (
   <>
-    <div className="italic bg-gray-200 w-36 h-4 animate-pulse rounded-full"></div>
+    <div className="italic bg-DarkNeutral350 w-36 h-4 animate-pulse rounded-full"></div>
     <div className="flex items-center py-2 w-full mb-4 mt-6">
       <div className="relative mr-[-1em] z-10 mt-[-0.4em]">
         <StarIcon className="w-11 h-11 text-sky-800 stroke-sky-400 stroke-[0.2px] animate-pulse" />
       </div>
       <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative animate-pulse"></div>
     </div>
-    <span className="ml-2 text-xs font-medium bg-gray-200 w-52 h-2 animate-pulse rounded-full"></span>
+    <span className="ml-2 text-xs font-medium bg-DarkNeutral350 w-52 h-2 animate-pulse rounded-full"></span>
   </>
 );
 
 const NameAndPictureSkeleton = () => (
   <>
-    <div className="rounded-full w-24 h-24 mt-9 bg-gray-200 animate-pulse"></div>
-    <div className="text-lg font-semibold mt-3 mb-1 bg-gray-200 w-52 h-5 animate-pulse rounded-full"></div>
+    <div className="rounded-full w-24 h-24 mt-9 bg-DarkNeutral350 animate-pulse"></div>
+    <div className="text-lg font-semibold mt-3 mb-1 bg-DarkNeutral350 w-52 h-5 animate-pulse rounded-full"></div>
   </>
 );
 
