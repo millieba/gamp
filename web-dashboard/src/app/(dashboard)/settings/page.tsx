@@ -9,7 +9,7 @@ const SettingsPage = () => {
 
   useEffect(() => {
     if (!isLoading && stats?.programmingLanguages) {
-      const languageNames = stats.programmingLanguages.map((language) => language.name);
+      const languageNames = stats.programmingLanguages.map((language) => language.name).sort();
       setProgrammingLanguages(languageNames);
     }
   }, [isLoading, stats]);
