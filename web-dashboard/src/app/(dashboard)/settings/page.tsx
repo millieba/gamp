@@ -4,7 +4,7 @@ import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const SettingsPage = () => {
-  const { isLoading, stats, setPreferences } = useSyncContext();
+  const { isLoading, stats, preferences, setPreferences } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [checkboxState, setCheckboxState] = useState<{ [key: string]: boolean }>({
@@ -13,26 +13,16 @@ const SettingsPage = () => {
   });
   const [changesMade, setChangesMade] = useState<boolean>(false);
 
-  // Fetch user preferences from database on page load
+  // Fetch user preferences from context
   useEffect(() => {
-    const fetchPreferences = async () => {
-      try {
-        const res = await (await fetch("/api/preferences")).json();
-        console.log(res.preferences.excludeLanguages);
-        const excludedLanguages = res.preferences.excludeLanguages || [];
-
-        setSelectedLanguages(excludedLanguages);
-        setCheckboxState({
-          strictStreak: res.preferences.showStrictStreak ?? false,
-          workdayStreak: res.preferences.showWorkdayStreak ?? false,
-        });
-      } catch (error) {
-        console.error("An error occurred while fetching preferences:", error);
-      }
-    };
-
-    fetchPreferences();
-  }, []);
+    if (preferences) {
+      setSelectedLanguages(preferences.excludeLanguages);
+      setCheckboxState({
+        strictStreak: preferences.showStrictStreak ?? false,
+        workdayStreak: preferences.showWorkdayStreak ?? false,
+      });
+    }
+  }, [preferences]);
 
   useEffect(() => {
     if (!isLoading && stats?.programmingLanguages) {

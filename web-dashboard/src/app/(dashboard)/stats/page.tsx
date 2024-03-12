@@ -19,7 +19,6 @@ const StatsPage = () => {
   };
 
   const streakData = [];
-  console.log("preferences from stats page", preferences);
   if (preferences?.showStrictStreak) {
     streakData.push({
       icon: "fire",

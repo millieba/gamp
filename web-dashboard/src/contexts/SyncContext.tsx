@@ -109,8 +109,7 @@ export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const preferencesFromDB = await fetch("/api/preferences");
           if (preferencesFromDB.ok) {
             const preferencesData = await preferencesFromDB.json();
-            console.log("in context", preferencesData);
-            setPreferences(preferencesData);
+            setPreferences(preferencesData.preferences);
           }
           const currentTime = new Date();
           const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
