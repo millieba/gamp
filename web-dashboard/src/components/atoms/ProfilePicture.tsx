@@ -28,11 +28,47 @@ const NameAndPictureSkeleton = () => (
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
+  const [countdown, setCountdown] = useState<number>(0);
   const { setIsLoading, setBadges, setAllBadges, setStats, setLevel, isLoading, level } = useSyncContext();
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const currentTime = new Date();
+  const lastSync = session?.user.lastSync;
+
+  useEffect(() => {
+    if (session?.user.lastSync) {
+      const lastSyncDate = new Date(session.user.lastSync);
+      const diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
+      const diffInMinutes = diffInMilliseconds / (1000 * 60);
+
+      if (diffInMinutes < 5) {
+        setCountdown(Math.floor((5 - diffInMinutes) * 60));
+      }
+    }
+  }, [session?.user.lastSync]);
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout | null = null;
+    if (countdown > 0) {
+      countdownInterval = setInterval(() => {
+        setCountdown((countdown) => countdown - 1);
+      }, 1000);
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+
+    return () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+    };
+  }, [countdown]);
 
   const handleClick = async () => {
     try {
       await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
+      setIsDisabled(true);
     } catch (err) {
       err instanceof Error && setError(err.message);
       console.error(err);
@@ -105,15 +141,32 @@ const ProfilePicture = () => {
           </span>
         </>
       )}
-
       {/* Sync button */}
-      <button
-        onClick={handleClick}
-        className="mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full bg-Magenta600 hover:bg-pink-600"
+      <div
+        onMouseEnter={() => setTooltipVisible(true)}
+        onMouseLeave={() => setTooltipVisible(false)}
+        className="relative w-full flex justify-center"
       >
-        <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-        {isLoading ? "Syncing ..." : "Sync"}
-      </button>
+        <button
+          onClick={handleClick}
+          disabled={isDisabled || countdown > 0 || isLoading || lastSync === null}
+          className={`mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full ${
+            isLoading || countdown > 0 ? "bg-DarkNeutral500 cursor-default" : "bg-Magenta600 hover:bg-pink-600"
+          }`}
+        >
+          <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+          {isLoading ? "Syncing ..." : "Sync"}
+        </button>
+        {tooltipVisible && (
+          <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[70px]">
+            {isLoading
+              ? "Please wait..."
+              : countdown > 0
+              ? `Sync available in ${Math.floor(countdown / 60)} minutes and ${countdown % 60} seconds`
+              : "Click to sync"}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
