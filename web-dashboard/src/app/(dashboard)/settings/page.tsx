@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 const SettingsPage = () => {
   const { isLoading, stats, preferences, setPreferences } = useSyncContext();
@@ -12,6 +14,7 @@ const SettingsPage = () => {
     workdayStreak: false,
   });
   const [changesMade, setChangesMade] = useState<boolean>(false);
+  const { data: session, status } = useSession();
 
   // Fetch user preferences from context
   useEffect(() => {
@@ -67,6 +70,23 @@ const SettingsPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      if (session?.user?.userId) {
+        await fetch("api/user", {
+          method: "DELETE",
+          body: JSON.stringify(session?.user?.userId),
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+        redirect("/api/auth/signin"); // Doesn't work yet, maybe because this is a client component
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <h1 className="text-2xl">Settings</h1>
@@ -117,6 +137,12 @@ const SettingsPage = () => {
       <p className="text-sm my-2">
         Deleting your account will also delete all your data from our systems. This action cannot be undone.
       </p>
+      <button
+        className="mt-5 text-DarkNeutral1100 font-semibold mb-4 px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600"
+        onClick={handleDelete}
+      >
+        Delete my Account
+      </button>
 
       {changesMade && (
         <button
