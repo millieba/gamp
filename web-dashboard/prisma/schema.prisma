@@ -85,6 +85,8 @@ model UserPreferences {
   showWorkdayStreak Boolean  @default(true) @map("show_workday_streak") // Whether to show workday streak in stats
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
 }
 
 model Session {
