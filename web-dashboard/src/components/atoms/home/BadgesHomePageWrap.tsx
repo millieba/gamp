@@ -10,11 +10,19 @@ const BadgesHomePageWrap: React.FC<BadgesHomePageWrapProps> = ({ recentBadgesCar
 
   return (
     <>
-      <div className={`rounded-lg shadow-md ${bgColor} min-w-[500px] max-w-[700px]`}>
-        <p className="pt-4 pl-4">You've recently achieved these badges:</p>
-        <div className="pr-4 pt-4 pl-4 pb-2 w-full grid grid-cols-3 gap-4">{approachingBadgesCards}</div>
-        <p className="pt-4 pl-4">You're really close to getting those badges:</p>
-        <div className="pr-4 pt-2 pl-4 pb-4 w-full grid grid-cols-3 gap-4">{recentBadgesCards}</div>
+      <div className={`rounded-lg shadow-md ${bgColor} p-2`}>
+        {recentBadgesCards.length > 0 && (
+          <>
+            <p className="pt-1 pl-4">New Badges Earned:</p>
+            <div>{recentBadgesCards}</div>
+          </>
+        )}
+        {approachingBadgesCards.length > 0 && (
+          <>
+            <p className="pt-2 pl-4">Almost There:</p>
+            <div>{approachingBadgesCards}</div>
+          </>
+        )}
       </div>
     </>
   );

@@ -1,9 +1,9 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
-import BadgeCard from "../badges/BadgeCard";
 import { updateProgress } from "../badges/BadgesWrapped";
 import BadgesHomePageWrap from "./BadgesHomePageWrap";
 import { Badge } from "@/utils/types";
+import BadgeCardHomePage from "./BadgeCardHomePage";
 
 interface UnearnedBadges {
   description: string;
@@ -27,8 +27,8 @@ type FullBadge = Badge & {
 
 const RecentAndApproachingBadges = () => {
   const { badges, allBadges, stats } = useSyncContext();
-  const [unearnedBadges, setUnearnedBadges] = useState<UnearnedBadges[]>([]);
-  const [sortedBadges, setSortedBadges] = useState<FullBadge[]>([]);
+  const [approachingBadges, setApproachingBadges] = useState<UnearnedBadges[]>([]);
+  const [recentBadges, setRecentBadges] = useState<FullBadge[]>([]);
 
   useEffect(() => {
     const badgeIds = badges.map((badge) => badge.badgeId);
@@ -39,7 +39,7 @@ const RecentAndApproachingBadges = () => {
         progress: stats ? updateProgress(badge.id, stats) : 0,
       }))
       .sort((a, b) => a.threshold - a.progress - (b.threshold - b.progress));
-    setUnearnedBadges(remaining);
+    setApproachingBadges(remaining);
 
     const sorted = [...badges]
       .map((badge) => {
@@ -47,39 +47,49 @@ const RecentAndApproachingBadges = () => {
         return { ...badge, ...fullBadge } as FullBadge;
       })
       .sort((a, b) => new Date(b.dateEarned).getTime() - new Date(a.dateEarned).getTime());
-    setSortedBadges(sorted);
+    setRecentBadges(sorted);
   }, [badges, allBadges, stats]);
-
-  console.log(unearnedBadges);
 
   return (
     <>
       <BadgesHomePageWrap
-        recentBadgesCards={unearnedBadges.slice(0, 3).map((badge) => (
-          <BadgeCard
-            key={badge.id}
-            name={badge.name}
-            image={badge.image}
-            description={badge.description}
-            points={badge.points}
-            progress={badge.progress}
-            threshold={badge.threshold}
-            achieved={false}
-          />
-        ))}
-        approachingBadgesCards={sortedBadges.slice(0, 3).map((badge) => (
-          <BadgeCard
-            key={badge.id}
-            name={badge.name}
-            image={badge.image}
-            description={badge.description}
-            points={badge.points}
-            progress={0}
-            threshold={badge.threshold}
-            achieved={true}
-            date={badge.dateEarned}
-          />
-        ))}
+        approachingBadgesCards={
+          approachingBadges.length <= 0
+            ? []
+            : approachingBadges
+                .slice(0, approachingBadges.length <= 3 ? approachingBadges.length : 3)
+                .map((badge) => (
+                  <BadgeCardHomePage
+                    key={badge.id}
+                    name={badge.name}
+                    image={badge.image}
+                    description={badge.description}
+                    points={badge.points}
+                    progress={badge.progress}
+                    threshold={badge.threshold}
+                    achieved={false}
+                  />
+                ))
+        }
+        recentBadgesCards={
+          recentBadges.length <= 0
+            ? []
+            : recentBadges
+                .slice(0, recentBadges.length <= 3 ? recentBadges.length : 3)
+                .map((badge) => (
+                  <BadgeCardHomePage
+                    key={badge.id}
+                    name={badge.name}
+                    image={badge.image}
+                    description={badge.description}
+                    points={badge.points}
+                    progress={0}
+                    threshold={badge.threshold}
+                    achieved={true}
+                    date={badge.dateEarned}
+                  />
+                ))
+        }
       />
     </>
   );
