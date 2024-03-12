@@ -23,7 +23,6 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   date,
 }) => {
   const bgColor = "bg-DarkNeutral300";
-  const percentage = Math.floor((progress / threshold) * 100);
 
   return (
     <div className={`p-2 rounded-lg shadow-md flex flex-col sm:flex-row ${bgColor} max-w-[350px] m-2`}>
