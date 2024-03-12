@@ -4,6 +4,7 @@ import { Badge } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { BadgeDefinition, Level } from "@prisma/client";
 import { Modification } from "@/app/api/commits/commitsService";
+import { Preferences } from "@/app/api/preferences/preferenceService";
 
 export interface Stats {
   commitCount: number;
@@ -86,6 +87,8 @@ interface SyncContextProps {
   setStats: Dispatch<SetStateAction<Stats | undefined>>;
   level: LevelData | undefined;
   setLevel: Dispatch<SetStateAction<LevelData | undefined>>;
+  preferences: Preferences | undefined;
+  setPreferences: Dispatch<SetStateAction<Preferences | undefined>>;
 }
 
 const SyncContext = createContext<SyncContextProps | undefined>(undefined);
@@ -93,15 +96,22 @@ const SyncContext = createContext<SyncContextProps | undefined>(undefined);
 export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [allBadges, setAllBadges] = useState<BadgeDefinition[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [stats, setStats] = useState<Stats | undefined>();
   const [level, setLevel] = useState<LevelData | undefined>();
+  const [preferences, setPreferences] = useState<Preferences | undefined>();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (status === "authenticated" && session?.user) {
+          const preferencesFromDB = await fetch("/api/preferences");
+          if (preferencesFromDB.ok) {
+            const preferencesData = await preferencesFromDB.json();
+            console.log("in context", preferencesData);
+            setPreferences(preferencesData);
+          }
           const currentTime = new Date();
           const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
           if (
@@ -137,6 +147,8 @@ export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setStats,
         level,
         setLevel,
+        preferences,
+        setPreferences,
       }}
     >
       {children}

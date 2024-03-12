@@ -6,7 +6,7 @@ import InfoCard from "@/components/atoms/InfoCard";
 import ModificationsChart from "@/components/atoms/ModificationsChart";
 
 const StatsPage = () => {
-  const { badges, isLoading, stats, allBadges } = useSyncContext();
+  const { badges, isLoading, stats, allBadges, preferences } = useSyncContext();
 
   const convertMsToDays = (ms: number) => {
     if (ms < 86400000) {
@@ -18,10 +18,12 @@ const StatsPage = () => {
     }
   };
 
-  const data = [
-    {
+  const streakData = [];
+  console.log("preferences from stats page", preferences);
+  if (preferences?.showStrictStreak) {
+    streakData.push({
       icon: "fire",
-      iconColour: stats?.strictStreak ? "orange-500" : undefined, // Set icon colour to orange if the user has committed today, otherwise use the default by not setting a specific colour
+      iconColour: stats?.strictStreak ? "orange-500" : undefined,
       heading: "Strict Streak",
       subheading:
         stats?.strictStreakToContinue !== null
@@ -34,8 +36,11 @@ const StatsPage = () => {
       number: stats?.strictStreak !== null ? stats?.strictStreak : stats?.strictStreakToContinue || 0,
       unit: stats?.strictStreak === 1 ? "day" : "days",
       description: "This is how many days in a row you have committed",
-    },
-    {
+    });
+  }
+
+  if (preferences?.showWorkdayStreak) {
+    streakData.push({
       icon: "fire",
       iconColour: stats?.workdayStreak ? "orange-500" : undefined,
       heading: "Workday Streak",
@@ -50,7 +55,11 @@ const StatsPage = () => {
       number: stats?.workdayStreak !== null ? stats?.workdayStreak : stats?.workdayStreakToContinue || 0,
       unit: stats?.workdayStreak === 1 ? "workday" : "workdays",
       description: "This is how many weekdays (Monday to Friday) in a row you have committed",
-    },
+    });
+  }
+
+  const data = [
+    ...streakData,
     {
       icon: "star",
       heading: "Achievements",

@@ -4,7 +4,7 @@ import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
 
 const SettingsPage = () => {
-  const { isLoading, stats } = useSyncContext();
+  const { isLoading, stats, setPreferences } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [checkboxState, setCheckboxState] = useState<{ [key: string]: boolean }>({
@@ -70,6 +70,7 @@ const SettingsPage = () => {
           "content-type": "application/json",
         },
       });
+      setPreferences(preferences); // Update context with new preferences
       setChangesMade(false); // Reset changesMade state (don't need to save the same changes twice!)
     } catch (error) {
       console.error(error);
