@@ -6,11 +6,33 @@ import { useSyncContext } from "@/contexts/SyncContext";
 const SettingsPage = () => {
   const { isLoading, stats } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [checkboxState, setCheckboxState] = useState<{ [key: string]: boolean }>({
     strictStreak: false,
     workdayStreak: false,
   });
   const [changesMade, setChangesMade] = useState<boolean>(false);
+
+  // Fetch user preferences from database on page load
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const res = await (await fetch("/api/preferences")).json();
+        console.log(res.preferences.excludeLanguages);
+        const excludedLanguages = res.preferences.excludeLanguages || [];
+
+        setSelectedLanguages(excludedLanguages);
+        setCheckboxState({
+          strictStreak: res.preferences.showStrictStreak ?? false,
+          workdayStreak: res.preferences.showWorkdayStreak ?? false,
+        });
+      } catch (error) {
+        console.error("An error occurred while fetching preferences:", error);
+      }
+    };
+
+    fetchPreferences();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && stats?.programmingLanguages) {
@@ -19,7 +41,8 @@ const SettingsPage = () => {
     }
   }, [isLoading, stats]);
 
-  const handleDropdownChange = () => {
+  const handleDropdownChange = (selectedOptions: string[]) => {
+    setSelectedLanguages(selectedOptions);
     setChangesMade(true);
   };
 
@@ -34,7 +57,7 @@ const SettingsPage = () => {
 
   const handleSave = async () => {
     const preferences = {
-      excludeLanguages: programmingLanguages,
+      excludeLanguages: selectedLanguages,
       showStrictStreak: checkboxState.strictStreak,
       showWorkdayStreak: checkboxState.workdayStreak,
     };
@@ -47,7 +70,7 @@ const SettingsPage = () => {
           "content-type": "application/json",
         },
       });
-      setChangesMade(false); // Reset changesMade state
+      setChangesMade(false); // Reset changesMade state (don't need to save the same changes twice!)
     } catch (error) {
       console.error(error);
     }
@@ -67,6 +90,7 @@ const SettingsPage = () => {
         <MultiSelectDropdown
           options={programmingLanguages}
           title="Select Languages to Exclude"
+          selectedOptions={selectedLanguages}
           onChange={handleDropdownChange}
         />
       )}
@@ -81,7 +105,7 @@ const SettingsPage = () => {
             className="mr-2"
             type="checkbox"
             name="strictStreak"
-            checked={checkboxState.streakType1}
+            checked={checkboxState.strictStreak}
             onChange={handleCheckboxChange}
           />
           Strict streak
@@ -91,7 +115,7 @@ const SettingsPage = () => {
             className="mr-2"
             type="checkbox"
             name="workdayStreak"
-            checked={checkboxState.streakType2}
+            checked={checkboxState.workdayStreak}
             onChange={handleCheckboxChange}
           />
           Workday streak
