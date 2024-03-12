@@ -10,6 +10,7 @@ export interface BadgeDetails {
   threshold: number;
   achieved: boolean;
   date?: Date;
+  unit?: string;
 }
 
 const BadgeCard: React.FC<BadgeDetails> = ({
@@ -21,6 +22,7 @@ const BadgeCard: React.FC<BadgeDetails> = ({
   threshold,
   achieved,
   date,
+  unit = "",
 }) => {
   const bgColor = "bg-DarkNeutral300";
   const percentage = Math.floor((progress / threshold) * 100);
@@ -54,7 +56,7 @@ const BadgeCard: React.FC<BadgeDetails> = ({
             ></div>
           </div>
           <div className="text-DarkNeutral1000 text-center">
-            {progress}/{threshold}
+            {progress}/{threshold} {unit}
           </div>
           <div className="text-DarkNeutral1000 text-xs">Gives you {points}XP</div>
         </>
