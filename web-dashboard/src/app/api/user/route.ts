@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
-import { deleteUser } from "./userService";
+import { deleteGitHubAppAuthorization, deleteUser } from "./userService";
 import { getServerSession } from "next-auth";
 
 export const DELETE = async (req: NextRequest) => {
   try {
     const session = await getServerSession({ req, ...options });
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.githubAccountId) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
     if (req.method !== "DELETE") {
@@ -24,8 +24,11 @@ export const DELETE = async (req: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const stats = await deleteUser(userId);
-    return NextResponse.json(stats, { status: 200 });
+    // Revoke GitHub app authorization, then delete the user from the database
+    await deleteGitHubAppAuthorization(session.user.githubAccountId);
+    const deletedUser = await deleteUser(userId);
+
+    return NextResponse.json(deletedUser, { status: 200 });
   } catch (error) {
     console.error("An error occurred while deleting user from the database:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

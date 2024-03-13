@@ -74,14 +74,17 @@ const SettingsPage = () => {
   const handleDelete = async () => {
     try {
       if (session?.user?.userId) {
-        await fetch("api/user", {
+        const res = await fetch("api/user", {
           method: "DELETE",
           body: JSON.stringify(session?.user?.userId),
           headers: {
             "content-type": "application/json",
           },
         });
-        router.push("/api/auth/signin"); // Redirect to the sign in page after deleting the account
+
+        if (res.ok) {
+          router.push("/delete-success"); // Redirect to the success page
+        }
       }
     } catch (error) {
       console.error(error);
@@ -136,7 +139,8 @@ const SettingsPage = () => {
 
       <h2 className="text-md mt-6 font-bold">Delete your Account</h2>
       <p className="text-sm my-2">
-        Deleting your account will also delete all your data from our systems. This action cannot be undone.
+        Deleting your account will delete all your data from our systems and revoke this app's access to your GitHub
+        account. This action cannot be undone.
       </p>
       <button
         className="mt-5 text-DarkNeutral1100 font-semibold mb-4 px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600"
