@@ -11,21 +11,41 @@ type BadgesWrappedProps = {
   selectedTags: string[];
 };
 
-export const updateProgress = (id: string, stats: Stats) => {
-  let progress = 0;
+const badgeUnitMapping: { [key: string]: string } = {
+  "prs-opened-": "pull requests",
+  "prs-merged-": "pull requests",
+  "cc-": "commits",
+  "issues-opened-": "issues",
+  "issues-closed-": "issues",
+};
 
-  if (id.startsWith("prs-opened-")) {
-    progress = stats?.createdPrs || 0;
-  } else if (id.startsWith("prs-merged-")) {
-    progress = stats?.createdAndMergedPrs || 0;
-  } else if (id.startsWith("cc-")) {
-    progress = stats?.commitCount || 0;
-  } else if (id.startsWith("issues-opened-")) {
-    progress = stats?.issueCount || 0;
-  } else if (id.startsWith("issues-closed-")) {
-    progress = stats?.closedIssueCount || 0;
+const badgeProgressMapping = (stats: Stats) => ({
+  "prs-opened-": () => stats?.createdPrs || 0,
+  "prs-merged-": () => stats?.createdAndMergedPrs || 0,
+  "cc-": () => stats?.commitCount || 0,
+  "issues-opened-": () => stats?.issueCount || 0,
+  "issues-closed-": () => stats?.closedIssueCount || 0,
+});
+
+export const getBadgeUnit = (id: string) => {
+  for (const prefix in badgeUnitMapping) {
+    if (id.startsWith(prefix)) {
+      return badgeUnitMapping[prefix];
+    }
   }
-  return progress;
+  return "";
+};
+
+export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
+  if (stats) {
+    const progressMapping: { [key: string]: () => number } = badgeProgressMapping(stats);
+    for (const prefix in progressMapping) {
+      if (id.startsWith(prefix)) {
+        return progressMapping[prefix]();
+      }
+    }
+  }
+  return 0;
 };
 
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
@@ -76,10 +96,11 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.badgeDefinition.image}
               description={badge.badgeDefinition.description}
               points={badge.badgeDefinition.points}
-              progress={stats ? updateProgress(badge.badgeId, stats) : 0}
+              progress={updateBadgeProgress(badge.badgeId, stats)}
               threshold={badge.badgeDefinition.threshold}
               achieved={true}
               date={badge.dateEarned}
+              unit={getBadgeUnit(badge.badgeId)}
             />
           ))}
         />
@@ -96,9 +117,10 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
                 image={badge.image}
                 description={badge.description}
                 points={badge.points}
-                progress={stats ? updateProgress(badge.id, stats) : 0}
+                progress={updateBadgeProgress(badge.id, stats)}
                 threshold={badge.threshold}
                 achieved={false}
+                unit={getBadgeUnit(badge.id)}
               />
             ))}
         />
@@ -113,10 +135,11 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={stats ? updateProgress(badge.id, stats) : 0}
+              progress={updateBadgeProgress(badge.id, stats)}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
+              unit={getBadgeUnit(badge.id)}
             />
           ))}
         />
@@ -131,10 +154,11 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={stats ? updateProgress(badge.id, stats) : 0}
+              progress={updateBadgeProgress(badge.id, stats)}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
+              unit={getBadgeUnit(badge.id)}
             />
           ))}
         />
@@ -149,10 +173,11 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
               image={badge.image}
               description={badge.description}
               points={badge.points}
-              progress={stats ? updateProgress(badge.id, stats) : 0}
+              progress={updateBadgeProgress(badge.id, stats)}
               threshold={badge.threshold}
               achieved={badge.achieved}
               date={badge.achieved ? badge.dateAchieved : undefined}
+              unit={getBadgeUnit(badge.id)}
             />
           ))}
         />

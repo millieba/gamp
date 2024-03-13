@@ -1,6 +1,6 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
-import { updateProgress } from "../badges/BadgesWrapped";
+import { getBadgeUnit, updateBadgeProgress } from "../badges/BadgesWrapped";
 import BadgesHomePageWrap from "./BadgesHomePageWrap";
 import { Badge } from "@/utils/types";
 import BadgeCardHomePage from "./BadgeCardHomePage";
@@ -36,7 +36,7 @@ const RecentAndApproachingBadges = () => {
       .filter((badge) => !badgeIds.includes(badge.id))
       .map((badge) => ({
         ...badge,
-        progress: stats ? updateProgress(badge.id, stats) : 0,
+        progress: updateBadgeProgress(badge.id, stats),
       }))
       .sort((a, b) => a.threshold - a.progress - (b.threshold - b.progress));
     setApproachingBadges(remaining);
@@ -68,6 +68,7 @@ const RecentAndApproachingBadges = () => {
                     progress={badge.progress}
                     threshold={badge.threshold}
                     achieved={false}
+                    unit={getBadgeUnit(badge.id)}
                   />
                 ))
         }
@@ -87,6 +88,7 @@ const RecentAndApproachingBadges = () => {
                     threshold={badge.threshold}
                     achieved={true}
                     date={badge.dateEarned}
+                    unit={getBadgeUnit(badge.id)}
                   />
                 ))
         }

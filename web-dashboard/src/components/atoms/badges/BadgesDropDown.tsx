@@ -4,13 +4,14 @@ import BadgesWrapped from "./BadgesWrapped";
 
 // Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
+// Keep in mind that if this list is modified, the BadgesWrapped component may be affected by it.
 export const tags: string[] = [
   "Earned badges",
-  "Non earned badges",
-  "Badges for issues",
-  "Badges for commits",
-  "Badges for pull requests",
-  "Badges for miscellaneous",
+  "Upcoming badges",
+  "Issue badges",
+  "Commit badges",
+  "Pull request badges",
+  "Miscellaneous badges",
 ];
 
 const BadgesDropDown = () => {
@@ -84,7 +85,7 @@ const BadgesDropDown = () => {
       </div>
       {!(selectedTags?.length === 0) ? (
         <>
-          <p>Current chosen badges to show:</p>
+          <p>Selected badge categories:</p>
           <div className="relative text-xs flex flex-wrap gap-1 p-2">
             {selectedTags.map((tag) => {
               return (
@@ -102,9 +103,9 @@ const BadgesDropDown = () => {
                 </div>
               );
             })}
-            <div className="w-[100%] text-left">
+            <div className="pt-2 pl-2">
               <span
-                className="text-DarkNeutral1100 hover:text-DarkNeutral900 cursor-pointer"
+                className="text-DarkNeutral1100 hover:text-DarkNeutral1000 text-sm cursor-pointer"
                 onClick={() => {
                   setSelectedTags([]);
                   inputRef.current?.focus();

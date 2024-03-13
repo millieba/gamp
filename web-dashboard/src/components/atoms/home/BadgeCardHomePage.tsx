@@ -10,6 +10,7 @@ export interface BadgeDetails {
   threshold: number;
   achieved: boolean;
   date?: Date;
+  unit?: string;
 }
 
 const BadgeCardHomePage: React.FC<BadgeDetails> = ({
@@ -21,8 +22,18 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   threshold,
   achieved,
   date,
+  unit = "",
 }) => {
   const bgColor = "bg-DarkNeutral300";
+
+  const messages = [
+    `You're only ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} away!`,
+    `Keep going, only ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} to go!`,
+    `Make ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} to achieve this`,
+  ];
+
+  const randomIndex = Math.floor(Math.random() * messages.length);
+  const randomMessage = messages[randomIndex];
 
   return (
     <div className={`p-2 rounded-lg shadow-md flex flex-col sm:flex-row ${bgColor} max-w-[350px] m-2`}>
@@ -47,7 +58,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
             Achieved: {date ? new Date(date).toISOString().split("T")[0] : ""}
           </div>
         ) : (
-          <div className="text-DarkNeutral1000 text-xs xs:text-center">{threshold - progress} unit here!!</div>
+          <div className="text-DarkNeutral1000 text-xs xs:text-center">{randomMessage}</div>
         )}
       </div>
     </div>
