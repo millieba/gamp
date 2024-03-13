@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const SettingsPage = () => {
   const { isLoading, stats, preferences, setPreferences } = useSyncContext();
@@ -15,6 +15,7 @@ const SettingsPage = () => {
   });
   const [changesMade, setChangesMade] = useState<boolean>(false);
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   // Fetch user preferences from context
   useEffect(() => {
@@ -80,7 +81,7 @@ const SettingsPage = () => {
             "content-type": "application/json",
           },
         });
-        redirect("/api/auth/signin"); // Doesn't work yet, maybe because this is a client component
+        router.push("/api/auth/signin"); // Redirect to the sign in page after deleting the account
       }
     } catch (error) {
       console.error(error);
