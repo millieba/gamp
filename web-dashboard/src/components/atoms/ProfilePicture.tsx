@@ -32,11 +32,17 @@ const ProfilePicture = () => {
   const { setIsLoading, setBadges, setAllBadges, setStats, setLevel, isLoading, level } = useSyncContext();
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const currentTime = new Date();
   const lastSync = session?.user.lastSync;
 
   useEffect(() => {
+    if (!lastSync) {
+      setCountdown(300);
+    }
+  }, []);
+
+  useEffect(() => {
     if (session?.user.lastSync) {
+      const currentTime = new Date();
       const lastSyncDate = new Date(session.user.lastSync);
       const diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
       const diffInMinutes = diffInMilliseconds / (1000 * 60);
@@ -45,7 +51,7 @@ const ProfilePicture = () => {
         setCountdown(Math.floor((5 - diffInMinutes) * 60));
       }
     }
-  }, [session?.user.lastSync]);
+  }, [session?.user.lastSync, isLoading]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout | null = null;
@@ -89,6 +95,8 @@ const ProfilePicture = () => {
       redirect("/api/auth/signin"); // Redirect to the sign in page if the user is unauthenticated or their access token has expired
     }
   }, [session, status]);
+
+  console.log(countdown);
 
   return (
     <div className="flex flex-col items-center">
@@ -151,7 +159,9 @@ const ProfilePicture = () => {
           onClick={handleClick}
           disabled={isDisabled || countdown > 0 || isLoading || lastSync === null}
           className={`mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full ${
-            isLoading || countdown > 0 ? "bg-DarkNeutral500 cursor-default" : "bg-Magenta600 hover:bg-pink-600"
+            isDisabled || countdown > 0 || isLoading || lastSync === null
+              ? "bg-DarkNeutral500 cursor-default"
+              : "bg-Magenta600 hover:bg-pink-600"
           }`}
         >
           <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
@@ -161,7 +171,7 @@ const ProfilePicture = () => {
           <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[70px]">
             {isLoading
               ? "Please wait..."
-              : countdown > 0
+              : isDisabled || countdown > 0 || isLoading || lastSync === null
               ? `Sync available in ${Math.floor(countdown / 60)} minutes and ${countdown % 60} seconds`
               : "Click to sync"}
           </div>
