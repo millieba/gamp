@@ -2,30 +2,14 @@
 import { useState, useEffect } from "react";
 import MultiSelectDropdown from "@/components/atoms/MultiSelectDropdown";
 import { useSyncContext } from "@/contexts/SyncContext";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import DeleteAccountModal from "@/components/atoms/settings/DeleteAccountModal";
+import Button from "@/components/atoms/Button";
+import SettingBox from "@/components/atoms/settings/SettingBox";
 
 interface CheckboxState {
   strictStreak: boolean;
   workdayStreak: boolean;
 }
-
-// Component to display a setting box with a title, description and children.
-const SettingBox = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) => (
-  <div className="bg-DarkNeutral300 rounded-lg shadow-lg px-4 py-2 mb-4">
-    <h2 className="text-lg font-bold">{title}</h2>
-    <p className="text-sm my-2">{description}</p>
-    {children}
-  </div>
-);
 
 const SettingsPage = () => {
   const { isLoading, stats, preferences, setPreferences } = useSyncContext();
@@ -36,8 +20,7 @@ const SettingsPage = () => {
     workdayStreak: false,
   });
   const [changesMade, setChangesMade] = useState<boolean>(false);
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const [showConfirmation, setShowConfirmation] = useState(false); // State to control visibility of the confirmation modal
 
   useEffect(() => {
     if (preferences) {
@@ -85,27 +68,9 @@ const SettingsPage = () => {
           "content-type": "application/json",
         },
       });
-      setPreferences(preferences); // Update context with new preferences
-      setChangesMade(false); // Reset changesMade state (don't need to save the same changes twice!)
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      if (session?.user?.userId) {
-        const res = await fetch("api/user", {
-          method: "DELETE",
-          body: JSON.stringify(session?.user?.userId),
-          headers: {
-            "content-type": "application/json",
-          },
-        });
-
-        if (res.ok) {
-          router.push("/delete-success"); // Redirect to the success page
-        }
+      if (res.ok) {
+        setPreferences(preferences); // Update context with new preferences
+        setChangesMade(false); // Reset changesMade state (don't need to save the same changes twice!)
       }
     } catch (error) {
       console.error(error);
@@ -163,25 +128,16 @@ const SettingsPage = () => {
         title="Delete your Account"
         description="Deleting your account will delete all your data from our systems and revoke this app's access to your GitHub account. This action cannot be undone."
       >
-        <button
-          className="text-DarkNeutral1100 font-semibold px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600 mb-2"
-          onClick={handleDelete}
-        >
-          Delete my Account
-        </button>
+        <Button
+          label="Delete my Account"
+          clickHandler={() => setShowConfirmation(true)} // Open the delete account modal when clicked
+        />
+        <DeleteAccountModal isOpen={showConfirmation} onClose={() => setShowConfirmation(false)} />
       </SettingBox>
 
-      <button
-        className={`mt-2 font-semibold mb-4 px-4 py-2 rounded-full ${
-          changesMade
-            ? "text-DarkNeutral1100 bg-Magenta600 hover:bg-pink-600"
-            : "bg-DarkNeutral400 text-DarkNeutral700 cursor-not-allowed"
-        }`}
-        onClick={handleSave}
-        disabled={!changesMade}
-      >
-        Save
-      </button>
+      <div className="ml-2">
+        <Button label="Save" isDisabled={!changesMade} clickHandler={handleSave} />
+      </div>
     </>
   );
 };
