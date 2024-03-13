@@ -5,11 +5,33 @@ import { useSyncContext } from "@/contexts/SyncContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+interface CheckboxState {
+  strictStreak: boolean;
+  workdayStreak: boolean;
+}
+
+// Component to display a setting box with a title, description and children.
+const SettingBox = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) => (
+  <div className="bg-DarkNeutral300 rounded-lg shadow-lg px-4 py-2 mb-4">
+    <h2 className="text-lg font-bold">{title}</h2>
+    <p className="text-sm my-2">{description}</p>
+    {children}
+  </div>
+);
+
 const SettingsPage = () => {
   const { isLoading, stats, preferences, setPreferences } = useSyncContext();
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
-  const [checkboxState, setCheckboxState] = useState<{ [key: string]: boolean }>({
+  const [checkboxState, setCheckboxState] = useState<CheckboxState>({
     strictStreak: false,
     workdayStreak: false,
   });
@@ -17,7 +39,6 @@ const SettingsPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Fetch user preferences from context
   useEffect(() => {
     if (preferences) {
       setSelectedLanguages(preferences.excludeLanguages);
@@ -93,71 +114,74 @@ const SettingsPage = () => {
 
   return (
     <>
-      <h1 className="text-2xl">Settings</h1>
-      <h2 className="text-md mt-6 font-bold">Exclude Programming Languages</h2>
-      <p className="text-sm my-2">
-        Select the programming languages you want to exclude from your stats. You can always change this later to
-        include them again.
-      </p>
-      {isLoading ? (
-        <p>Loading programming languages ...</p>
-      ) : (
-        <MultiSelectDropdown
-          options={programmingLanguages}
-          title="Select Languages to Exclude"
-          selectedOptions={selectedLanguages}
-          onChange={handleDropdownChange}
-        />
-      )}
-
-      <h2 className="text-md mt-6 font-bold">Streak Types</h2>
-      <p className="text-sm my-2">
-        Choose which types of streaks you want to see in your stats. You can always change this later.
-      </p>
-      <div className="flex gap-6">
-        <label>
-          <input
-            className="mr-2"
-            type="checkbox"
-            name="strictStreak"
-            checked={checkboxState.strictStreak}
-            onChange={handleCheckboxChange}
-          />
-          Strict streak
-        </label>
-        <label>
-          <input
-            className="mr-2"
-            type="checkbox"
-            name="workdayStreak"
-            checked={checkboxState.workdayStreak}
-            onChange={handleCheckboxChange}
-          />
-          Workday streak
-        </label>
-      </div>
-
-      <h2 className="text-md mt-6 font-bold">Delete your Account</h2>
-      <p className="text-sm my-2">
-        Deleting your account will delete all your data from our systems and revoke this app's access to your GitHub
-        account. This action cannot be undone.
-      </p>
-      <button
-        className="mt-5 text-DarkNeutral1100 font-semibold mb-4 px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600"
-        onClick={handleDelete}
+      <h1 className="text-2xl mb-3">Settings</h1>
+      <SettingBox
+        title="Exclude Programming Languages"
+        description="Select the programming languages you want to exclude from your stats. You can always change this later to include them again."
       >
-        Delete my Account
-      </button>
+        {isLoading ? (
+          <p>Loading programming languages ...</p>
+        ) : (
+          <MultiSelectDropdown
+            options={programmingLanguages}
+            title="Select Languages to Exclude"
+            selectedOptions={selectedLanguages}
+            onChange={handleDropdownChange}
+          />
+        )}
+      </SettingBox>
 
-      {changesMade && (
+      <SettingBox
+        title="Streak Types"
+        description="Choose which types of streaks you want to see in your stats. You can always change this later."
+      >
+        <div className="flex gap-6">
+          <label>
+            <input
+              className="mr-2"
+              type="checkbox"
+              name="strictStreak"
+              checked={checkboxState.strictStreak}
+              onChange={handleCheckboxChange}
+            />
+            Strict streak
+          </label>
+          <label>
+            <input
+              className="mr-2"
+              type="checkbox"
+              name="workdayStreak"
+              checked={checkboxState.workdayStreak}
+              onChange={handleCheckboxChange}
+            />
+            Workday streak
+          </label>
+        </div>
+      </SettingBox>
+
+      <SettingBox
+        title="Delete your Account"
+        description="Deleting your account will delete all your data from our systems and revoke this app's access to your GitHub account. This action cannot be undone."
+      >
         <button
-          className="mt-5 text-DarkNeutral1100 font-semibold mb-4 px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600"
-          onClick={handleSave}
-          disabled={!changesMade}
+          className="text-DarkNeutral1100 font-semibold px-4 py-1 rounded-full bg-Magenta600 hover:bg-pink-600 mb-2"
+          onClick={handleDelete}
         >
-          Save
+          Delete my Account
         </button>
-      )}
+      </SettingBox>
+
+      <button
+        className={`mt-2 font-semibold mb-4 px-4 py-2 rounded-full ${
+          changesMade
+            ? "text-DarkNeutral1100 bg-Magenta600 hover:bg-pink-600"
+            : "bg-DarkNeutral400 text-DarkNeutral700 cursor-not-allowed"
+        }`}
+        onClick={handleSave}
+        disabled={!changesMade}
+      >
+        Save
+      </button>
     </>
   );
 };
