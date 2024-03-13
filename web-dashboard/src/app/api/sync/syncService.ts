@@ -9,7 +9,7 @@ import { fetchRepoCount } from "../repos/repoService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { checkLevel } from "../level/levelService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
-import { IssueQueryResultEdges } from "../issues/issuesUtils";
+import { AssignedIssueInterface, IssueQueryResultEdges } from "../issues/issuesUtils";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -26,6 +26,7 @@ export interface SyncData {
   commits: Commit[];
   pullRequests: PRData[];
   issues: IssueQueryResultEdges[];
+  assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
 }
 
@@ -77,6 +78,7 @@ async function fetchData(accountId: string): Promise<SyncData> {
     pullRequests: prVariables?.pullRequests,
     issues: issueVariables?.data,
     dailyModifications: commitData?.dailyModifications,
+    assignedIssues: issueVariables?.dataNode,
   };
 }
 
@@ -102,7 +104,7 @@ export async function syncWithGithub(accountId: string) {
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
       checkBadges(data.commits, data.pullRequests, data.issues, accountId),
-      syncStats(data.data, data.programmingLanguages, data.dailyModifications, accountId),
+      syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
     ]);
 
     await checkLevel(accountId); // Check level after badges are checked (total score depends on how many badges a user has)

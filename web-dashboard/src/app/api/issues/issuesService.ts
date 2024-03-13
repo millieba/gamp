@@ -83,6 +83,7 @@ query ($afterIssues: String) {
 export async function fetchIssueVariables(accountId: string) {
   try {
     const data = await fetchIssueCount(accountId);
+    const dataNode = data[0].edges.map((edge) => edge.node);
     const issueCount = data[0].issueCount;
     const avgTimeToCloseIssues = calculateAvgTimeToCloseIssues(data);
     const closedIssueCount = calculateClosedIssueCount(data);
@@ -91,6 +92,7 @@ export async function fetchIssueVariables(accountId: string) {
       avgTimeToCloseIssues: avgTimeToCloseIssues,
       closedIssueCount: closedIssueCount,
       data: data,
+      dataNode: dataNode,
     };
   } catch (error) {
     console.error("An error occured while trying to fetch the issueCount:", error);
@@ -150,6 +152,16 @@ export async function getIssueVariablesFromDb(accountId: string) {
         issueCount: true,
         avgTimeToCloseIssues: true,
         closedIssueCount: true,
+        assignedIssues: {
+          select: {
+            title: true,
+            url: true,
+            createdAt: true,
+            closedAt: true,
+            number: true,
+            state: true,
+          },
+        },
       },
     });
     return issueData;

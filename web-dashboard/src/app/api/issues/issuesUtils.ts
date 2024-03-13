@@ -44,3 +44,12 @@ export interface IssueQueryResultNode {
   };
 }
 [];
+
+export interface AssignedIssueInterface {
+  title: string;
+  url: string;
+  createdAt: string;
+  closedAt: string | null;
+  number: number;
+  state: string;
+}

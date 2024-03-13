@@ -4,6 +4,7 @@ import { Badge } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { BadgeDefinition, Level } from "@prisma/client";
 import { Modification } from "@/app/api/commits/commitsService";
+import { AssignedIssueInterface } from "@/app/api/issues/issuesUtils";
 
 export interface Stats {
   commitCount: number;
@@ -13,6 +14,7 @@ export interface Stats {
   createdPrs: number;
   createdAndMergedPrs: number;
   programmingLanguages: ProgrammingLanguage[];
+  assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
   strictStreak: number | null;
   strictStreakToContinue: number | null;
