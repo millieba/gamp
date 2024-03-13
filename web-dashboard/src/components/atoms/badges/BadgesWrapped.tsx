@@ -86,7 +86,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   return (
     <div className="flex flex-col gap-5">
-      {selectedTags.includes(tags[0]) && (
+      {selectedTags.includes(tags[0]) && badges.length > 0 && (
         <BadgesWrap
           title="Badges you've earned:"
           cards={badges?.map((badge) => (
