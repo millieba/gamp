@@ -40,13 +40,12 @@ const ProfilePicture = () => {
     }
   };
 
-  const calculateProgressBarPercentage = () => {
+  const calculateProgressBarPercentage: () => number = () => {
     if (!level?.nextLevel) {
       return 100; // User is already at the highest level
     }
-    const pointsNeeded = level.nextLevel.threshold - level.totalPoints;
-    const progressPercentage = ((level.currentLevel.threshold - pointsNeeded) / level.currentLevel.threshold) * 100;
-    return Math.min(progressPercentage, 100).toFixed(); // Cap at 100% just in case, remove decimals
+    const progressPercentage = (level.totalPoints / level.nextLevel.threshold) * 100;
+    return Math.round(Math.min(progressPercentage, 100)); // Cap at 100% just in case, round to nearest integer
   };
 
   useEffect(() => {
@@ -88,7 +87,10 @@ const ProfilePicture = () => {
 
             {/* Progress bar */}
             <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative">
-              <div className={`bg-Magenta600 h-full rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
+              <div
+                style={{ width: `${calculateProgressBarPercentage()}%` }}
+                className="bg-Magenta600 h-full rounded-full"
+              ></div>
               {/* Text about max level reached */}
               <span className="absolute inset-x-0 inset-y-3 flex items-center justify-center text-xs font-thin">
                 {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
