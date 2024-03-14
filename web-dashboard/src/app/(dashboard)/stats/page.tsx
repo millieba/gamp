@@ -4,6 +4,7 @@ import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
 import ModificationsChart from "@/components/atoms/ModificationsChart";
+import ContributionsChart from "@/components/atoms/ContributionsChart";
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges, preferences } = useSyncContext();
@@ -152,6 +153,13 @@ const StatsPage = () => {
               />
             </div>
           </div>
+          <StatCard
+            name={"Contributions"}
+            description={
+              "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
+            }
+            content={<ContributionsChart />}
+          />
         </>
       )}
     </>
