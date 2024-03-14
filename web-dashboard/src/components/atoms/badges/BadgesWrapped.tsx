@@ -27,7 +27,7 @@ const badgeProgressMapping = (stats: Stats) => ({
   "issues-closed-": () => stats?.closedIssueCount || 0,
 });
 
-const getBadgeUnit = (id: string) => {
+export const getBadgeUnit = (id: string) => {
   for (const prefix in badgeUnitMapping) {
     if (id.startsWith(prefix)) {
       return badgeUnitMapping[prefix];
@@ -36,7 +36,7 @@ const getBadgeUnit = (id: string) => {
   return "";
 };
 
-const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
+export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
   if (stats) {
     const progressMapping: { [key: string]: () => number } = badgeProgressMapping(stats);
     for (const prefix in progressMapping) {
@@ -86,7 +86,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   return (
     <div className="flex flex-col gap-5">
-      {selectedTags.includes(tags[0]) && (
+      {selectedTags.includes(tags[0]) && badges.length > 0 && (
         <BadgesWrap
           title="Badges you've earned:"
           cards={badges?.map((badge) => (
