@@ -4,6 +4,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
+import Button from "./Button";
 
 const LevelSkeleton = () => (
   <>
@@ -14,7 +15,7 @@ const LevelSkeleton = () => (
       </div>
       <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative animate-pulse"></div>
     </div>
-    <span className="ml-2 text-xs font-medium bg-DarkNeutral350 w-52 h-2 animate-pulse rounded-full"></span>
+    <span className="ml-2 text-xs font-medium bg-DarkNeutral350 w-52 h-2 animate-pulse rounded-full mb-5"></span>
   </>
 );
 
@@ -39,13 +40,12 @@ const ProfilePicture = () => {
     }
   };
 
-  const calculateProgressBarPercentage = () => {
+  const calculateProgressBarPercentage: () => number = () => {
     if (!level?.nextLevel) {
       return 100; // User is already at the highest level
     }
-    const pointsNeeded = level.nextLevel.threshold - level.totalPoints;
-    const progressPercentage = ((level.currentLevel.threshold - pointsNeeded) / level.currentLevel.threshold) * 100;
-    return Math.min(progressPercentage, 100).toFixed(); // Cap at 100% just in case, remove decimals
+    const progressPercentage = (level.totalPoints / level.nextLevel.threshold) * 100;
+    return Math.round(Math.min(progressPercentage, 100)); // Cap at 100% just in case, round to nearest integer
   };
 
   useEffect(() => {
@@ -87,7 +87,10 @@ const ProfilePicture = () => {
 
             {/* Progress bar */}
             <div className="flex-grow bg-DarkNeutral350 rounded-full h-5 relative">
-              <div className={`bg-Magenta600 h-full rounded-full w-[${calculateProgressBarPercentage()}%]`}></div>
+              <div
+                style={{ width: `${calculateProgressBarPercentage()}%` }}
+                className="bg-Magenta600 h-full rounded-full"
+              ></div>
               {/* Text about max level reached */}
               <span className="absolute inset-x-0 inset-y-3 flex items-center justify-center text-xs font-thin">
                 {level?.nextLevel ? `${level.totalPoints}/${level.nextLevel.threshold} XP` : "Max level reached!"}
@@ -96,7 +99,7 @@ const ProfilePicture = () => {
           </div>
 
           {/* Text about closest level */}
-          <span className="ml-2 text-xs font-medium">
+          <span className="ml-2 text-xs font-medium mb-5">
             {level?.nextLevel
               ? `Earn ${level.nextLevel.threshold - level.totalPoints} XP more to reach level ${level.nextLevel.id}!`
               : `You're already ${
@@ -107,13 +110,13 @@ const ProfilePicture = () => {
       )}
 
       {/* Sync button */}
-      <button
-        onClick={handleClick}
-        className="mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full bg-Magenta600 hover:bg-pink-600"
+      <Button
+        label={isLoading ? "Syncing ..." : "Sync"}
+        clickHandler={handleClick}
+        styles="font-semibold flex items-center justify-center relative"
       >
         <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-        {isLoading ? "Syncing ..." : "Sync"}
-      </button>
+      </Button>
     </div>
   );
 };

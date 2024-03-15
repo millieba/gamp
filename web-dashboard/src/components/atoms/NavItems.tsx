@@ -8,7 +8,7 @@ import {
   HomeIcon,
   StarIcon,
   UserIcon,
-  ArrowRightEndOnRectangleIcon
+  ArrowRightEndOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
 
@@ -28,8 +28,9 @@ const NavItems = () => {
   const NavItem = ({ href, children }: NavItemProps) => (
     <Link
       href={href}
-      className={`text-DarkNeutral1100 font-semibold ${pathname === href && "bg-DarkNeutral0 rounded-full"
-        } mb-4 pl-4 py-2 relative hover:bg-DarkNeutral200 hover:rounded-full active:bg-DarkNeutral0 flex items-center`}
+      className={`text-DarkNeutral1100 font-semibold ${
+        pathname === href && "bg-DarkNeutral0 rounded-full"
+      } mb-4 pl-4 py-2 relative hover:bg-DarkNeutral200 hover:rounded-full active:bg-DarkNeutral0 flex items-center`}
     >
       {children}
     </Link>
@@ -62,10 +63,6 @@ const NavItems = () => {
       </div>
 
       <div className="flex flex-col justify-end">
-        <NavItem href="/profile">
-          <UserIcon className="h-5 w-5 text-DarkNeutral1100 mr-3" />
-          Profile
-        </NavItem>
         <NavItem href="/settings">
           <Cog6ToothIcon className="h-5 w-5 text-DarkNeutral1100 mr-3" />
           Settings
