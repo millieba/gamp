@@ -133,33 +133,37 @@ const StatsPage = () => {
                 )
             )}
           </div>
-          <div className="lg:flex">
-            <div className="lg:flex-1">
-              <StatCard
-                name={"Most used languages"}
-                description={
-                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
-                }
-                content={<LanguageChart />}
-              />
+          <div className="flex flex-wrap">
+            <div className="lg:flex">
+              <div className="lg:flex-1">
+                <StatCard
+                  name={"Most used languages"}
+                  description={
+                    "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                  }
+                  content={<LanguageChart />}
+                />
+              </div>
+              <div className="lg:flex-1">
+                <StatCard
+                  name={"Additions and deletions"}
+                  description={
+                    "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                  }
+                  content={<ModificationsChart />}
+                />
+              </div>
             </div>
-            <div className="lg:flex-1">
+            <div className="flex-grow">
               <StatCard
-                name={"Additions and deletions"}
+                name={"Contributions"}
                 description={
-                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                  "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
                 }
-                content={<ModificationsChart />}
+                content={<ContributionsChart />}
               />
             </div>
           </div>
-          <StatCard
-            name={"Contributions"}
-            description={
-              "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
-            }
-            content={<ContributionsChart />}
-          />
         </>
       )}
     </>

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 
 interface ContributionDay {
   color: string;
@@ -24,47 +23,60 @@ interface ContributionData {
   contributionCalendar: ContributionCalendar;
 }
 
-const ContributionChart = () => {
-  const [contributions, setContributions] = useState<ContributionData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    const fetchContributionData = async () => {
-      const response = await fetch("/api/contributions");
-      const data: ContributionData = await response.json();
-      setContributions(data);
-    };
-    fetchContributionData();
-
-    if (contributions) {
-      setIsLoading(false);
-    }
-  }, [session]);
-
-  if (!contributions) {
-    return null;
-  }
-
-  const weeks = contributions.contributionCalendar.weeks;
-
-  return !isLoading ? (
-    <div className="flex bg-DarkNeutral400 rounded-lg mt-2 p-4">
-      {weeks.map((week, weekIndex) => (
-        <div key={weekIndex}>
-          {week.contributionDays.map((day, dayIndex) => (
-            <div
-              key={dayIndex}
-              className="rounded-md m-0.5 h-5 w-5"
-              style={{
-                backgroundColor: day.color,
-              }}
-            ></div>
+const ContributionChartSkeleton = () => (
+  <div className="flex max-w-md">
+    <div className="flex bg-DarkNeutral400 rounded-lg mt-2 p-4 overflow-x-auto">
+      {[...Array(52)].map((_, weekIndex) => (
+        <div key={weekIndex} className="flex-col animate-pulse">
+          {[...Array(7)].map((_, dayIndex) => (
+            <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350"></div>
           ))}
         </div>
       ))}
     </div>
-  ) : null;
+  </div>
+);
+
+const ContributionChart = () => {
+  const [contributions, setContributions] = useState<ContributionData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContributionData = async () => {
+      const response = await fetch("/api/contributions");
+      const data = await response.json();
+      setContributions(data);
+      setIsLoading(false);
+    };
+    fetchContributionData();
+  }, []);
+
+  if (!isLoading && (!contributions || !contributions.contributionCalendar)) {
+    return <p>Found no contributions.</p>;
+  }
+
+  return isLoading || !contributions || !contributions.contributionCalendar ? (
+    <ContributionChartSkeleton />
+  ) : (
+    // TODO: The overflow-x-scroll only works if I set max-w explicitly like this? Which I don't really want, I want to use the the space available. Also why do I need to write flex twice? Oof
+    <div className="flex max-w-md">
+      <div className="flex bg-DarkNeutral400 rounded-lg mt-2 p-4 overflow-x-auto">
+        {contributions.contributionCalendar.weeks.map((week, weekIndex) => (
+          <div key={weekIndex} className="flex-col">
+            {week.contributionDays.map((day, dayIndex) => (
+              <div
+                key={dayIndex}
+                className="rounded-sm m-0.5 h-4 w-4"
+                style={{
+                  backgroundColor: day.color,
+                }}
+              ></div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ContributionChart;
