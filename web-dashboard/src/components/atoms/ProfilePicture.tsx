@@ -76,6 +76,7 @@ const ProfilePicture = () => {
     try {
       await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
       setIsDisabled(true);
+      setCountdown(300);
     } catch (err) {
       err instanceof Error && setError(err.message);
       console.error(err);
@@ -158,31 +159,19 @@ const ProfilePicture = () => {
         onMouseLeave={() => setTooltipVisible(false)}
         className="relative w-full flex justify-center"
       >
-        {/* <button
-          onClick={handleClick}
-          disabled={isDisabled || countdown > 0 || isLoading || lastSync === null}
-          className={`mt-5 flex items-center justify-center text-DarkNeutral1100 font-semibold mb-4 px-4 py-2 relative rounded-full ${
-            isDisabled || countdown > 0 || isLoading || lastSync === null
-              ? "bg-DarkNeutral500 cursor-default"
-              : "bg-Magenta600 hover:bg-pink-600"
-          }`}
-        >
-          <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Syncing ..." : "Sync"}
-        </button> */}
         <Button
           label={isLoading ? "Syncing ..." : "Sync"}
           clickHandler={handleClick}
-          isDisabled={isDisabled || countdown > 0 || isLoading || lastSync === null}
+          isDisabled={isDisabled || countdown > 0 || isLoading}
           styles="font-semibold flex items-center justify-center relative"
         >
           <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
         </Button>
         {tooltipVisible && (
-          <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[70px]">
+          <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[55px]">
             {isLoading
               ? "Please wait..."
-              : isDisabled || countdown > 0 || isLoading || lastSync === null
+              : isDisabled || countdown > 0 || isLoading
               ? `Sync available in ${Math.floor(countdown / 60)} minutes and ${countdown % 60} seconds`
               : "Click to sync"}
           </div>
