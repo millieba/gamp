@@ -1,5 +1,6 @@
 "use client";
 import BadgesHomePage from "@/components/atoms/home/BadgesHomePage";
+import StreakViewer from "@/components/molecules/streak/StreakViewer";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { useSession } from "next-auth/react";
 
@@ -14,6 +15,7 @@ const HomePage = () => {
       <>
         <h1 className="text-2xl">Home</h1>
         <h2 className="text-xl">{`Welcome, ${session?.user?.name}!`}</h2>
+        <StreakViewer />
         <BadgesHomePage />
       </>
     );
