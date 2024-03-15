@@ -154,7 +154,7 @@ const StatsPage = () => {
                 />
               </div>
             </div>
-            <div className="flex-grow">
+            <div>
               <StatCard
                 name={"Contributions"}
                 description={
