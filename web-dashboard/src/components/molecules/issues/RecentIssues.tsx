@@ -28,17 +28,17 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
   };
 
   return (
-    <div className={`p-4 rounded-lg shadow-md bg-DarkNeutral100 w-full grid grid-row`}>
+    <div className={`max-w-[600px] p-4 rounded-lg shadow-md bg-DarkNeutral100 w-full grid grid-row`}>
       {openIssues.length === 0 ? (
         <span className="mb-4">No recent issues assigned to you right now &#x1F60A;</span>
       ) : (
         <>
           <span className="mb-4">Recent issues you've been assigned to &#129299;</span>
-          <div className="max-h-[200px] overflow-auto">
+          <div className="max-h-[200px] overflow-auto p-1.5">
             {openIssues.map((issue, index) => (
               <a href={issue.url} target="_blank" rel="noopener noreferrer" key={index}>
                 <div
-                  className={`p-2 mb-2 rounded-lg shadow-md bg-DarkNeutral300 hover:bg-DarkNeutral350 flex flex-col sm:flex-grow 2xl:flex-grow-0`}
+                  className={`relative z-[1000] p-2 mb-2 rounded-lg shadow-md bg-DarkNeutral300 hover:bg-DarkNeutral350 flex flex-col sm:flex-grow 2xl:flex-grow-0 bouncyIssues`}
                 >
                   <h1 className="font-bold">
                     Issue #{issue.number} in {getRepoNameFromUrl(issue.url)}
