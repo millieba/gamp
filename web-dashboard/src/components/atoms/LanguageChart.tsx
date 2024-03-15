@@ -15,24 +15,26 @@ const outerRadius = radius;
 const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
 const LanguageChart = () => {
-  const [languageSizes, setLanguageSizes] = useState<{ [key: string]: number }>(
-    {}
-  );
+  const [languageSizes, setLanguageSizes] = useState<{ [key: string]: number }>({});
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-  const { stats } = useSyncContext();
+  const { stats, preferences } = useSyncContext();
 
   useEffect(() => {
     const sizes: { [key: string]: number } = {};
     stats?.programmingLanguages &&
-    stats.programmingLanguages.forEach((repo: ProgrammingLanguage) => {
-      if (sizes[repo.name]) {
-        sizes[repo.name] += repo.bytesWritten;
-      } else {
-        sizes[repo.name] = repo.bytesWritten;
-      }
+      stats.programmingLanguages.forEach((repo: ProgrammingLanguage) => {
+        if (sizes[repo.name]) {
+          sizes[repo.name] += repo.bytesWritten;
+        } else {
+          sizes[repo.name] = repo.bytesWritten;
+        }
+      });
+
+    // Filter out excluded languages
+    preferences?.excludeLanguages?.forEach((language) => {
+      delete sizes[language];
     });
     setLanguageSizes(sizes);
-  
   }, [stats]);
 
   // Sort the languages by decreasing size in bytes
@@ -44,15 +46,10 @@ const LanguageChart = () => {
 
   // Make a category for "other" languages, but only if there are more than 4 languages
   if (sortedLanguages.length > 4) {
-    const totalSizeOfOtherLanguages = sortedLanguages
-      .slice(4)
-      .reduce((total, item) => total + item.value, 0);
+    const totalSizeOfOtherLanguages = sortedLanguages.slice(4).reduce((total, item) => total + item.value, 0);
 
     // New data items containing the first 4 languages and the "other" category
-    languagesIncludingOther = [
-      ...sortedLanguages.slice(0, 4),
-      { name: "Other", value: totalSizeOfOtherLanguages },
-    ];
+    languagesIncludingOther = [...sortedLanguages.slice(0, 4), { name: "Other", value: totalSizeOfOtherLanguages }];
   }
 
   const pie = d3.pie<DataItem>().value((d: DataItem) => d.value)(
@@ -76,15 +73,9 @@ const LanguageChart = () => {
 
   return (
     <>
-      <div
-        className="grid xs:grid-cols-1 md:grid-cols-2 justify-center"
-        style={{ maxWidth: "560px" }}
-      >
+      <div className="grid xs:grid-cols-1 md:grid-cols-2 justify-center" style={{ maxWidth: "560px" }}>
         <div>
-          <svg
-            viewBox={`0 0 ${width / 2} ${height / 2}`}
-            className="max-w-xs mx-auto"
-          >
+          <svg viewBox={`0 0 ${width / 2} ${height / 2}`} className="max-w-xs mx-auto">
             <g transform={`translate(${width / 4}, ${height / 4})`}>
               {pie.map((d: PieArcDatum, i: number) => (
                 <path
@@ -97,10 +88,7 @@ const LanguageChart = () => {
                   fill={colors[i]}
                   onMouseOver={() => setHoveredSlice(i)}
                   onMouseOut={() => setHoveredSlice(null)}
-                  aria-label={`${d.data.name}, ${calculatePercentage(
-                    d.data.value,
-                    total
-                  )}%`}
+                  aria-label={`${d.data.name}, ${calculatePercentage(d.data.value, total)}%`}
                 />
               ))}
             </g>
@@ -123,20 +111,12 @@ const LanguageChart = () => {
                   onMouseOver={() => setHoveredSlice(i)}
                   onMouseOut={() => setHoveredSlice(null)}
                 >
-                  <rect
-                    x="10"
-                    y="30"
-                    width={width / 6}
-                    height={width / 6}
-                    fill={colors[i]}
-                  />
+                  <rect x="10" y="30" width={width / 6} height={width / 6} fill={colors[i]} />
                   <text
                     x="28"
                     y="33"
                     dy="0.35em"
-                    className={`text-xs fill-DarkNeutral1100 ${
-                      hoveredSlice === i ? `font-bold` : ``
-                    }`}
+                    className={`text-xs fill-DarkNeutral1100 ${hoveredSlice === i ? `font-bold` : ``}`}
                     onFocus={() => setHoveredSlice(i)}
                     onBlur={() => setHoveredSlice(null)}
                     tabIndex={0}
