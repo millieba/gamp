@@ -8,7 +8,6 @@ export interface RecentIssuesProps {
 
 const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
   let openIssues: AssignedIssueInterface[] = [];
-  let closedIssues: AssignedIssueInterface[] = [];
 
   // Check if stats and assignedIssues exist
   if (stats && stats.assignedIssues) {
@@ -19,7 +18,6 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
 
     // Want to separate between open and closed issues, therefore we filter the sortedIssues array
     openIssues = sortedIssues.filter((issue) => issue.state === "OPEN");
-    closedIssues = sortedIssues.filter((issue) => issue.state === "CLOSED");
   }
 
   const getRepoNameFromUrl = (url: string) => {
@@ -30,11 +28,11 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
   return (
     <div className={`max-w-[600px] p-4 rounded-lg shadow-md bg-DarkNeutral100 w-full grid grid-row`}>
       {openIssues.length === 0 ? (
-        <span className="mb-4">No recent issues assigned to you right now &#x1F60A;</span>
+        <span className="mb-1">Your Plate's Clear: No Assigned Tasks &#x1F60A;</span>
       ) : (
         <>
-          <span className="mb-4">Recent issues you've been assigned to &#129299;</span>
-          <div className="max-h-[200px] overflow-auto p-1.5">
+          <span className="mb-1">Newly Assigned Issues &#129299;</span>
+          <div className="max-h-[100px] overflow-auto p-1.5 text-sm">
             {openIssues.map((issue, index) => (
               <a href={issue.url} target="_blank" rel="noopener noreferrer" key={index}>
                 <div
@@ -43,7 +41,7 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
                   <h1 className="font-bold">
                     Issue #{issue.number} in {getRepoNameFromUrl(issue.url)}
                   </h1>
-                  <p>{issue.title}</p>
+                  <p className="text-xs">{issue.title}</p>
                 </div>
               </a>
             ))}
