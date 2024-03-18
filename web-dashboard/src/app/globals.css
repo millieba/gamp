@@ -30,6 +30,15 @@ body {
   transform: scale(1.1); /* Animation */
 }
 
+.smallBounce {
+  transition: transform 0.2s; /* Animation */
+}
+
+.smallBounce:hover {
+  transform: scale(1.02); /* Animation */
+}
+
+
 .flex-container {
   display: flex;
   flex-wrap: wrap;

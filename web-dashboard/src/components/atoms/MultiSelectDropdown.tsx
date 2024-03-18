@@ -60,7 +60,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, titl
       <div className="w-full">
         <button
           type="button"
-          className="flex items-center justify-between w-full rounded-lg px-3 py-1.5 bg-DarkNeutral200 hover:bg-DarkNeutral100"
+          className="flex items-center justify-between w-full rounded-lg px-3 py-1.5 bg-DarkNeutral300 hover:bg-DarkNeutral350"
           onClick={toggleDropdown}
         >
           <span>{title}</span>
