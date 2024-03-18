@@ -62,8 +62,43 @@ const ContributionChart = () => {
     return weekdays[index];
   };
 
+  const calculateTooltipPosition = (weekIndex: number, dayIndex: number) => {
+    const weeksLength = contributions!.contributionCalendar!.weeks.length;
+    const sideCutOff = 6;
+    const isTop = dayIndex >= 0 && dayIndex <= 2;
+    const isBottom = dayIndex >= 3 && dayIndex <= 6;
+    const isLeft = weekIndex >= 0 && weekIndex <= sideCutOff;
+    const isMiddle = weekIndex > sideCutOff && weekIndex < weeksLength - sideCutOff;
+    const isRight = weekIndex >= weeksLength - sideCutOff && weekIndex < weeksLength;
+
+    let tooltipPlacement = "";
+    let tooltipPointer = "";
+
+    if (isTop && isRight) {
+      tooltipPlacement = "right-0 top-5";
+      tooltipPointer = "-top-1 right-1";
+    } else if (isBottom && isRight) {
+      tooltipPlacement = "right-0 -top-5";
+      tooltipPointer = "-bottom-1 right-1";
+    } else if (isMiddle && isTop) {
+      tooltipPlacement = "left-1/2 transform -translate-x-1/2 top-5";
+      tooltipPointer = "-top-1 left-1/2 transform -translate-x-1/2";
+    } else if (isMiddle && isBottom) {
+      tooltipPlacement = "left-1/2 transform -translate-x-1/2 -top-5";
+      tooltipPointer = "-bottom-1 left-1/2 transform -translate-x-1/2";
+    } else if (isTop && isLeft) {
+      tooltipPlacement = "left-0 top-5";
+      tooltipPointer = "-top-1 left-1";
+    } else if (isBottom && isLeft) {
+      tooltipPlacement = "left-0 -top-5";
+      tooltipPointer = "-bottom-1 left-1";
+    }
+
+    return { tooltipPlacement, tooltipPointer };
+  };
   let previousMonth = "";
   let monthIndices: number[] = [];
+
   return isLoading || !contributions || !contributions.contributionCalendar ? (
     <ContributionChartSkeleton />
   ) : (
@@ -81,44 +116,35 @@ const ContributionChart = () => {
                 {monthIndices.includes(weekIndex) && (
                   <p className="ml-10 absolute -top-5 -left-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
                 )}
-                {week.contributionDays.map((day, dayIndex) =>
-                  isFirstWeek ? (
-                    <>
+                {week.contributionDays.map((day, dayIndex) => (
+                  <div
+                    key={dayIndex}
+                    className={`relative rounded-sm m-0.5 h-4 w-4 ml-${isFirstWeek ? "9" : "0"}`}
+                    style={{
+                      backgroundColor: day.color,
+                    }}
+                    onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
+                    onMouseLeave={() => setHoveredCell(null)}
+                  >
+                    {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
                       <div
-                        key={dayIndex}
-                        className="ml-9 relative rounded-sm m-0.5 h-4 w-4"
-                        style={{
-                          backgroundColor: day.color,
-                        }}
-                        onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
-                        onMouseLeave={() => setHoveredCell(null)}
+                        className={`absolute bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin z-10 rounded-md whitespace-nowrap p-1 ${
+                          calculateTooltipPosition(weekIndex, dayIndex).tooltipPlacement
+                        }`}
                       >
-                        {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
-                          <div className="tooltip bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin rounded-md p-1 z-10 whitespace-nowrap absolute -left-5 top-5">
-                            {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
-                          </div>
-                        )}
-                        <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
+                        {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
+                        <div
+                          className={`absolute w-2 h-2 bg-DarkNeutral400 transform rotate-45 ${
+                            calculateTooltipPosition(weekIndex, dayIndex).tooltipPointer
+                          }`}
+                        ></div>
                       </div>
-                    </>
-                  ) : (
-                    <div
-                      key={dayIndex}
-                      className="relative rounded-sm m-0.5 h-4 w-4"
-                      style={{
-                        backgroundColor: day.color,
-                      }}
-                      onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
-                      onMouseLeave={() => setHoveredCell(null)}
-                    >
-                      {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
-                        <div className="tooltip bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin rounded-md p-1 z-10 whitespace-nowrap absolute -left-5 top-5">
-                          {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-                  )
-                )}
+                    )}
+                    {isFirstWeek && (
+                      <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             );
           })}
