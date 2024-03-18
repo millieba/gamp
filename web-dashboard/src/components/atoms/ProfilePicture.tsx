@@ -29,11 +29,70 @@ const NameAndPictureSkeleton = () => (
 const ProfilePicture = () => {
   const { data: session, status } = useSession();
   const [error, setError] = useState<string>();
+  const [countdown, setCountdown] = useState<number>(0);
   const { setIsLoading, setBadges, setAllBadges, setStats, setLevel, isLoading, level } = useSyncContext();
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const lastSync = session?.user.lastSync;
+
+  useEffect(() => {
+    if (session?.user.lastSync) {
+      const currentTime = new Date();
+      const lastSyncDate = new Date(session.user.lastSync);
+      const diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
+      const diffInMinutes = diffInMilliseconds / (1000 * 60);
+
+      if (diffInMinutes < 5) {
+        setCountdown(Math.floor((5 - diffInMinutes) * 60));
+      }
+    }
+    if (!lastSync) {
+      setCountdown(300);
+    }
+  }, [session?.user.lastSync, isLoading]);
+
+  useEffect(() => {
+    let countdownWorker: Worker | null = null;
+    if (countdown > 0) {
+      countdownWorker = new Worker(
+        URL.createObjectURL(
+          new Blob(
+            [
+              `
+        self.onmessage = function() {
+          let countdown = ${countdown};
+          setInterval(() => {
+            countdown--;
+            postMessage(countdown);
+          }, 1000);
+        }
+      `,
+            ],
+            { type: "text/javascript" }
+          )
+        )
+      );
+      countdownWorker.onmessage = (event) => {
+        setCountdown(event.data);
+      };
+      countdownWorker.postMessage({});
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+
+    return () => {
+      if (countdownWorker) {
+        countdownWorker.terminate();
+      }
+    };
+  }, [countdown]);
 
   const handleClick = async () => {
     try {
       await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
+      setIsDisabled(true);
+      setCountdown(300);
     } catch (err) {
       err instanceof Error && setError(err.message);
       console.error(err);
@@ -108,15 +167,30 @@ const ProfilePicture = () => {
           </span>
         </>
       )}
-
       {/* Sync button */}
-      <Button
-        label={isLoading ? "Syncing ..." : "Sync"}
-        clickHandler={handleClick}
-        styles="font-semibold flex items-center justify-center relative"
+      <div
+        onMouseEnter={() => setTooltipVisible(true)}
+        onMouseLeave={() => setTooltipVisible(false)}
+        className="relative w-full flex justify-center"
       >
-        <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-      </Button>
+        <Button
+          label={isLoading ? "Syncing ..." : "Sync"}
+          clickHandler={handleClick}
+          isDisabled={isDisabled || countdown > 0 || isLoading}
+          styles="font-semibold flex items-center justify-center relative"
+        >
+          <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+        </Button>
+        {tooltipVisible && !isLoading && (isDisabled || countdown > 0) && (
+          <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[55px]">
+            Sync again in{" "}
+            {Math.floor(countdown / 60) > 0 &&
+              `${Math.floor(countdown / 60)} ${Math.floor(countdown / 60) === 1 ? "minute" : "minutes"}`}
+            {Math.floor(countdown / 60) > 0 && countdown % 60 > 0 && " and "}
+            {countdown % 60 > 0 && `${countdown % 60} ${countdown % 60 === 1 ? "second" : "seconds"}`}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
