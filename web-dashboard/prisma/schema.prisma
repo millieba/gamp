@@ -167,8 +167,8 @@ model DailyModification {
 model AssignedIssue {
   id        String    @id @default(cuid())
   title     String
-  createdAt DateTime
-  closedAt  DateTime?
+  createdAt DateTime  @map("created_at")
+  closedAt  DateTime? @map("closed_at")
   number    Int
   state     String
   url       String
