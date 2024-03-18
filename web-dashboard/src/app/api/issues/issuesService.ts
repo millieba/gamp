@@ -83,7 +83,15 @@ query ($afterIssues: String) {
 export async function fetchIssueVariables(accountId: string) {
   try {
     const data = await fetchIssueCount(accountId);
-    const dataNode = data[0].edges.map((edge) => edge.node);
+
+    // Fetch only open assigned issues, and sort them by createdAt date in descending order
+    let assignedIssueNode = data[0].edges.map((edge) => edge.node);
+    assignedIssueNode = assignedIssueNode.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    const openAssignedIssueNode = assignedIssueNode.filter((issue) => issue.state === "OPEN");
+
+    // Fetching various stats using functions
     const issueCount = data[0].issueCount;
     const avgTimeToCloseIssues = calculateAvgTimeToCloseIssues(data);
     const closedIssueCount = calculateClosedIssueCount(data);
@@ -92,7 +100,7 @@ export async function fetchIssueVariables(accountId: string) {
       avgTimeToCloseIssues: avgTimeToCloseIssues,
       closedIssueCount: closedIssueCount,
       data: data,
-      dataNode: dataNode,
+      openAssignedIssueNode: openAssignedIssueNode,
     };
   } catch (error) {
     console.error("An error occured while trying to fetch the issueCount:", error);

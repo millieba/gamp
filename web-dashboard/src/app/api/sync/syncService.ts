@@ -78,7 +78,7 @@ async function fetchData(accountId: string): Promise<SyncData> {
     pullRequests: prVariables?.pullRequests,
     issues: issueVariables?.data,
     dailyModifications: commitData?.dailyModifications,
-    assignedIssues: issueVariables?.dataNode,
+    assignedIssues: issueVariables?.openAssignedIssueNode,
   };
 }
 
