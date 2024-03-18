@@ -60,30 +60,32 @@ const ContributionChart = () => {
   return isLoading || !contributions || !contributions.contributionCalendar ? (
     <ContributionChartSkeleton />
   ) : (
-    <div className="bg-DarkNeutral400 rounded-lg p-4 max-w-fit">
-      <div className="flex overflow-x-auto pt-4 relative max-w-sm">
-        {contributions.contributionCalendar.weeks.map((week, weekIndex) => {
-          const month = new Date(week.firstDay).toLocaleDateString("en-US", { month: "short" });
-          const displayMonth = month !== previousMonth ? month : "";
-          previousMonth = month;
-          if (displayMonth !== "") monthIndices.push(weekIndex);
-          return (
-            <div key={weekIndex} className="flex-col relative">
-              {monthIndices.includes(weekIndex) && (
-                <p className="absolute -top-5 -left-2 mt-1 ml-2 text-xs text-gray-400">{displayMonth}</p>
-              )}
-              {week.contributionDays.map((day, dayIndex) => (
-                <div
-                  key={dayIndex}
-                  className="rounded-sm m-0.5 h-4 w-4"
-                  style={{
-                    backgroundColor: day.color,
-                  }}
-                ></div>
-              ))}
-            </div>
-          );
-        })}
+    <div className="bg-DarkNeutral400 rounded-lg p-4 overflow-x-auto">
+      <div className="overflow-x-auto">
+        <div className="flex pt-4 relative max-w-sm">
+          {contributions.contributionCalendar.weeks.map((week, weekIndex) => {
+            const month = new Date(week.firstDay).toLocaleDateString("en-US", { month: "short" });
+            const displayMonth = month !== previousMonth ? month : "";
+            previousMonth = month;
+            if (displayMonth !== "") monthIndices.push(weekIndex);
+            return (
+              <div key={weekIndex} className="flex-col relative">
+                {monthIndices.includes(weekIndex) && (
+                  <p className="absolute -top-5 -left-2 mt-1 ml-2 text-xs text-gray-400">{displayMonth}</p>
+                )}
+                {week.contributionDays.map((day, dayIndex) => (
+                  <div
+                    key={dayIndex}
+                    className="rounded-sm m-0.5 h-4 w-4"
+                    style={{
+                      backgroundColor: day.color,
+                    }}
+                  ></div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
