@@ -42,6 +42,7 @@ const ContributionChart = () => {
 
   const [contributions, setContributions] = useState<ContributionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredCell, setHoveredCell] = useState<{ weekIndex: number; dayIndex: number } | null>(null);
 
   useEffect(() => {
     const fetchContributionData = async () => {
@@ -89,18 +90,33 @@ const ContributionChart = () => {
                         style={{
                           backgroundColor: day.color,
                         }}
+                        onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
+                        onMouseLeave={() => setHoveredCell(null)}
                       >
+                        {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
+                          <div className="tooltip bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin rounded-md p-1 z-10 whitespace-nowrap absolute -left-5 top-5">
+                            {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
+                          </div>
+                        )}
                         <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
                       </div>
                     </>
                   ) : (
                     <div
                       key={dayIndex}
-                      className="rounded-sm m-0.5 h-4 w-4"
+                      className="relative rounded-sm m-0.5 h-4 w-4"
                       style={{
                         backgroundColor: day.color,
                       }}
-                    ></div>
+                      onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
+                        <div className="tooltip bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin rounded-md p-1 z-10 whitespace-nowrap absolute -left-5 top-5">
+                          {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
                   )
                 )}
               </div>
