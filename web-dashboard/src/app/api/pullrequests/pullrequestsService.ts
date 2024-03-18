@@ -68,7 +68,7 @@ export async function fetchPullRequestVariables(accountId: string) {
 export function calculateMergedAndCreatedPrs(data: PRData[]) {
   let count = 0;
   for (const pr of data) {
-    if (pr) {
+    if (pr.merged) {
       count++;
     }
   }
