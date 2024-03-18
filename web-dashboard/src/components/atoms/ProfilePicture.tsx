@@ -36,12 +36,6 @@ const ProfilePicture = () => {
   const lastSync = session?.user.lastSync;
 
   useEffect(() => {
-    if (!lastSync) {
-      setCountdown(300);
-    }
-  }, []);
-
-  useEffect(() => {
     if (session?.user.lastSync) {
       const currentTime = new Date();
       const lastSyncDate = new Date(session.user.lastSync);
@@ -52,22 +46,44 @@ const ProfilePicture = () => {
         setCountdown(Math.floor((5 - diffInMinutes) * 60));
       }
     }
+    if (!lastSync) {
+      setCountdown(300);
+    }
   }, [session?.user.lastSync, isLoading]);
 
   useEffect(() => {
-    let countdownInterval: NodeJS.Timeout | null = null;
+    let countdownWorker: Worker | null = null;
     if (countdown > 0) {
-      countdownInterval = setInterval(() => {
-        setCountdown((countdown) => countdown - 1);
-      }, 1000);
+      countdownWorker = new Worker(
+        URL.createObjectURL(
+          new Blob(
+            [
+              `
+        self.onmessage = function() {
+          let countdown = ${countdown};
+          setInterval(() => {
+            countdown--;
+            postMessage(countdown);
+          }, 1000);
+        }
+      `,
+            ],
+            { type: "text/javascript" }
+          )
+        )
+      );
+      countdownWorker.onmessage = (event) => {
+        setCountdown(event.data);
+      };
+      countdownWorker.postMessage({});
       setIsDisabled(true);
     } else {
       setIsDisabled(false);
     }
 
     return () => {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
+      if (countdownWorker) {
+        countdownWorker.terminate();
       }
     };
   }, [countdown]);
@@ -165,7 +181,7 @@ const ProfilePicture = () => {
         >
           <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
         </Button>
-        {tooltipVisible && (isDisabled || countdown > 0) && (
+        {tooltipVisible && !isLoading && (isDisabled || countdown > 0) && (
           <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[55px]">
             Sync again in{" "}
             {Math.floor(countdown / 60) > 0 &&
