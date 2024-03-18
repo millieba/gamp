@@ -97,8 +97,6 @@ const ProfilePicture = () => {
     }
   }, [session, status]);
 
-  console.log(countdown);
-
   return (
     <div className="flex flex-col items-center">
       {/* Profile picture, name and level name */}
@@ -167,23 +165,16 @@ const ProfilePicture = () => {
         >
           <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
         </Button>
-        {tooltipVisible && (
+        {tooltipVisible && (isDisabled || countdown > 0) && (
           <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 max-w-[250px] top-[55px]">
-            {isLoading
-              ? "Please wait..."
-              : isDisabled || countdown > 0 || isLoading
-              ? `Sync available in ${Math.floor(countdown / 60)} minutes and ${countdown % 60} seconds`
-              : "Click to sync"}
+            Sync again in{" "}
+            {Math.floor(countdown / 60) > 0 &&
+              `${Math.floor(countdown / 60)} ${Math.floor(countdown / 60) === 1 ? "minute" : "minutes"}`}
+            {Math.floor(countdown / 60) > 0 && countdown % 60 > 0 && " and "}
+            {countdown % 60 > 0 && `${countdown % 60} ${countdown % 60 === 1 ? "second" : "seconds"}`}
           </div>
         )}
       </div>
-      {/* <Button
-        label={isLoading ? "Syncing ..." : "Sync"}
-        clickHandler={handleClick}
-        styles="font-semibold flex items-center justify-center relative"
-      >
-        <ArrowPathIcon className={`text-DarkNeutral1100 h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-      </Button> */}
     </div>
   );
 };
