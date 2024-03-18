@@ -59,15 +59,18 @@ export async function fetchFromDB(
   setStats: Dispatch<SetStateAction<Stats | undefined>>,
   setLevel: Dispatch<SetStateAction<LevelData | undefined>>
 ) {
+  setIsLoading(true);
   try {
-    setIsLoading(true);
-    const badgesData = await fetch("api/badges").then((res) => res.json());
+    const [badgesData, allBadgesData, statsData, levelData] = await Promise.all([
+      fetch("api/badges").then((res) => res.json()),
+      fetch("api/badges/all").then((res) => res.json()),
+      fetch("api/stats").then((res) => res.json()),
+      fetch("api/level").then((res) => res.json()),
+    ]);
+
     setBadges(badgesData.badges);
-    const allBadgesData = await fetch("api/badges/all").then((res) => res.json());
     setAllBadges(allBadgesData);
-    const statsData = await fetch("api/stats").then((res) => res.json());
     setStats(statsData.githubStats);
-    const levelData = await fetch("api/level").then((res) => res.json());
     setLevel(levelData);
   } catch (error) {
     console.error(error);
