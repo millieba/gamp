@@ -46,11 +46,49 @@ const ContributionChart = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ weekIndex: number; dayIndex: number } | null>(null);
 
+  const mapColor = (color: string): string => {
+    switch (color) {
+      case "#ebedf0": // Original default white
+        return "#596773"; // DarkNeutral500
+
+      case "#9be9a8": // Original light green
+        return "#b5bde2";
+
+      case "#40c463": // Original medium green
+        return "#919ed3";
+
+      case "#30a14e": // Original deep green
+        return "#7887ca";
+
+      case "#216e39": // Original very deep green
+        return "#777fff";
+
+      default:
+        return color; // Keep the color as is for any other color
+    }
+  };
+
   useEffect(() => {
     const fetchContributionData = async () => {
       const response = await fetch("/api/contributions");
       const data = await response.json();
-      setContributions(data);
+
+      const mappedData = {
+        ...data,
+        contributionCalendar: {
+          ...data.contributionCalendar,
+          weeks: data.contributionCalendar.weeks.map((week: Week) => ({
+            ...week,
+            contributionDays: week.contributionDays.map((day: ContributionDay) => ({
+              ...day,
+              color: mapColor(day.color),
+            })),
+          })),
+          colors: data.contributionCalendar.colors.map(mapColor),
+        },
+      };
+
+      setContributions(mappedData);
       setIsLoading(false);
     };
     fetchContributionData();
