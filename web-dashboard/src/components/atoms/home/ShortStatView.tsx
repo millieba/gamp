@@ -7,7 +7,7 @@ interface StreakViewProps {
 }
 
 const ShortStatView = ({ title, children, border }: StreakViewProps) => {
-  const borderRight = border ? "border-r" : "";
+  const borderRight = border ? "md:border-r" : "";
   return (
     <div className={`${borderRight} border-DarkNeutral300 grid p-1 items-center smallBounce`}>
       <h1 className="text-sm">
