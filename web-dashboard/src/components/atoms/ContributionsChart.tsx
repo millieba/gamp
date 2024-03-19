@@ -117,14 +117,17 @@ const ContributionChart = () => {
             if (displayMonth !== "") monthIndices.push(weekIndex);
 
             return (
+              // COLUMNS (1 WEEK OF CONTRIBUTIONS)
               <div key={weekIndex} className="flex-col relative">
                 {monthIndices.includes(weekIndex) && // If the current week index is in the array of indices that start a new month, display the month
-                  (isFirstWeek ? ( // Display the month above the chart (as the x axis labels). The first week needs a little extra margin because of the y axis labels.
+                  // MONTH LABELS / X AXIS LABELS
+                  (isFirstWeek ? ( // The first column needs a little extra margin because of the y axis labels
                     <p className="ml-10 absolute -top-5 -left-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
                   ) : (
                     <p className="absolute -top-5 -right-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
                   ))}
                 {week.contributionDays.map((day, dayIndex) => (
+                  // CELLS (1 DAY OF CONTRIBUTIONS)
                   <div
                     key={dayIndex} // Display the contribution cells, and coluor them based on the contribution count
                     className={`relative rounded-sm m-0.5 h-4 w-4 ml-${isFirstWeek ? "9" : "0"}`}
@@ -135,21 +138,24 @@ const ContributionChart = () => {
                     onMouseLeave={() => setHoveredCell(null)}
                   >
                     {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
+                      // TOOLTIP
                       <div
                         className={`absolute bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin z-10 rounded-md whitespace-nowrap p-1 ${
                           calculateTooltipPosition(weekIndex, dayIndex).tooltipPlacement
-                        }`} // Display a tooltip with the contribution count and date when hovering a cell
+                        }`}
                       >
                         {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
+                        {/* TOOLTIP POINTER */}
                         <div
                           className={`absolute w-2 h-2 bg-DarkNeutral400 transform rotate-45 ${
                             calculateTooltipPosition(weekIndex, dayIndex).tooltipPointer
-                          }`} // This is the tooltip pointer (the little triangle that points to the hovered cell)
+                          }`}
                         ></div>
                       </div>
                     )}
 
-                    {isFirstWeek && ( // Display the weekday to the left of the first week (as the y axis labels)
+                    {/* WEEK DAY LABELS / Y AXIS LABELS */}
+                    {isFirstWeek && (
                       <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
                     )}
                   </div>
