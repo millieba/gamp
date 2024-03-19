@@ -144,7 +144,7 @@ const ContributionChart = () => {
   return isLoading || !contributions || !contributions.contributionCalendar ? (
     <ContributionChartSkeleton />
   ) : (
-    <div className="bg-DarkNeutral400 rounded-lg p-4 overflow-x-auto">
+    <div className="bg-DarkNeutral400 rounded-lg p-4 overflow-x-auto mt-2">
       <div className="overflow-x-auto">
         <div className="flex pt-4 relative max-w-sm">
           {contributions.contributionCalendar.weeks.map((week, weekIndex) => {
@@ -203,6 +203,17 @@ const ContributionChart = () => {
               </div>
             );
           })}
+        </div>
+      </div>
+      {/* LEGEND */}
+      <div className="flex justify-start items-center mt-4 text-xs">
+        <span className="mr-2">Less</span>
+        <div className="flex items-center">
+          <div key="legendNoContributions" className="w-4 h-4 m-0.5 rounded-sm bg-DarkNeutral500"></div>
+          {contributions?.contributionCalendar.colors.map((color, index) => (
+            <div key={index} className="w-4 h-4 m-0.5 rounded-sm" style={{ backgroundColor: color }}></div>
+          ))}
+          <span className="ml-2">More</span>
         </div>
       </div>
     </div>
