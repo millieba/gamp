@@ -6,7 +6,7 @@ const BadgesPage = () => {
   const { isLoading } = useSyncContext();
 
   return (
-    <div>
+    <div className="mr-4">
       <h1 className="text-2xl">Badges</h1>
       {isLoading ? <p>Loading...</p> : <BadgesDropDown />}
     </div>

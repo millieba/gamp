@@ -78,7 +78,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <>
+    <div className="mr-4">
       <h1 className="text-2xl mb-3">Settings</h1>
       <SettingBox
         title="Exclude Programming Languages"
@@ -138,7 +138,7 @@ const SettingsPage = () => {
       <div className="ml-2">
         <Button label="Save" isDisabled={!changesMade} clickHandler={handleSave} />
       </div>
-    </>
+    </div>
   );
 };
 

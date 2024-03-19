@@ -108,7 +108,7 @@ const StatsPage = () => {
   ];
 
   return (
-    <>
+    <div className="mr-4">
       <h1 className="text-2xl">Stats</h1>
       {isLoading ? (
         <p>Loading...</p>
@@ -154,7 +154,7 @@ const StatsPage = () => {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 
