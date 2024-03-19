@@ -24,15 +24,17 @@ interface ContributionData {
 }
 
 const ContributionChartSkeleton = () => (
-  <div className="flex max-w-md">
-    <div className="flex bg-DarkNeutral400 rounded-lg mt-2 p-4 overflow-x-auto">
-      {[...Array(52)].map((_, weekIndex) => (
-        <div key={weekIndex} className="flex-col animate-pulse">
-          {[...Array(7)].map((_, dayIndex) => (
-            <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350"></div>
-          ))}
-        </div>
-      ))}
+  <div className="overflow-x-auto bg-DarkNeutral400 rounded-lg mt-2 p-4">
+    <div className="overflow-x-auto">
+      <div className="flex max-w-sm">
+        {[...Array(52)].map((_, weekIndex) => (
+          <div key={weekIndex} className="flex-col animate-pulse">
+            {[...Array(7)].map((_, dayIndex) => (
+              <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350"></div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
