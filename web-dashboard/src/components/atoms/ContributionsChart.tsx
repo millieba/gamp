@@ -62,11 +62,13 @@ const ContributionChart = () => {
     return weekdays[index];
   };
 
+  // Function for calculating the position of the tooltip and tooltip pointer based on the week and day index.
+  // This is necessary to avoid the tooltip overflowing the chart.
   const calculateTooltipPosition = (weekIndex: number, dayIndex: number) => {
     const weeksLength = contributions!.contributionCalendar!.weeks.length;
     const sideCutOff = 6;
     const isTop = dayIndex >= 0 && dayIndex <= 2;
-    const isBottom = dayIndex >= 3 && dayIndex <= 6;
+    const isBottom = dayIndex >= 3 && dayIndex <= sideCutOff;
     const isLeft = weekIndex >= 0 && weekIndex <= sideCutOff;
     const isMiddle = weekIndex > sideCutOff && weekIndex < weeksLength - sideCutOff;
     const isRight = weekIndex >= weeksLength - sideCutOff && weekIndex < weeksLength;
@@ -106,19 +108,25 @@ const ContributionChart = () => {
       <div className="overflow-x-auto">
         <div className="flex pt-4 relative max-w-sm">
           {contributions.contributionCalendar.weeks.map((week, weekIndex) => {
-            const month = new Date(week.firstDay).toLocaleDateString("en-US", { month: "short" });
+            const month = new Date(week.firstDay).toLocaleDateString("en-US", { month: "short" }); // Formatting the date to a shortened month name
+
+            // Store the indices of the weeks that start a new month (so we only display the month once per month, not once per week)
             const displayMonth = month !== previousMonth ? month : "";
             previousMonth = month;
             const isFirstWeek = weekIndex === 0;
             if (displayMonth !== "") monthIndices.push(weekIndex);
+
             return (
               <div key={weekIndex} className="flex-col relative">
-                {monthIndices.includes(weekIndex) && (
-                  <p className="ml-10 absolute -top-5 -left-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
-                )}
+                {monthIndices.includes(weekIndex) && // If the current week index is in the array of indices that start a new month, display the month
+                  (isFirstWeek ? ( // Display the month above the chart (as the x axis labels). The first week needs a little extra margin because of the y axis labels.
+                    <p className="ml-10 absolute -top-5 -left-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
+                  ) : (
+                    <p className="absolute -top-5 -right-1.5 mt-1 text-xs text-DarkNeutral1000">{displayMonth}</p>
+                  ))}
                 {week.contributionDays.map((day, dayIndex) => (
                   <div
-                    key={dayIndex}
+                    key={dayIndex} // Display the contribution cells, and coluor them based on the contribution count
                     className={`relative rounded-sm m-0.5 h-4 w-4 ml-${isFirstWeek ? "9" : "0"}`}
                     style={{
                       backgroundColor: day.color,
@@ -130,17 +138,18 @@ const ContributionChart = () => {
                       <div
                         className={`absolute bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin z-10 rounded-md whitespace-nowrap p-1 ${
                           calculateTooltipPosition(weekIndex, dayIndex).tooltipPlacement
-                        }`}
+                        }`} // Display a tooltip with the contribution count and date when hovering a cell
                       >
                         {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
                         <div
                           className={`absolute w-2 h-2 bg-DarkNeutral400 transform rotate-45 ${
                             calculateTooltipPosition(weekIndex, dayIndex).tooltipPointer
-                          }`}
+                          }`} // This is the tooltip pointer (the little triangle that points to the hovered cell)
                         ></div>
                       </div>
                     )}
-                    {isFirstWeek && (
+
+                    {isFirstWeek && ( // Display the weekday to the left of the first week (as the y axis labels)
                       <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
                     )}
                   </div>
