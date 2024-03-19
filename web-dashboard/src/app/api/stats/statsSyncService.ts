@@ -2,11 +2,13 @@ import prisma from "@/utils/prisma";
 import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { Modification } from "../commits/commitsService";
+import { AssignedIssueInterface } from "../issues/issuesUtils";
 
 export async function syncStats(
   statsData: DBStats,
   programmingLanguages: ProgrammingLanguage[],
   dailyModifications: Modification[],
+  assignedIssues: AssignedIssueInterface[],
   accountId: string
 ) {
   try {
@@ -22,6 +24,10 @@ export async function syncStats(
           deleteMany: {}, // Delete all existing modifications, then re-create them
           create: dailyModifications,
         },
+        assignedIssues: {
+          deleteMany: {}, // Delete all existing assigned issues, then re-create them
+          create: assignedIssues,
+        },
       },
       create: {
         accountId: accountId,
@@ -31,6 +37,9 @@ export async function syncStats(
         },
         dailyModifications: {
           create: dailyModifications,
+        },
+        assignedIssues: {
+          create: assignedIssues,
         },
       },
     });
@@ -68,6 +77,16 @@ export async function getStatsFromDB(accountId: string) {
             additions: true,
             deletions: true,
             totalCommits: true,
+          },
+        },
+        assignedIssues: {
+          select: {
+            title: true,
+            url: true,
+            createdAt: true,
+            closedAt: true,
+            number: true,
+            state: true,
           },
         },
       },

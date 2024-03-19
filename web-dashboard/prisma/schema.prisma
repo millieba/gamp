@@ -130,6 +130,7 @@ model GitHubStats {
 
   programmingLanguages ProgrammingLanguage[]
   dailyModifications   DailyModification[]
+  assignedIssues       AssignedIssue[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
@@ -160,4 +161,21 @@ model DailyModification {
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 
   @@map("daily_modifications")
+}
+
+// Represents the issues assigned to an account
+model AssignedIssue {
+  id        String    @id @default(cuid())
+  title     String
+  createdAt DateTime  @map("created_at")
+  closedAt  DateTime? @map("closed_at")
+  number    Int
+  state     String
+  url       String
+
+  githubStatsId String @map("github_stats_id")
+
+  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
+
+  @@map("assigned_issues")
 }

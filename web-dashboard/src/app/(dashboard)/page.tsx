@@ -1,10 +1,13 @@
 "use client";
-import BadgesHomePage from "@/components/atoms/home/BadgesHomePage";
 import StatPreview from "@/components/molecules/home/StatPreview";
 import { useSyncContext } from "@/contexts/SyncContext";
+import RecentIssues from "@/components/molecules/issues/RecentIssues";
+import { useSession } from "next-auth/react";
+import RecentAndApproachingBadges from "@/components/atoms/home/RecentAndApproachingBadges";
 
 const HomePage = () => {
-  const { isLoading } = useSyncContext();
+  const { data: session, status } = useSession();
+  const { stats, isLoading } = useSyncContext();
 
   // Loading when site is fetching
   if (isLoading) {
@@ -12,9 +15,15 @@ const HomePage = () => {
   } else {
     return (
       <div className="mr-4">
+        <h1 className="text-2xl mb-5">{`Welcome, ${session?.user?.name}!`}</h1>
         <StatPreview />
-        <div className="flex flex-wrap max-w-[350px]">
-          <BadgesHomePage />
+        <div className="flex flex-wrap">
+          <div className="mr-5 mb-5">
+            <RecentIssues stats={stats} />
+          </div>
+          <div className="max-w-[350px] mb-5">
+            <RecentAndApproachingBadges />
+          </div>
         </div>
       </div>
     );
