@@ -39,8 +39,8 @@ const StatPreview = () => {
       {preferences?.showWorkdayStreak ? (
         <ShortStatView
           title="💼 Workday Streak"
-          children={checkStreakAndReturnString(stats?.workdayStreakToContinue, stats?.workdayStreak, "Workday")}
-          description="Streak of workdays"
+          children={checkStreakAndReturnString(stats?.workdayStreakToContinue, stats?.workdayStreak)}
+          border={true}
         />
       ) : (
         <ShortStatView
@@ -50,15 +50,17 @@ const StatPreview = () => {
               ? "No recent badges."
               : `${sorted[0].name} is your most recently earned badge!`
           }
+          border={true}
         />
       )}
       {preferences?.showStrictStreak ? (
         <ShortStatView
           title="📅 Strict Streak"
-          children={checkStreakAndReturnString(stats?.strictStreakToContinue, stats?.strictStreak, "Strict")}
+          children={checkStreakAndReturnString(stats?.strictStreakToContinue, stats?.strictStreak)}
+          border={true}
         />
       ) : (
-        <ShortStatView title="📝 Assigned Issues" children={`${stats?.issueCount}`} />
+        <ShortStatView title="📝 Assigned Issues" children={`${stats?.issueCount}`} border={true} />
       )}
       <ShortStatView
         title="👨‍💻 Most Used Language"
@@ -71,13 +73,7 @@ const StatPreview = () => {
                 preferences?.excludeLanguages?.length === 1 ? "language" : "languages"
               }`
         }`}
-        description={
-          preferences?.excludeLanguages?.length === 0
-            ? "No languages excluded"
-            : `You've excluded ${preferences?.excludeLanguages?.length} ${
-                preferences?.excludeLanguages?.length === 1 ? "language" : "languages"
-              }`
-        }
+        border={false}
       />
     </div>
   );

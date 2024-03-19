@@ -3,13 +3,13 @@ import React, { useEffect } from "react";
 interface StreakViewProps {
   title: String;
   children: String;
-  description?: String;
-  streakAdditionalInfo?: number | null | undefined;
+  border: boolean;
 }
 
-const ShortStatView = ({ title, children }: StreakViewProps) => {
+const ShortStatView = ({ title, children, border }: StreakViewProps) => {
+  const borderRight = border ? "border-r" : "";
   return (
-    <div className="grid p-1 items-center smallBounce">
+    <div className={`${borderRight} border-DarkNeutral300 grid p-1 items-center smallBounce`}>
       <h1 className="text-sm">
         <b>{title}</b>
       </h1>
