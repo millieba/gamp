@@ -59,13 +59,13 @@ const BadgesDropDown = () => {
 
         {/* Dropdown scrollbar with the tags options */}
         {suggestionsOpen && (
-          <div className="card absolute w-[40%] max-h-52 p-1 ml-10 flex overflow-y-auto scrollbar-thin scrollbar-thumb-rounded z-50 bg-DarkNeutral1100 rounded-lg">
+          <div className="card absolute w-[40%] max-h-52 p-1 ml-10 flex overflow-y-auto scrollbar-thin scrollbar-thumb-rounded z-50 bg-DarkNeutral200 rounded-lg">
             <ul className="w-full">
               {filteredTags?.length ? (
                 filteredTags.map((tag, i) => (
                   <li
                     key={i}
-                    className="p-2 cursor-pointer hover:bg-Magenta600 hover:bg-opacity-20 text-Magenta600 rounded-md w-full"
+                    className="p-2 cursor-pointer hover:bg-DarkNeutral100 rounded-md w-full"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setSuggestionOpen(true);
