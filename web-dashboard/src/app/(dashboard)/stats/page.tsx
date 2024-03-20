@@ -4,6 +4,7 @@ import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
 import ModificationsChart from "@/components/atoms/ModificationsChart";
+import ContributionsChart from "@/components/atoms/ContributionsChart";
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges, preferences } = useSyncContext();
@@ -132,24 +133,37 @@ const StatsPage = () => {
                 )
             )}
           </div>
-          <div className="lg:flex">
-            <div className="lg:flex-1">
-              <StatCard
-                name={"Most used languages"}
-                description={
-                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
-                }
-                content={<LanguageChart />}
-              />
-            </div>
-            <div className="lg:flex-1">
-              <StatCard
-                name={"Additions and deletions"}
-                description={
-                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
-                }
-                content={<ModificationsChart />}
-              />
+          <div className="flex flex-grow">
+            <div>
+              <div className="lg:flex">
+                <div className="lg:flex-1">
+                  <StatCard
+                    name={"Most used languages"}
+                    description={
+                      "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                    }
+                    content={<LanguageChart />}
+                  />
+                </div>
+                <div className="lg:flex-1">
+                  <StatCard
+                    name={"Additions and deletions"}
+                    description={
+                      "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                    }
+                    content={<ModificationsChart />}
+                  />
+                </div>
+              </div>
+              <div>
+                <StatCard
+                  name={"Contributions"}
+                  description={
+                    "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
+                  }
+                  content={<ContributionsChart />}
+                />
+              </div>
             </div>
           </div>
         </>
