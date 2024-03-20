@@ -46,8 +46,8 @@ const ContributionChart = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ weekIndex: number; dayIndex: number } | null>(null);
 
-  const mapColor = (color: string): string => {
-    switch (color) {
+  const mapColour = (colour: string): string => {
+    switch (colour) {
       case "#ebedf0": // Original default white
         return "#596773"; // DarkNeutral500
 
@@ -64,7 +64,7 @@ const ContributionChart = () => {
         return "#777fff";
 
       default:
-        return color; // Keep the color as is for any other color
+        return colour; // Keep the color as is for any other color
     }
   };
 
@@ -81,10 +81,10 @@ const ContributionChart = () => {
             ...week,
             contributionDays: week.contributionDays.map((day: ContributionDay) => ({
               ...day,
-              color: mapColor(day.color),
+              color: mapColour(day.color),
             })),
           })),
-          colors: data.contributionCalendar.colors.map(mapColor),
+          colors: data.contributionCalendar.colors.map(mapColour),
         },
       };
 
@@ -170,9 +170,10 @@ const ContributionChart = () => {
                   // CELLS (1 DAY OF CONTRIBUTIONS)
                   <div
                     key={dayIndex} // Display the contribution cells, and coluor them based on the contribution count
-                    className={`relative rounded-sm m-0.5 h-4 w-4 ml-${isFirstWeek ? "9" : "0"}`}
+                    className={`relative rounded-sm m-0.5 h-4 w-4`}
                     style={{
                       backgroundColor: day.color,
+                      marginLeft: isFirstWeek ? "2.5rem" : "0",
                     }}
                     onMouseEnter={() => setHoveredCell({ weekIndex, dayIndex })}
                     onMouseLeave={() => setHoveredCell(null)}
@@ -180,14 +181,14 @@ const ContributionChart = () => {
                     {hoveredCell && hoveredCell.weekIndex === weekIndex && hoveredCell.dayIndex === dayIndex && (
                       // TOOLTIP
                       <div
-                        className={`absolute bg-DarkNeutral400 text-DarkNeutral1100 text-xs font-thin z-10 rounded-md whitespace-nowrap p-1 ${
+                        className={`absolute bg-DarkNeutral300 text-DarkNeutral1100 text-xs font-thin z-10 rounded-md whitespace-nowrap p-1 ${
                           calculateTooltipPosition(weekIndex, dayIndex).tooltipPlacement
                         }`}
                       >
                         {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
                         {/* TOOLTIP POINTER */}
                         <div
-                          className={`absolute w-2 h-2 bg-DarkNeutral400 transform rotate-45 ${
+                          className={`absolute w-2 h-2 bg-DarkNeutral300 transform rotate-45 ${
                             calculateTooltipPosition(weekIndex, dayIndex).tooltipPointer
                           }`}
                         ></div>
