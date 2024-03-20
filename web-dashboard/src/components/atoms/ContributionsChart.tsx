@@ -144,7 +144,7 @@ const ContributionChart = () => {
   return isLoading || !contributions || !contributions.contributionCalendar ? (
     <ContributionChartSkeleton />
   ) : (
-    <div className="bg-DarkNeutral400 rounded-lg p-4 overflow-x-auto mt-2">
+    <div className="bg-DarkNeutral300 rounded-lg p-4 overflow-x-auto mt-2">
       <div className="overflow-x-auto">
         <div className="flex pt-4 relative max-w-sm">
           {contributions.contributionCalendar.weeks.map((week, weekIndex) => {

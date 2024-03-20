@@ -47,7 +47,7 @@ const InfoCard: React.FC<InfoDetails> = ({
     >
       <div className="flex items-center mb-1 justify-between">
         <div className="flex items-center">
-          {IconComponent && <IconComponent className={`h-5 w-5 mr-2 text-${iconColour}`} />}
+          {IconComponent && <IconComponent className={`h-5 w-5 mr-2 ${iconColour}`} />}
           <p className="text-DarkNeutral1000 font-semibold">{heading}</p>
         </div>
         <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} className="relative">
