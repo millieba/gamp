@@ -16,7 +16,7 @@ interface UnearnedBadges {
   type: string;
 }
 
-type FullBadge = Badge & {
+export type FullBadge = Badge & {
   name: string;
   image: string;
   description: string;

@@ -22,7 +22,7 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
             {stats?.assignedIssues.map((issue, index) => (
               <a href={issue.url} target="_blank" rel="noopener noreferrer" key={index}>
                 <div
-                  className={`relative z-[1000] p-2 mb-2 rounded-lg shadow-md bg-DarkNeutral300 hover:bg-DarkNeutral350 flex flex-col sm:flex-grow 2xl:flex-grow-0 bouncyIssues`}
+                  className={`relative z-[1000] p-2 mb-2 rounded-lg shadow-md bg-DarkNeutral300 hover:bg-DarkNeutral350 flex flex-col sm:flex-grow 2xl:flex-grow-0 smallBounce`}
                 >
                   <h1 className="font-bold">
                     Issue #{issue.number} in {getRepoNameFromUrl(issue.url)}

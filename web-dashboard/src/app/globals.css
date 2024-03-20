@@ -30,13 +30,14 @@ body {
   transform: scale(1.1); /* Animation */
 }
 
-.bouncyIssues {
+.smallBounce {
   transition: transform 0.2s; /* Animation */
 }
 
-.bouncyIssues:hover {
+.smallBounce:hover {
   transform: scale(1.02); /* Animation */
 }
+
 
 .flex-container {
   display: flex;

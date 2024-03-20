@@ -37,7 +37,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   const randomMessage = messages[randomIndex];
 
   return (
-    <div className={`p-2 rounded-lg shadow-md flex flex-col md:flex-row ${bgColor} max-w-[350px] m-2`}>
+    <div className={`p-2 rounded-lg shadow-md flex flex-col md:flex-row ${bgColor} max-w-[350px] m-2 smallBounce`}>
       <div className="flex flex-col justify-center items-center">
         <img src={image} alt="Badge" className="mb-2 min-w-[50px] w-[50px] bouncy" />
       </div>
