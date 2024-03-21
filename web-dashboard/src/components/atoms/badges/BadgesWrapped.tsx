@@ -6,6 +6,7 @@ import { useSyncContext } from "@/contexts/SyncContext";
 import { tags } from "./BadgesDropDown";
 import { useEffect } from "react";
 import { Stats } from "@/contexts/SyncContext";
+import { BadgeDefinition } from "@prisma/client";
 
 type BadgesWrappedProps = {
   selectedTags: string[];
@@ -48,67 +49,75 @@ export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
   return 0;
 };
 
+type BadgeArray = BadgeDefinition & {
+  achieved: boolean;
+  dateAchieved?: Date | undefined;
+};
+
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   const { badges, stats, allBadges } = useSyncContext();
   const earnedBadgeIds = badges?.map((badge) => badge.badgeId);
-  let issueRelatedBadges = [];
-  let commitsRelatedBadges = [];
-  let prRelatedBadges = [];
+  let issueRelatedBadges: BadgeArray[] = [];
+  let commitsRelatedBadges: BadgeArray[] = [];
+  let prRelatedBadges: BadgeArray[] = [];
+  let organizedAllBadges: BadgeArray[] = [];
 
   useEffect(() => {}, [selectedTags]);
 
-  for (const badge of allBadges) {
-    if (badge.id.startsWith("issues-opened-") || badge.id.startsWith("issues-closed-")) {
-      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
-      let dateAchieved;
-      if (isAchieved) {
-        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
+  function processBadge(array: BadgeArray[], types: string[]) {
+    let typeArrays: BadgeArray[][] = types.map(() => []);
+
+    for (const badge of allBadges) {
+      const typeIndex = types.findIndex((type) => badge.id.startsWith(type));
+      if (typeIndex !== -1) {
+        const isAchieved = earnedBadgeIds.includes(badge.id);
+        let dateAchieved;
+        if (isAchieved) {
+          dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
+        }
+        typeArrays[typeIndex].push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
       }
-      issueRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
     }
-    if (badge.id.startsWith("prs-merged-") || badge.id.startsWith("prs-opened-")) {
-      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
-      let dateAchieved;
-      if (isAchieved) {
-        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
-      }
-      prRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
-    }
-    if (badge.id.startsWith("cc-")) {
-      const isAchieved = badges.some((earnedBadge) => earnedBadge.badgeId === badge.id);
-      let dateAchieved;
-      if (isAchieved) {
-        dateAchieved = badges.find((earnedBadge) => earnedBadge.badgeId === badge.id)?.dateEarned;
-      }
-      commitsRelatedBadges.push({ ...badge, achieved: isAchieved, dateAchieved: dateAchieved });
-    }
+
+    typeArrays.forEach((typeArray) => typeArray.sort((a, b) => a.threshold - b.threshold));
+    return array.concat(...typeArrays);
   }
+
+  // Running the function on each "subcategory of badges"
+  issueRelatedBadges = processBadge(issueRelatedBadges, ["issues-opened-", "issues-closed-"]);
+  prRelatedBadges = processBadge(prRelatedBadges, ["prs-opened-", "prs-merged-"]);
+  commitsRelatedBadges = processBadge(commitsRelatedBadges, ["cc-"]);
+
+  // Combining all the badges into one array, which is sorted as desired
+  organizedAllBadges = issueRelatedBadges.concat(prRelatedBadges).concat(commitsRelatedBadges);
 
   return (
     <div className="flex flex-col gap-5">
       {selectedTags.includes(tags[0]) && badges.length > 0 && (
         <BadgesWrap
           title="Badges you've earned:"
-          cards={badges?.map((badge) => (
-            <BadgeCard
-              key={badge.id}
-              name={badge.badgeDefinition.name}
-              image={badge.badgeDefinition.image}
-              description={badge.badgeDefinition.description}
-              points={badge.badgeDefinition.points}
-              progress={updateBadgeProgress(badge.badgeId, stats)}
-              threshold={badge.badgeDefinition.threshold}
-              achieved={true}
-              date={badge.dateEarned}
-              unit={getBadgeUnit(badge.badgeId)}
-            />
-          ))}
+          cards={badges
+            ?.sort((a, b) => new Date(b.dateEarned).getTime() - new Date(a.dateEarned).getTime())
+            .map((badge) => (
+              <BadgeCard
+                key={badge.id}
+                name={badge.badgeDefinition.name}
+                image={badge.badgeDefinition.image}
+                description={badge.badgeDefinition.description}
+                points={badge.badgeDefinition.points}
+                progress={updateBadgeProgress(badge.badgeId, stats)}
+                threshold={badge.badgeDefinition.threshold}
+                achieved={true}
+                date={badge.dateEarned}
+                unit={getBadgeUnit(badge.badgeId)}
+              />
+            ))}
         />
       )}
       {selectedTags.includes(tags[1]) && (
         <BadgesWrap
           title="Badges yet to achieve:"
-          cards={allBadges
+          cards={organizedAllBadges
             ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
             .map((badge) => (
               <BadgeCard
