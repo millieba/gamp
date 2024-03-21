@@ -65,7 +65,7 @@ const StatsPage = () => {
       heading: "Achievements",
       subheading: "Badges earned",
       number: badges?.length || 0,
-      unit: "badges",
+      unit: badges?.length === 1 ? "badge" : "badges",
       description: `You have earned ${badges?.length > 0 ? badges?.length : 0} badges out of ${
         allBadges.length
       } possible!`,
@@ -75,7 +75,7 @@ const StatsPage = () => {
       heading: "Work done",
       subheading: "Assigned issues",
       number: stats?.issueCount || 0,
-      unit: "issues",
+      unit: stats?.issueCount === 1 ? "issue" : "issues",
       description: `In addition, you have closed ${stats?.closedIssueCount} out of ${stats?.issueCount} assigned issues!`,
     },
     {
@@ -93,7 +93,7 @@ const StatsPage = () => {
       heading: "Contributions",
       subheading: "Pull requests created",
       number: stats?.createdPrs || 0,
-      unit: "pull requests",
+      unit: stats?.createdPrs === 1 ? "pull request" : "pull requests",
       description: `You have created ${stats?.createdPrs} pull requests and ${
         stats?.createdAndMergedPrs === stats?.createdPrs ? "all" : stats?.createdAndMergedPrs
       } of them have been merged!`,
@@ -103,8 +103,16 @@ const StatsPage = () => {
       heading: "Languages",
       subheading: "Used languages",
       number: stats?.programmingLanguages?.length || 0,
-      unit: "languages",
+      unit: stats?.programmingLanguages?.length === 1 ? "language" : "languages",
       description: "This is how many languages you have used in your repositories!",
+    },
+    {
+      icon: "command",
+      heading: "Commits",
+      subheading: "Total commits made by you",
+      number: stats?.commitCount || 0,
+      unit: stats?.commitCount === 1 ? "commit" : "commits",
+      description: "The total number of unique commits you have committed!",
     },
   ];
 
