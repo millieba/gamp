@@ -112,7 +112,7 @@ const StatsPage = () => {
       subheading: "Your total commits",
       number: stats?.commitCount || 0,
       unit: stats?.commitCount === 1 ? "commit" : "commits",
-      description: "Count of your unique commits. Keep them coming!",
+      description: "Number of unique commits authored by you. Keep them coming!",
     },
   ];
 
