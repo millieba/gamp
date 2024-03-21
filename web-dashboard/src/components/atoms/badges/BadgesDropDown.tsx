@@ -86,7 +86,7 @@ const BadgesDropDown = () => {
       {!(selectedTags?.length === 0) ? (
         <>
           <p>Selected badge categories:</p>
-          <div className="relative text-xs flex flex-wrap gap-1 p-2">
+          <div className="relative text-xs flex flex-wrap gap-1 p-2 mb-4">
             {selectedTags.map((tag) => {
               return (
                 <div
