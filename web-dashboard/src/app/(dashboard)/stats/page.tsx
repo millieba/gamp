@@ -23,7 +23,7 @@ const StatsPage = () => {
   if (preferences?.showStrictStreak) {
     streakData.push({
       icon: "fire",
-      iconColour: stats?.strictStreak ? "orange-500" : undefined,
+      iconColour: stats?.strictStreak ? "text-orange-400" : undefined,
       heading: "Strict Streak",
       subheading:
         stats?.strictStreakToContinue !== null
@@ -42,7 +42,7 @@ const StatsPage = () => {
   if (preferences?.showWorkdayStreak) {
     streakData.push({
       icon: "fire",
-      iconColour: stats?.workdayStreak ? "orange-500" : undefined,
+      iconColour: stats?.workdayStreak ? "text-orange-400" : undefined,
       heading: "Workday Streak",
       subheading:
         stats?.workdayStreakToContinue !== null
