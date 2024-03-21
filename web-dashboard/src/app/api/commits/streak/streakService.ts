@@ -205,15 +205,25 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
       dayDiff === 1 ||
       (dayDiff <= 3 && previousDate.getDay() === 1) // If there's a gap of up to 3 days and the previous date was a Monday (remember commits are sorted new-old)
     ) {
-      currentStreak++;
+      currentStreak++; // TODO: Only increment if the day is a workday
       console.log("Incrementing streak. Current streak:", currentStreak);
     } else {
       if (currentStreak > workdayStreak) {
         workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
+        console.log("Updating workday streak to", workdayStreak);
       }
       currentStreak = 1; // Reset streak if not consecutive
+      console.log("Resetting streak. Current streak:", currentStreak);
     }
     previousDate = currentDate;
   });
+
+  if (currentStreak > workdayStreak) {
+    // If we exit the loop without ever entering the else block, we need to set the workdayStreak to the currentStreak here
+    workdayStreak = currentStreak;
+    console.log("Updating longest streak at the end. New streak length:", workdayStreak);
+  }
+
+  console.log("Final workday streak:", workdayStreak);
   return workdayStreak;
 }

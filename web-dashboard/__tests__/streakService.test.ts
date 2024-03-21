@@ -32,7 +32,7 @@ export function generateMockCommits(startDate: Date, daysBack: number, skipDays:
   return mockCommits;
 }
 describe("Check if commits are sorted new to old", () => {
-  it("should return true if the commits are sorted new to old", () => {
+  it("checking if mock commits are sorted new to old", () => {
     const mockCommits = generateMockCommits(new Date("2024-03-19T12:00:00Z"), 4, []);
     const sortedCommits = mockCommits.sort((a, b) => {
       return new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime();
