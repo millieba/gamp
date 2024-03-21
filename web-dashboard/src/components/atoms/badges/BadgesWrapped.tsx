@@ -91,8 +91,6 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   // Combining all the badges into one array, which is sorted as desired
   organizedAllBadges = issueRelatedBadges.concat(prRelatedBadges).concat(commitsRelatedBadges);
 
-  console.log(organizedAllBadges);
-
   return (
     <div className="flex flex-col gap-5">
       {selectedTags.includes(tags[0]) && badges.length > 0 && (
