@@ -109,10 +109,10 @@ const StatsPage = () => {
     {
       icon: "command",
       heading: "Commits",
-      subheading: "Total commits made by you",
+      subheading: "Your total commits",
       number: stats?.commitCount || 0,
       unit: stats?.commitCount === 1 ? "commit" : "commits",
-      description: "The total number of unique commits you have committed!",
+      description: "Count of your unique commits. Keep them coming!",
     },
   ];
 
