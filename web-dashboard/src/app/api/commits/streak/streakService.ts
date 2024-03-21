@@ -1,35 +1,5 @@
 import { Commit } from "../commitsService";
 
-export function generateMockCommits(startDate: Date, daysBack: number, skipDays: number[]): Commit[] {
-  const mockCommits: Commit[] = [];
-
-  for (let i = 0; i < daysBack; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() - i);
-
-    // Check if the current day should be skipped
-    if (skipDays.includes(date.getDay())) {
-      continue; // Skip this day
-    }
-
-    const commit: Commit = {
-      message: `Commit for ${date.toLocaleDateString("en-US", { weekday: "long" })}`,
-      oid: i.toString(),
-      additions: Math.floor(Math.random() * 200) + 50,
-      deletions: Math.floor(Math.random() * 100) + 20,
-      changedFilesIfAvailable: Math.floor(Math.random() * 6) + 1,
-      author: {
-        email: "author@example.com",
-      },
-      committedDate: date.toISOString(),
-    };
-
-    mockCommits.push(commit);
-  }
-
-  return mockCommits;
-}
-
 // Returns all unique dates the user has committed in a row, with the exception that gaps during weekends are allowed.
 function getStreakCandidates(commits: Commit[]): Set<string> {
   const commitDates = new Set<string>();
@@ -163,10 +133,6 @@ export interface StreakResponse {
 
 export function getCommitStreak(commits: Commit[]): StreakResponse {
   try {
-    // const commitDates = getStreakCandidates(
-    //   generateMockCommits(new Date(new Date().setDate(new Date().getDate())), 8, [0, 6])
-    // );
-
     const commitDates = getStreakCandidates(commits);
 
     const { strictStreak, strictStreakToContinue } = calculateStrictStreak(commitDates);
@@ -186,7 +152,6 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
 
 export function getLongestStreak(commits: Commit[]): number {
   const commitDatesSet: Set<string> = new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
-  console.log(commitDatesSet);
 
   let longestStreak = 0;
   let currentStreak = 0;
@@ -203,14 +168,7 @@ export function getLongestStreak(commits: Commit[]): number {
     previousDate = date;
   });
 
-  console.log("longest streak", longestStreak);
-
   return longestStreak;
-}
-
-function isWeekend(date: Date): boolean {
-  const dayOfWeek = date.getDay();
-  return dayOfWeek === 0 || dayOfWeek === 6; // 0 = Sunday, 6 = Saturday
 }
 
 export function getLongestWorkdayStreak(commits: Commit[]): number {
@@ -218,37 +176,44 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
 
   let workdayStreak = 0;
   let currentStreak = 0;
-  let longestStreakDates: string[] = [];
-  let currentStreakDates: string[] = [];
-  let previousDate: string | undefined = undefined;
+  let previousDate: Date | undefined = undefined;
 
   commitDatesSet.forEach((date) => {
     const currentDate = new Date(date);
-    console.log("Current date:", date, "is weekend on current date:", isWeekend(currentDate));
-    console.log("Previous date:", previousDate);
+
+    const dayDiff =
+      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) - // If previousDate is undefined, it's the first iteration, so use currentDate
+        currentDate.setUTCHours(0, 0, 0, 0)) /
+      (1000 * 60 * 60 * 24);
+
+    console.log(
+      "Day diff between previous date",
+      previousDate,
+      "(day",
+      previousDate?.getDay(),
+      ") and current date",
+      currentDate,
+      "(day",
+      currentDate.getDay(),
+      ") is",
+      dayDiff,
+      "days"
+    );
+
     if (
       !previousDate ||
-      currentDate.getTime() === new Date(previousDate).getTime() - 86400000 ||
-      isWeekend(new Date(previousDate))
+      dayDiff === 1 ||
+      (dayDiff <= 3 && previousDate.getDay() === 1) // If there's a gap of up to 3 days and the previous date was a Monday (remember commits are sorted new-old)
     ) {
-      if (!isWeekend(currentDate)) {
-        console.log("Incrementing streak. Current streak:", currentStreak);
-        currentStreak++;
-      }
-      currentStreakDates.push(date);
+      currentStreak++;
+      console.log("Incrementing streak. Current streak:", currentStreak);
     } else {
       if (currentStreak > workdayStreak) {
         workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
-        longestStreakDates = [...currentStreakDates];
-        console.log("Updating longest streak. New streak length:", workdayStreak);
       }
       currentStreak = 1; // Reset streak if not consecutive
-      currentStreakDates = [date]; // Reset streak dates
     }
-    previousDate = date;
+    previousDate = currentDate;
   });
-
-  console.log("Dates contributing to the longest workday streak of", workdayStreak, ":", longestStreakDates.join(", "));
-
   return workdayStreak;
 }
