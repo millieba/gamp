@@ -262,7 +262,7 @@ async function checkLanguages(languages: ProgrammingLanguage[], accountId: strin
       }
     }
   } catch (error) {
-    console.error(`An error occurred while checking assigned closed issues badges for account ${accountId}:`, error);
+    console.error(`An error occurred while checking language badges for account ${accountId}:`, error);
     throw error;
   }
 }
