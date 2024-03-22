@@ -31,6 +31,7 @@ export function generateMockCommits(startDate: Date, daysBack: number, skipDays:
 
   return mockCommits;
 }
+
 describe("Check if commits are sorted new to old", () => {
   it("checking if mock commits are sorted new to old", () => {
     const mockCommits = generateMockCommits(new Date("2024-03-19T12:00:00Z"), 4, []);
@@ -42,6 +43,15 @@ describe("Check if commits are sorted new to old", () => {
 });
 
 describe("Testing getLongestWorkdayStreak", () => {
+  it("should return 0 if there are no commits", () => {
+    const mockCommits: Commit[] = [];
+
+    const expectedStreakLength = 0;
+    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
+
+    expect(actualStreakLength).toEqual(expectedStreakLength);
+  });
+
   it("should return the longest workday streak correctly, streak should not break even with gaps during weekend", () => {
     const expectedStreakLength = 3;
     const mockCommitsWithGaps = generateMockCommits(new Date("2024-03-19T12:00:00Z"), 8, [0, 3, 4, 6]);
@@ -53,10 +63,44 @@ describe("Testing getLongestWorkdayStreak", () => {
 
   it("should not count weekends towards the streak, but not break the streak if there is a gap during the weekend either", () => {
     const expectedStreakLength = 5;
-    const mockCommitsWithoutWeekendGaps: Commit[] = generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, []);
-    console.log(mockCommitsWithoutWeekendGaps);
+    const mockCommitsWithoutWeekendGaps = generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, []);
 
     const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithoutWeekendGaps);
+
+    expect(actualStreakLength).toEqual(expectedStreakLength);
+  });
+
+  it("should return the correct workday streak even if commits start on a weekend", () => {
+    const expectedStreakLength = 5;
+    const mockCommitsStartingOnWeekend = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 7, []);
+
+    const actualStreakLength = getLongestWorkdayStreak(mockCommitsStartingOnWeekend);
+
+    expect(actualStreakLength).toEqual(expectedStreakLength);
+  });
+
+  it("should return the oldest streak if there are multiple streaks of the same length", () => {
+    const oldestStreakOfLength5 = generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, []);
+    const newestStreakOfLength5 = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 7, []);
+
+    const mockCommits = oldestStreakOfLength5.concat(newestStreakOfLength5);
+
+    const expectedStreakLength = 5;
+    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
+
+    expect(actualStreakLength).toEqual(expectedStreakLength);
+  });
+
+  it("should return the longest commit streak if there are several candidates of different lengths", () => {
+    const shortStreak1 = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 3, []); // Expected length: 2
+    const mediumStreak = generateMockCommits(new Date("2024-03-17T12:00:00Z"), 5, []); // Expected length: 3
+    const longStreak = generateMockCommits(new Date("2024-03-08T12:00:00Z"), 7, []); // Expected length: 5
+    const shortStreak2 = generateMockCommits(new Date("2024-02-28T12:00:00Z"), 2, []); // Expected length: 2
+
+    const mockCommits = shortStreak1.concat(mediumStreak).concat(longStreak).concat(shortStreak2);
+
+    const expectedStreakLength = 5;
+    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });

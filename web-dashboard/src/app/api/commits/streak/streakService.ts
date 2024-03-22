@@ -186,20 +186,6 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
         currentDate.setUTCHours(0, 0, 0, 0)) /
       (1000 * 60 * 60 * 24);
 
-    console.log(
-      "Day diff between previous date",
-      previousDate,
-      "(day",
-      previousDate?.getDay(),
-      ") and current date",
-      currentDate,
-      "(day",
-      currentDate.getDay(),
-      ") is",
-      dayDiff,
-      "days"
-    );
-
     if (
       !previousDate ||
       dayDiff === 1 ||
@@ -207,15 +193,12 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
     ) {
       if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
         currentStreak++; // Increment streak if the current date is not a weekend
-        console.log("Incrementing streak. Current streak:", currentStreak);
       }
     } else {
       if (currentStreak > workdayStreak) {
         workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
-        console.log("Updating workday streak to", workdayStreak);
       }
       currentStreak = 1; // Reset streak if not consecutive
-      console.log("Resetting streak. Current streak:", currentStreak);
     }
     previousDate = currentDate;
   });
@@ -223,7 +206,6 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
   if (currentStreak > workdayStreak) {
     // If we exit the loop without ever entering the else block, we need to set the workdayStreak to the currentStreak here
     workdayStreak = currentStreak;
-    console.log("Updating longest streak at the end. New streak length:", workdayStreak);
   }
 
   console.log("Final workday streak:", workdayStreak);
