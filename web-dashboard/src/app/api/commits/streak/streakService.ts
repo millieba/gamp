@@ -150,25 +150,43 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
   }
 }
 
-export function getLongestStreak(commits: Commit[]): number {
+export function getLongestStrictStreak(commits: Commit[]): { streakLength: number; streakDates: string[] } {
   const commitDatesSet: Set<string> = new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
 
   let longestStreak = 0;
   let currentStreak = 0;
-  let previousDate: string = "";
+  let longestStreakDates: string[] = [];
+  let currentStreakDates: string[] = [];
+  let previousDate: Date | undefined = undefined;
 
   commitDatesSet.forEach((date) => {
-    if (!previousDate || new Date(date).getTime() === new Date(previousDate).getTime() - 86400000) {
-      console.log(new Date(date).getTime() === new Date(previousDate).getTime() - 86400000);
+    const currentDate = new Date(date);
+
+    const dayDiff =
+      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) - // If previousDate is undefined, it's the first iteration, so use currentDate
+        currentDate.setUTCHours(0, 0, 0, 0)) /
+      (1000 * 60 * 60 * 24);
+
+    if (!previousDate || dayDiff === 1) {
       currentStreak++;
+      currentStreakDates.push(date);
     } else {
+      if (currentStreak >= longestStreak) {
+        longestStreak = currentStreak;
+        longestStreakDates = [...currentStreakDates];
+      }
       currentStreak = 1; // Reset streak if not consecutive
+      currentStreakDates = [date]; // Reset streak dates
     }
-    longestStreak = Math.max(longestStreak, currentStreak);
-    previousDate = date;
+    previousDate = currentDate;
   });
 
-  return longestStreak;
+  if (currentStreak >= longestStreak) {
+    longestStreak = currentStreak;
+    longestStreakDates = [...currentStreakDates];
+  }
+
+  return { streakLength: longestStreak, streakDates: longestStreakDates };
 }
 
 export function getLongestWorkdayStreak(commits: Commit[]): { streakLength: number; streakDates: string[] } {
