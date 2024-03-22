@@ -171,11 +171,13 @@ export function getLongestStreak(commits: Commit[]): number {
   return longestStreak;
 }
 
-export function getLongestWorkdayStreak(commits: Commit[]): number {
+export function getLongestWorkdayStreak(commits: Commit[]): { streakLength: number; streakDates: string[] } {
   const commitDatesSet: Set<string> = new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
 
   let workdayStreak = 0;
   let currentStreak = 0;
+  let longestStreakDates: string[] = [];
+  let currentStreakDates: string[] = [];
   let previousDate: Date | undefined = undefined;
 
   commitDatesSet.forEach((date) => {
@@ -193,21 +195,24 @@ export function getLongestWorkdayStreak(commits: Commit[]): number {
     ) {
       if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
         currentStreak++; // Increment streak if the current date is not a weekend
+        currentStreakDates.push(date); // Add the current date to the streak dates
       }
     } else {
-      if (currentStreak > workdayStreak) {
+      if (currentStreak >= workdayStreak) {
         workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
+        longestStreakDates = [...currentStreakDates]; // Update longest streak dates
       }
       currentStreak = 1; // Reset streak if not consecutive
+      currentStreakDates = [date]; // Reset streak dates
     }
     previousDate = currentDate;
   });
 
-  if (currentStreak > workdayStreak) {
+  if (currentStreak >= workdayStreak) {
     // If we exit the loop without ever entering the else block, we need to set the workdayStreak to the currentStreak here
     workdayStreak = currentStreak;
+    longestStreakDates = [...currentStreakDates];
   }
 
-  console.log("Final workday streak:", workdayStreak);
-  return workdayStreak;
+  return { streakLength: workdayStreak, streakDates: longestStreakDates };
 }

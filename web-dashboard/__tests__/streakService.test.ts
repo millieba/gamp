@@ -47,7 +47,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const mockCommits: Commit[] = [];
 
     const expectedStreakLength = 0;
-    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
+    const actualStreakLength = getLongestWorkdayStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -56,7 +56,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedStreakLength = 3;
     const mockCommitsWithGaps = generateMockCommits(new Date("2024-03-19T12:00:00Z"), 8, [0, 3, 4, 6]);
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithGaps);
+    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithGaps).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -65,7 +65,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedStreakLength = 5;
     const mockCommitsWithoutWeekendGaps = generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, []);
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithoutWeekendGaps);
+    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithoutWeekendGaps).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -74,21 +74,25 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedStreakLength = 5;
     const mockCommitsStartingOnWeekend = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 7, []);
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsStartingOnWeekend);
+    const actualStreakLength = getLongestWorkdayStreak(mockCommitsStartingOnWeekend).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
 
   it("should return the oldest streak if there are multiple streaks of the same length", () => {
-    const oldestStreakOfLength5 = generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, []);
     const newestStreakOfLength5 = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 7, []);
-
-    const mockCommits = oldestStreakOfLength5.concat(newestStreakOfLength5);
+    const oldestStreakOfLength5 = generateMockCommits(new Date("2024-03-12T12:00:00Z"), 7, []);
+    const mockCommits = newestStreakOfLength5.concat(oldestStreakOfLength5);
 
     const expectedStreakLength = 5;
-    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
+    const expectedDayList = ["2024-03-12", "2024-03-11", "2024-03-08", "2024-03-07", "2024-03-06"];
+
+    const actualStreak = getLongestWorkdayStreak(mockCommits);
+    const actualStreakLength = actualStreak.streakLength;
+    const actualDayList = actualStreak.streakDates;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
+    expect(actualDayList).toEqual(expectedDayList);
   });
 
   it("should return the longest commit streak if there are several candidates of different lengths", () => {
@@ -100,7 +104,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const mockCommits = shortStreak1.concat(mediumStreak).concat(longStreak).concat(shortStreak2);
 
     const expectedStreakLength = 5;
-    const actualStreakLength = getLongestWorkdayStreak(mockCommits);
+    const actualStreakLength = getLongestWorkdayStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
