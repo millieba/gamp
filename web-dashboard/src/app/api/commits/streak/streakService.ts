@@ -196,51 +196,58 @@ export function getLongestWorkdayStreak(
   commitDates: Set<string>,
   threshold?: number
 ): { streakLength: number; streakDates: string[] } {
-  let workdayStreak = 0;
+  let longestStreak = 0;
   let currentStreak = 0;
   let longestStreakDates: string[] = [];
   let currentStreakDates: string[] = [];
   let previousDate: Date | undefined = undefined;
 
+  // Utility functions
+  const isConsecutive = (currentDate: Date, previousDate: Date | undefined): boolean => {
+    const dayDiff =
+      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) -
+        currentDate.setUTCHours(0, 0, 0, 0)) /
+      (1000 * 60 * 60 * 24);
+    return !previousDate || dayDiff === 1 || (dayDiff <= 3 && previousDate.getDay() === 1);
+  };
+
+  const isWeekend = (date: Date): boolean => {
+    return date.getDay() === 0 || date.getDay() === 6; // 0 = Sunday, 6 = Saturday
+  };
+
+  const resetStreak = (date: string): void => {
+    currentStreak = 1;
+    currentStreakDates = [date];
+  };
+
+  const updateStreak = (): void => {
+    if (currentStreak >= longestStreak) {
+      // Update streak if current streak is longer than the longest streak
+      longestStreak = currentStreak;
+      longestStreakDates = [...currentStreakDates];
+    } else if (threshold && currentStreak >= threshold) {
+      longestStreak = threshold; // Set streak to threshold, it is irrelevant if the current streak is longer than the threshold
+      longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that happened after the threshold was reached
+    }
+  };
+
+  // Loop through all commit dates and look for longest streak or the oldest streak that reached the threshold
   commitDates.forEach((date) => {
     const currentDate = new Date(date);
 
-    const dayDiff =
-      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) - // If previousDate is undefined, it's the first iteration, so use currentDate
-        currentDate.setUTCHours(0, 0, 0, 0)) /
-      (1000 * 60 * 60 * 24);
-
-    if (
-      !previousDate ||
-      dayDiff === 1 ||
-      (dayDiff <= 3 && previousDate.getDay() === 1) // If there's a gap of up to 3 days and the previous date was a Monday (remember commits are sorted new-old)
-    ) {
-      if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-        currentStreak++; // Increment streak if the current date is not a weekend
-        currentStreakDates.push(date); // Add the current date to the streak dates
+    if (isConsecutive(currentDate, previousDate)) {
+      if (!isWeekend(currentDate)) {
+        currentStreak++; // Only count workdays in the streak
+        currentStreakDates.push(date);
       }
     } else {
-      if (currentStreak >= workdayStreak) {
-        workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
-        longestStreakDates = [...currentStreakDates]; // Update longest streak dates
-      } else if (threshold && currentStreak >= threshold) {
-        workdayStreak = threshold; // Set workday streak to threshold, it is not relevant if the current streak is longer than the threshold
-        longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that came after the threshold was reached
-      }
-      currentStreak = 1; // Reset streak if not consecutive
-      currentStreakDates = [date]; // Reset streak dates
+      updateStreak(); // If not consecutive, update streak and reset
+      resetStreak(date);
     }
     previousDate = currentDate;
   });
 
-  if (currentStreak >= workdayStreak) {
-    // If we exit the loop without ever entering the else block, we need to set the workdayStreak to the currentStreak here
-    workdayStreak = currentStreak;
-    longestStreakDates = [...currentStreakDates];
-  } else if (threshold && currentStreak >= threshold) {
-    workdayStreak = threshold; // Set workday streak to threshold, it is not relevant if the current streak is longer than the threshold
-    longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that came after the threshold was reached
-  }
+  updateStreak(); // In case we never reached the else block, update streak at the end
 
-  return { streakLength: workdayStreak, streakDates: longestStreakDates };
+  return { streakLength: longestStreak, streakDates: longestStreakDates };
 }

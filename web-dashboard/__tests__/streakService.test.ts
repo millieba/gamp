@@ -131,7 +131,6 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedDayList = ["2024-02-27", "2024-02-26"];
 
     const actualStreak = getLongestWorkdayStreak(mockCommits, threshold);
-    console.log("##############", actualStreak);
     const actualStreakLength = actualStreak.streakLength;
     const actualDayList = actualStreak.streakDates;
 

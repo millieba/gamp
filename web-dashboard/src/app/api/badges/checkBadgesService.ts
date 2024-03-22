@@ -234,14 +234,14 @@ async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: str
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "workday_streak" },
     });
-    const bestWorkdayStreak = getLongestWorkdayStreak(commitDates);
-    const streakLength = bestWorkdayStreak.streakLength;
-    const streakDates = bestWorkdayStreak.streakDates;
 
     for (const badge of badges) {
+      const bestWorkdayStreak = getLongestWorkdayStreak(commitDates, badge.threshold);
+      const streakLength = bestWorkdayStreak.streakLength;
+      const streakDates = bestWorkdayStreak.streakDates;
+
       if (streakLength >= badge.threshold) {
         // The dates contributing to the streak are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
-        // TODO: Check for each threshold so all streak badges are not earned on the same date (the date of the best streak)
         const dateEarned = new Date(streakDates[0]);
 
         // Create a new BadgeAward instance
