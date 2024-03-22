@@ -150,16 +150,18 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
   }
 }
 
-export function getLongestStrictStreak(commits: Commit[]): { streakLength: number; streakDates: string[] } {
-  const commitDatesSet: Set<string> = new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
+export function getCommitDatesSet(commits: Commit[]): Set<string> {
+  return new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
+}
 
+export function getLongestStrictStreak(commitDates: Set<string>): { streakLength: number; streakDates: string[] } {
   let longestStreak = 0;
   let currentStreak = 0;
   let longestStreakDates: string[] = [];
   let currentStreakDates: string[] = [];
   let previousDate: Date | undefined = undefined;
 
-  commitDatesSet.forEach((date) => {
+  commitDates.forEach((date) => {
     const currentDate = new Date(date);
 
     const dayDiff =
@@ -189,16 +191,14 @@ export function getLongestStrictStreak(commits: Commit[]): { streakLength: numbe
   return { streakLength: longestStreak, streakDates: longestStreakDates };
 }
 
-export function getLongestWorkdayStreak(commits: Commit[]): { streakLength: number; streakDates: string[] } {
-  const commitDatesSet: Set<string> = new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
-
+export function getLongestWorkdayStreak(commitDates: Set<string>): { streakLength: number; streakDates: string[] } {
   let workdayStreak = 0;
   let currentStreak = 0;
   let longestStreakDates: string[] = [];
   let currentStreakDates: string[] = [];
   let previousDate: Date | undefined = undefined;
 
-  commitDatesSet.forEach((date) => {
+  commitDates.forEach((date) => {
     const currentDate = new Date(date);
 
     const dayDiff =
