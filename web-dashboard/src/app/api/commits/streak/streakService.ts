@@ -1,3 +1,4 @@
+import { th } from "date-fns/locale";
 import { Commit } from "../commitsService";
 
 // Returns all unique dates the user has committed in a row, with the exception that gaps during weekends are allowed.
@@ -191,7 +192,10 @@ export function getLongestStrictStreak(commitDates: Set<string>): { streakLength
   return { streakLength: longestStreak, streakDates: longestStreakDates };
 }
 
-export function getLongestWorkdayStreak(commitDates: Set<string>): { streakLength: number; streakDates: string[] } {
+export function getLongestWorkdayStreak(
+  commitDates: Set<string>,
+  threshold?: number
+): { streakLength: number; streakDates: string[] } {
   let workdayStreak = 0;
   let currentStreak = 0;
   let longestStreakDates: string[] = [];
@@ -219,6 +223,9 @@ export function getLongestWorkdayStreak(commitDates: Set<string>): { streakLengt
       if (currentStreak >= workdayStreak) {
         workdayStreak = currentStreak; // Update workday streak if it's longer than the previous streak
         longestStreakDates = [...currentStreakDates]; // Update longest streak dates
+      } else if (threshold && currentStreak >= threshold) {
+        workdayStreak = threshold; // Set workday streak to threshold, it is not relevant if the current streak is longer than the threshold
+        longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that came after the threshold was reached
       }
       currentStreak = 1; // Reset streak if not consecutive
       currentStreakDates = [date]; // Reset streak dates
@@ -230,6 +237,9 @@ export function getLongestWorkdayStreak(commitDates: Set<string>): { streakLengt
     // If we exit the loop without ever entering the else block, we need to set the workdayStreak to the currentStreak here
     workdayStreak = currentStreak;
     longestStreakDates = [...currentStreakDates];
+  } else if (threshold && currentStreak >= threshold) {
+    workdayStreak = threshold; // Set workday streak to threshold, it is not relevant if the current streak is longer than the threshold
+    longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that came after the threshold was reached
   }
 
   return { streakLength: workdayStreak, streakDates: longestStreakDates };

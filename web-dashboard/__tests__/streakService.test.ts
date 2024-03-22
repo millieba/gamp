@@ -118,6 +118,26 @@ describe("Testing getLongestWorkdayStreak", () => {
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
+
+  it("if a threshold is provided, the first instance (oldest) of a streak that meets or exceeds the threshold should be returned", () => {
+    const shortStreak1 = generateMockCommits(new Date("2024-03-23T12:00:00Z"), 3, []); // Expected length: 2
+    const mediumStreak = generateMockCommits(new Date("2024-03-17T12:00:00Z"), 5, []); // Expected length: 3
+    const longStreak = generateMockCommits(new Date("2024-03-08T12:00:00Z"), 7, []); // Expected length: 5
+    const shortStreak2 = generateMockCommits(new Date("2024-02-28T12:00:00Z"), 3, []); // Expected length: 3
+    const mockCommits = getCommitDatesSet(shortStreak1.concat(mediumStreak).concat(longStreak).concat(shortStreak2));
+
+    const threshold = 2;
+    const expectedStreakLength = 2;
+    const expectedDayList = ["2024-02-27", "2024-02-26"];
+
+    const actualStreak = getLongestWorkdayStreak(mockCommits, threshold);
+    console.log("##############", actualStreak);
+    const actualStreakLength = actualStreak.streakLength;
+    const actualDayList = actualStreak.streakDates;
+
+    expect(actualStreakLength).toEqual(expectedStreakLength);
+    expect(actualDayList).toEqual(expectedDayList);
+  });
 });
 
 describe("Testing getLongestStrictStreak", () => {
