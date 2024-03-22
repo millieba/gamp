@@ -228,6 +228,61 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
   }
 }
 
+async function checkMiscNight(commits: Commit[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "misc-night" },
+    });
+
+    let commitsAtNightCount = 0;
+    let commitsAtNight = [];
+
+    for (const commit of commits) {
+      if (commit.committedDate) {
+        const date = new Date(commit.committedDate);
+        const hour = date.getUTCHours(); // get the hour in UTC
+
+        if (hour >= 0 && hour < 5) {
+          // The commit was made between 12 AM and 5 AM
+          commitsAtNight.push(commit);
+        }
+      }
+    }
+
+    for (const badge of badges) {
+      if (commitsAtNightCount >= badge.threshold) {
+        // const thresholdIndex = closedAssignedIssuesCount - badge.threshold;
+        const dateEarned = commitsAtNight[badge.threshold - 1].committedDate;
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(
+      `An error occurred while checking assigned miscellaneous night badges for account ${accountId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
 async function updateTotalPoints(accountId: string) {
   try {
     const account = await prisma.account.findUnique({
@@ -276,6 +331,7 @@ export async function checkBadges(
     });
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
+      await checkMiscNight(commits, accountId),
       await checkPrOpenedBadges(prs, accountId),
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),
