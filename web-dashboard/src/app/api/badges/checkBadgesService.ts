@@ -235,13 +235,11 @@ async function checkLanguages(languages: ProgrammingLanguage[], accountId: strin
       where: { type: "languages_count" },
     });
 
-    // languages.sort((a, b) => new Date(a.firstUsedAt).getTime() - new Date(b.firstUsedAt).getTime());
     const languagesCount = languages.length;
 
     for (const badge of badges) {
       if (languagesCount >= badge.threshold) {
-        const thresholdIndex = languagesCount - badge.threshold;
-        const dateEarned = languages[thresholdIndex].firstUsedAt;
+        const dateEarned = languages[badge.threshold - 1].firstUsedAt;
 
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({

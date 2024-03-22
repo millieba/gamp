@@ -12,6 +12,7 @@ export const tags: string[] = [
   "Commit badges",
   "Pull request badges",
   "Miscellaneous badges",
+  "Language badges",
 ];
 
 const BadgesDropDown = () => {
