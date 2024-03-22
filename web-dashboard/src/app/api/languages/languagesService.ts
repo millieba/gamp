@@ -85,22 +85,36 @@ export async function languagesServices(accountId: string) {
 }
 
 export async function calculateLanguageSizes(accountId: string) {
-  // Finds all languages used in all repos, and sums the bytes written in each language
   try {
-    const sizes: { [key: string]: number } = {}; // Key is a language name, value is the total bytes written in that language
+    const sizes: { [key: string]: number } = {};
+    const firstUsedAt: { [key: string]: string } = {}; // Key is a language name, value is the earliest date it was used
+
     const data = await languagesServices(accountId);
 
-    data.forEach((repo: Repository) => {
-      repo.node.languages.edges.forEach((language: Language) => {
+    data.forEach((repo: any) => {
+      const createdAt = new Date(repo.node.createdAt);
+      repo.node.languages.edges.forEach((language: any) => {
         if (sizes[language.node.name]) {
           sizes[language.node.name] += language.size;
+          // If the current repository's creation date is earlier than the stored date, update it
+          if (createdAt < new Date(firstUsedAt[language.node.name])) {
+            firstUsedAt[language.node.name] = repo.node.createdAt;
+          }
         } else {
           sizes[language.node.name] = language.size;
+          firstUsedAt[language.node.name] = repo.node.createdAt;
         }
       });
     });
 
-    return sizes;
+    // Combine the sizes and firstUsedAt objects into a single object
+    const result = Object.keys(sizes).map((key) => ({
+      language: key,
+      size: sizes[key],
+      firstUsedAt: firstUsedAt[key],
+    }));
+
+    return result;
   } catch (error) {
     console.error("An error occurred while calculating language sizes:", error);
     throw error;
@@ -116,6 +130,7 @@ export async function getLanguageSizesFromDB(accountId: string) {
           select: {
             name: true,
             bytesWritten: true,
+            firstUsedAt: true,
           },
         },
       },
