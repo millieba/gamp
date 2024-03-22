@@ -114,6 +114,8 @@ export async function calculateLanguageSizes(accountId: string) {
       firstUsedAt: firstUsedAt[key],
     }));
 
+    result.sort((a, b) => new Date(a.firstUsedAt).getTime() - new Date(b.firstUsedAt).getTime());
+
     return result;
   } catch (error) {
     console.error("An error occurred while calculating language sizes:", error);
