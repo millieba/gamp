@@ -28,6 +28,8 @@ export interface SyncData {
   issues: IssueQueryResultEdges[];
   assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
+  nightlyCommits: Commit[];
+  morningCommits: Commit[];
 }
 
 export interface DBStats {
@@ -78,6 +80,8 @@ async function fetchData(accountId: string): Promise<SyncData> {
     pullRequests: prVariables?.pullRequests,
     issues: issueVariables?.data,
     dailyModifications: commitData?.dailyModifications,
+    nightlyCommits: commitData?.nightlyCommits,
+    morningCommits: commitData?.morningCommits,
     assignedIssues: issueVariables?.openAssignedIssueNode,
   };
 }
@@ -104,7 +108,15 @@ export async function syncWithGithub(accountId: string) {
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
       checkBadges(data.commits, data.pullRequests, data.issues, accountId),
-      syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
+      syncStats(
+        data.data,
+        data.programmingLanguages,
+        data.dailyModifications,
+        data.nightlyCommits,
+        data.morningCommits,
+        data.assignedIssues,
+        accountId
+      ),
     ]);
 
     await checkLevel(accountId); // Check level after badges are checked (total score depends on how many badges a user has)

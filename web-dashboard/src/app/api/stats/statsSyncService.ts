@@ -1,13 +1,15 @@
 import prisma from "@/utils/prisma";
 import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
-import { Modification } from "../commits/commitsService";
+import { Commit, MiscCommit, Modification } from "../commits/commitsService";
 import { AssignedIssueInterface } from "../issues/issuesUtils";
 
 export async function syncStats(
   statsData: DBStats,
   programmingLanguages: ProgrammingLanguage[],
   dailyModifications: Modification[],
+  nightlyCommits: MiscCommit[],
+  morningCommits: MiscCommit[],
   assignedIssues: AssignedIssueInterface[],
   accountId: string
 ) {
@@ -24,6 +26,14 @@ export async function syncStats(
           deleteMany: {}, // Delete all existing modifications, then re-create them
           create: dailyModifications,
         },
+        nightCommit: {
+          deleteMany: {}, // Delete all existing modifications, then re-create them
+          create: nightlyCommits,
+        },
+        morningCommit: {
+          deleteMany: {}, // Delete all existing modifications, then re-create them
+          create: morningCommits,
+        },
         assignedIssues: {
           deleteMany: {}, // Delete all existing assigned issues, then re-create them
           create: assignedIssues,
@@ -37,6 +47,12 @@ export async function syncStats(
         },
         dailyModifications: {
           create: dailyModifications,
+        },
+        nightCommit: {
+          create: nightlyCommits,
+        },
+        morningCommit: {
+          create: morningCommits,
         },
         assignedIssues: {
           create: assignedIssues,
@@ -77,6 +93,20 @@ export async function getStatsFromDB(accountId: string) {
             additions: true,
             deletions: true,
             totalCommits: true,
+          },
+        },
+        nightCommit: {
+          select: {
+            oid: true,
+            message: true,
+            committedDate: true,
+          },
+        },
+        morningCommit: {
+          select: {
+            oid: true,
+            message: true,
+            committedDate: true,
           },
         },
         assignedIssues: {

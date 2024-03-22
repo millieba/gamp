@@ -23,6 +23,12 @@ export interface Commit {
   committedDate: string;
 }
 
+export interface MiscCommit {
+  oid: string;
+  message: string;
+  committedDate: Date | string;
+}
+
 export interface Modification {
   date: Date;
   additions: number;
@@ -424,20 +430,47 @@ export async function prepareCommitsForDB(
   accountId: string,
   retries = 0
 ): Promise<{
-  streak: StreakResponse;
   commits: Commit[];
+  streak: StreakResponse;
+  nightlyCommits: MiscCommit[];
+  morningCommits: MiscCommit[];
   commitCount: number;
   dailyModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
+    const nightlyCommits = commits.filter((commit) => {
+      const commitDate = new Date(commit.committedDate);
+      const hour = commitDate.getUTCHours();
+      return hour >= 0 && hour < 5;
+    });
+
+    const morningCommits = commits.filter((commit) => {
+      const commitDate = new Date(commit.committedDate);
+      const hour = commitDate.getUTCHours();
+      return hour >= 5 && hour < 8;
+    });
+
+    const filteredNightlyCommits = nightlyCommits.map((commit) => ({
+      oid: commit.oid,
+      message: commit.message,
+      committedDate: commit.committedDate,
+    }));
+
+    const filteredMorningCommits = morningCommits.map((commit) => ({
+      oid: commit.oid,
+      message: commit.message,
+      committedDate: commit.committedDate,
+    }));
     const dailyModifications = await fetchDailyModifications(commits);
     console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
     return {
-      streak: streak,
       commits: commits,
+      streak: streak,
+      nightlyCommits: filteredNightlyCommits,
+      morningCommits: filteredMorningCommits,
       commitCount: commits.length,
       dailyModifications: dailyModifications || [],
     };

@@ -28,9 +28,8 @@ const badgeProgressMapping = (stats: Stats) => ({
   "cc-": () => stats?.commitCount || 0,
   "issues-opened-": () => stats?.issueCount || 0,
   "issues-closed-": () => stats?.closedIssueCount || 0,
-  // todo, must fix this
-  "misc-night": () => 0,
-  "misc-morning": () => 0,
+  "misc-night": () => stats?.nightCommit.length || 0,
+  "misc-morning": () => stats?.morningCommit.length || 0,
 });
 
 export const getBadgeUnit = (id: string) => {
