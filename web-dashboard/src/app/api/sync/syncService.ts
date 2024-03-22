@@ -103,7 +103,7 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
-      checkBadges(data.commits, data.pullRequests, data.issues, accountId),
+      checkBadges(data.commits, data.pullRequests, data.issues, accountId, data.programmingLanguages),
       syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
     ]);
 
