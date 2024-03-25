@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { checkBadges } from "../badges/checkBadgesService";
 import { syncStats } from "../stats/statsSyncService";
-import { Commit, MiscCommit, Modification, prepareCommitsForDB } from "../commits/commitsService";
+import { Commit, Modification, prepareCommitsForDB } from "../commits/commitsService";
 import { fetchIssueVariables } from "../issues/issuesService";
 import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
@@ -28,12 +28,12 @@ export interface SyncData {
   issues: IssueQueryResultEdges[];
   assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
-  nightlyCommits: MiscCommit[];
-  morningCommits: MiscCommit[];
 }
 
 export interface DBStats {
   commitCount: number;
+  nightCommitCount: number;
+  morningCommitCount: number;
   repoCount: number;
   issueCount: number;
   avgTimeToCloseIssues: number;
@@ -64,6 +64,8 @@ async function fetchData(accountId: string): Promise<SyncData> {
     data: {
       // Data that can be inserted directly to database
       commitCount: commitData?.commitCount,
+      nightCommitCount: commitData?.nightlyCommits,
+      morningCommitCount: commitData?.morningCommits,
       repoCount: repoCount?.repoCount,
       issueCount: issueVariables?.issueCount,
       avgTimeToCloseIssues: issueVariables?.avgTimeToCloseIssues,
@@ -80,8 +82,6 @@ async function fetchData(accountId: string): Promise<SyncData> {
     pullRequests: prVariables?.pullRequests,
     issues: issueVariables?.data,
     dailyModifications: commitData?.dailyModifications,
-    nightlyCommits: commitData?.nightlyCommits,
-    morningCommits: commitData?.morningCommits,
     assignedIssues: issueVariables?.openAssignedIssueNode,
   };
 }
@@ -108,15 +108,7 @@ export async function syncWithGithub(accountId: string) {
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
       checkBadges(data.commits, data.pullRequests, data.issues, accountId),
-      syncStats(
-        data.data,
-        data.programmingLanguages,
-        data.dailyModifications,
-        data.nightlyCommits,
-        data.morningCommits,
-        data.assignedIssues,
-        accountId
-      ),
+      syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
     ]);
 
     await checkLevel(accountId); // Check level after badges are checked (total score depends on how many badges a user has)

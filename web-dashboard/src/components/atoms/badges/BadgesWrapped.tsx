@@ -28,8 +28,8 @@ const badgeProgressMapping = (stats: Stats) => ({
   "cc-": () => stats?.commitCount || 0,
   "issues-opened-": () => stats?.issueCount || 0,
   "issues-closed-": () => stats?.closedIssueCount || 0,
-  "misc-night": () => stats?.nightCommit.length || 0,
-  "misc-morning": () => stats?.morningCommit.length || 0,
+  "misc-night": () => stats?.nightCommitCount || 0,
+  "misc-morning": () => stats?.morningCommitCount || 0,
 });
 
 export const getBadgeUnit = (id: string) => {
@@ -69,6 +69,8 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   useEffect(() => {}, [selectedTags]);
 
+  console.log(earnedBadgeIds);
+
   function processBadge(array: BadgeArray[], types: string[]) {
     let typeArrays: BadgeArray[][] = types.map(() => []);
 
@@ -92,7 +94,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   issueRelatedBadges = processBadge(issueRelatedBadges, ["issues-opened-", "issues-closed-"]);
   prRelatedBadges = processBadge(prRelatedBadges, ["prs-opened-", "prs-merged-"]);
   commitsRelatedBadges = processBadge(commitsRelatedBadges, ["cc-"]);
-  miscRelatedBadges = processBadge(miscRelatedBadges, ["misc-night", "misc-morning"]);
+  miscRelatedBadges = processBadge(miscRelatedBadges, ["misc-night-", "misc-morning-"]);
 
   // Combining all the badges into one array, which is sorted as desired
   organizedAllBadges = issueRelatedBadges

@@ -432,8 +432,8 @@ export async function prepareCommitsForDB(
 ): Promise<{
   commits: Commit[];
   streak: StreakResponse;
-  nightlyCommits: MiscCommit[];
-  morningCommits: MiscCommit[];
+  nightlyCommits: number;
+  morningCommits: number;
   commitCount: number;
   dailyModifications: Modification[];
 }> {
@@ -469,8 +469,8 @@ export async function prepareCommitsForDB(
     return {
       commits: commits,
       streak: streak,
-      nightlyCommits: filteredNightlyCommits,
-      morningCommits: filteredMorningCommits,
+      nightlyCommits: filteredNightlyCommits.length,
+      morningCommits: filteredMorningCommits.length,
       commitCount: commits.length,
       dailyModifications: dailyModifications || [],
     };

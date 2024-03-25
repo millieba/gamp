@@ -3,7 +3,7 @@ import { createContext, useContext, ReactNode, useEffect, useState, Dispatch, Se
 import { Badge } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { BadgeDefinition, Level } from "@prisma/client";
-import { MiscCommit, Modification } from "@/app/api/commits/commitsService";
+import { Modification } from "@/app/api/commits/commitsService";
 import { AssignedIssueInterface } from "@/app/api/issues/issuesUtils";
 import { Preferences } from "@/app/api/preferences/preferenceService";
 
@@ -17,8 +17,8 @@ export interface Stats {
   programmingLanguages: ProgrammingLanguage[];
   assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
-  nightCommit: MiscCommit[];
-  morningCommit: MiscCommit[];
+  nightCommitCount: number;
+  morningCommitCount: number;
   strictStreak: number | null;
   strictStreakToContinue: number | null;
   workdayStreak: number | null;

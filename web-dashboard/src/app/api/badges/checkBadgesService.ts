@@ -231,10 +231,9 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
 async function checkMiscNight(commits: Commit[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
-      where: { type: "misc-night" },
+      where: { type: "miscellaneous_nighttime" },
     });
 
-    let commitsAtNightCount = 0;
     let commitsAtNight = [];
 
     for (const commit of commits) {
@@ -249,10 +248,11 @@ async function checkMiscNight(commits: Commit[], accountId: string) {
       }
     }
 
+    commitsAtNight.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+
     for (const badge of badges) {
-      if (commitsAtNightCount >= badge.threshold) {
-        // const thresholdIndex = closedAssignedIssuesCount - badge.threshold;
-        const dateEarned = commitsAtNight[badge.threshold - 1].committedDate;
+      if (commitsAtNight.length >= badge.threshold) {
+        const dateEarned = commitsAtNight[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
 
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({
@@ -277,6 +277,61 @@ async function checkMiscNight(commits: Commit[], accountId: string) {
   } catch (error) {
     console.error(
       `An error occurred while checking assigned miscellaneous night badges for account ${accountId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
+async function checkMiscMorning(commits: Commit[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "miscellaneous_morningtime" },
+    });
+
+    let commitsInTheMorning = [];
+
+    for (const commit of commits) {
+      if (commit.committedDate) {
+        const date = new Date(commit.committedDate);
+        const hour = date.getUTCHours(); // get the hour in UTC
+
+        if (hour >= 5 && hour < 8) {
+          // The commit was made between 12 AM and 5 AM
+          commitsInTheMorning.push(commit);
+        }
+      }
+    }
+
+    commitsInTheMorning.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+
+    for (const badge of badges) {
+      if (commitsInTheMorning.length >= badge.threshold) {
+        const dateEarned = commitsInTheMorning[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(
+      `An error occurred while checking assigned miscellaneous morning badges for account ${accountId}:`,
       error
     );
     throw error;
@@ -332,6 +387,7 @@ export async function checkBadges(
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
       await checkMiscNight(commits, accountId),
+      await checkMiscMorning(commits, accountId),
       await checkPrOpenedBadges(prs, accountId),
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),
