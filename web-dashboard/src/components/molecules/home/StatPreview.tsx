@@ -1,7 +1,7 @@
 "use client";
 import ShortStatView from "@/components/atoms/home/ShortStatView";
 import { useSyncContext } from "@/contexts/SyncContext";
-import { FullBadge } from "@/components/atoms/home/RecentAndApproachingBadges";
+import { FullBadge } from "./RecentBadges";
 
 const StatPreview = () => {
   const { preferences, stats, badges, allBadges } = useSyncContext();

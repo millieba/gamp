@@ -3,8 +3,8 @@ import StatPreview from "@/components/molecules/home/StatPreview";
 import { useSyncContext } from "@/contexts/SyncContext";
 import RecentIssues from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
-import RecentBadges from "@/components/atoms/home/RecentBadges";
-import ApproachingBadges from "@/components/atoms/home/ApproachingBadges";
+import RecentBadges from "@/components/molecules/home/RecentBadges";
+import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
 import ContributionChart from "@/components/atoms/ContributionChart";
 import StatCard from "@/components/atoms/StatCard";
 

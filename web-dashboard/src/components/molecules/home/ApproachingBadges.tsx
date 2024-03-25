@@ -1,8 +1,8 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
-import { getBadgeUnit, updateBadgeProgress } from "../badges/BadgesWrapped";
-import BadgesHomePageWrap from "./BadgesHomePageWrap";
-import BadgeCardHomePage from "./BadgeCardHomePage";
+import { getBadgeUnit, updateBadgeProgress } from "../../atoms/badges/BadgesWrapped";
+import BadgesHomePageWrap from "../../atoms/home/BadgesHomePageWrap";
+import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
 
 interface UnearnedBadges {
   description: string;

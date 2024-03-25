@@ -1,9 +1,9 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
-import { getBadgeUnit } from "../badges/BadgesWrapped";
-import BadgesHomePageWrap from "./BadgesHomePageWrap";
+import { getBadgeUnit } from "../../atoms/badges/BadgesWrapped";
+import BadgesHomePageWrap from "../../atoms/home/BadgesHomePageWrap";
 import { Badge } from "@/utils/types";
-import BadgeCardHomePage from "./BadgeCardHomePage";
+import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
 
 export type FullBadge = Badge & {
   name: string;
