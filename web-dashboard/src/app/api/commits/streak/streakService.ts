@@ -151,115 +151,81 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
   }
 }
 
-export function getCommitDatesSet(commits: Commit[]): Set<string> {
+// Returns a set of all unique dates the commit array contains.
+export const getCommitDatesSet = (commits: Commit[]): Set<string> => {
   return new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
+};
+
+// Returns whether two dates are consecutive, where gaps during the weekend are allowed if isStrictStreak is false.
+const isConsecutive = (currentDate: Date, previousDate: Date | undefined, isStrictStreak: boolean): boolean => {
+  const dayDiff =
+    ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) -
+      currentDate.setUTCHours(0, 0, 0, 0)) /
+    (1000 * 60 * 60 * 24);
+
+  return isStrictStreak
+    ? !previousDate || dayDiff === 1
+    : !previousDate || dayDiff === 1 || (dayDiff <= 3 && previousDate.getDay() === 1);
+};
+
+const isWeekend = (date: Date): boolean => {
+  return date.getDay() === 0 || date.getDay() === 6; // 0 = Sunday, 6 = Saturday
+};
+
+// Returns either the all-time longest streak, or if threshold is provided, the oldest streak that has reached that threshold.
+function getHistoricalStreak(
+  commitDates: Set<string>,
+  isStrictStreak: boolean,
+  threshold?: number
+): { streakLength: number; streakDates: string[] } {
+  let longestStreak = 0;
+  let currentStreak = 0;
+  let longestStreakDates: string[] = [];
+  let currentStreakDates: string[] = [];
+  let previousDate: Date | undefined = undefined;
+
+  const updateStreak = (): void => {
+    if (threshold && currentStreak >= threshold) {
+      longestStreak = threshold; // Set streak to threshold, it is irrelevant if the current streak is longer than the threshold
+      longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that happened after the threshold was reached
+    } else if (currentStreak >= longestStreak) {
+      // Update streak if current streak is longer than the longest streak
+      longestStreak = currentStreak;
+      longestStreakDates = [...currentStreakDates];
+    }
+  };
+
+  commitDates.forEach((date) => {
+    const currentDate = new Date(date);
+
+    if (isConsecutive(currentDate, previousDate, isStrictStreak)) {
+      if (isStrictStreak || !isWeekend(currentDate)) {
+        currentStreak++; // Only count day if is a strict streak or not during the weekend
+        currentStreakDates.push(date);
+      }
+    } else {
+      updateStreak(); // Update streak if not consecutive and reset streak + streak dates
+      currentStreak = 1;
+      currentStreakDates = [date];
+    }
+    previousDate = currentDate;
+  });
+
+  updateStreak(); // In case we never reached the else block, update streak here
+
+  return { streakLength: longestStreak, streakDates: longestStreakDates };
 }
 
-// Function for finding the all-time longest strict streak, or the oldest strict streak the reached a given threshold
 export function getHistoricalStrictStreak(
   commitDates: Set<string>,
   threshold?: number
 ): { streakLength: number; streakDates: string[] } {
-  let longestStreak = 0;
-  let currentStreak = 0;
-  let longestStreakDates: string[] = [];
-  let currentStreakDates: string[] = [];
-  let previousDate: Date | undefined = undefined;
-
-  // Utility functions
-  const isConsecutive = (currentDate: Date, previousDate: Date | undefined): boolean => {
-    const dayDiff =
-      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) -
-        currentDate.setUTCHours(0, 0, 0, 0)) /
-      (1000 * 60 * 60 * 24);
-    // If there is no previous date, we are on the first iteration, or if the day difference is 1, we have a consecutive day
-    return !previousDate || dayDiff === 1;
-  };
-
-  const updateStreak = (): void => {
-    if (threshold && currentStreak >= threshold) {
-      longestStreak = threshold; // Set streak to threshold, it is irrelevant if the current streak is longer than the threshold
-      longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that happened after the threshold was reached
-    } else if (currentStreak >= longestStreak) {
-      // Update streak if current streak is longer than the longest streak
-      longestStreak = currentStreak;
-      longestStreakDates = [...currentStreakDates];
-    }
-  };
-
-  commitDates.forEach((date) => {
-    const currentDate = new Date(date);
-
-    if (isConsecutive(currentDate, previousDate)) {
-      currentStreak++;
-      currentStreakDates.push(date);
-    } else {
-      updateStreak(); // If not consecutive, update streak and reset streak + streak dates
-      currentStreak = 1;
-      currentStreakDates = [date];
-    }
-    previousDate = currentDate;
-  });
-
-  updateStreak(); // In case we never reached the else block, update streak at the end
-
-  return { streakLength: longestStreak, streakDates: longestStreakDates };
+  return getHistoricalStreak(commitDates, true, threshold);
 }
 
-// Function for finding the all-time longest workday streak, or the oldest workday streak the reached a given threshold
 export function getHistoricalWorkdayStreak(
   commitDates: Set<string>,
   threshold?: number
 ): { streakLength: number; streakDates: string[] } {
-  let longestStreak = 0;
-  let currentStreak = 0;
-  let longestStreakDates: string[] = [];
-  let currentStreakDates: string[] = [];
-  let previousDate: Date | undefined = undefined;
-
-  // Utility functions
-  const isConsecutive = (currentDate: Date, previousDate: Date | undefined): boolean => {
-    const dayDiff =
-      ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) -
-        currentDate.setUTCHours(0, 0, 0, 0)) /
-      (1000 * 60 * 60 * 24);
-    // If the day difference is 3 and the previous date was a Monday, we have a consecutive workday streak (but with a weekend gap)
-    return !previousDate || dayDiff === 1 || (dayDiff <= 3 && previousDate.getDay() === 1);
-  };
-
-  const isWeekend = (date: Date): boolean => {
-    return date.getDay() === 0 || date.getDay() === 6; // 0 = Sunday, 6 = Saturday
-  };
-
-  const updateStreak = (): void => {
-    if (threshold && currentStreak >= threshold) {
-      longestStreak = threshold; // Set streak to threshold, it is irrelevant if the current streak is longer than the threshold
-      longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that happened after the threshold was reached
-    } else if (currentStreak >= longestStreak) {
-      // Update streak if current streak is longer than the longest streak
-      longestStreak = currentStreak;
-      longestStreakDates = [...currentStreakDates];
-    }
-  };
-
-  // Loop through all commit dates and look for the longest streak or the oldest streak that reached the threshold
-  commitDates.forEach((date) => {
-    const currentDate = new Date(date);
-
-    if (isConsecutive(currentDate, previousDate)) {
-      if (!isWeekend(currentDate)) {
-        currentStreak++; // Only count workdays in the streak
-        currentStreakDates.push(date);
-      }
-    } else {
-      updateStreak(); // If not consecutive, update streak and reset streak + streak dates
-      currentStreak = 1;
-      currentStreakDates = [date];
-    }
-    previousDate = currentDate;
-  });
-
-  updateStreak(); // In case we never reached the else block, update streak at the end
-
-  return { streakLength: longestStreak, streakDates: longestStreakDates };
+  return getHistoricalStreak(commitDates, false, threshold);
 }

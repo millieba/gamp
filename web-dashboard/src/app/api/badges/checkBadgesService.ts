@@ -240,9 +240,9 @@ async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: str
     });
 
     for (const badge of badges) {
-      const bestWorkdayStreak = getHistoricalWorkdayStreak(commitDates, badge.threshold);
-      const streakLength = bestWorkdayStreak.streakLength;
-      const streakDates = bestWorkdayStreak.streakDates;
+      const historicalWorkdayStreak = getHistoricalWorkdayStreak(commitDates, badge.threshold);
+      const streakLength = historicalWorkdayStreak.streakLength;
+      const streakDates = historicalWorkdayStreak.streakDates;
 
       if (streakLength >= badge.threshold) {
         // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
@@ -281,9 +281,9 @@ async function checkStrictStreakBadges(commitDates: Set<string>, accountId: stri
     });
 
     for (const badge of badges) {
-      const bestStrictStreak = getHistoricalStrictStreak(commitDates, badge.threshold);
-      const streakLength = bestStrictStreak.streakLength;
-      const streakDates = bestStrictStreak.streakDates;
+      const historicalStrictStreak = getHistoricalStrictStreak(commitDates, badge.threshold);
+      const streakLength = historicalStrictStreak.streakLength;
+      const streakDates = historicalStrictStreak.streakDates;
 
       if (streakLength >= badge.threshold) {
         // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
