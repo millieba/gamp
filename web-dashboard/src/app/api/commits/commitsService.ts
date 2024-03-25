@@ -23,12 +23,6 @@ export interface Commit {
   committedDate: string;
 }
 
-export interface MiscCommit {
-  oid: string;
-  message: string;
-  committedDate: Date | string;
-}
-
 export interface Modification {
   date: Date;
   additions: number;
