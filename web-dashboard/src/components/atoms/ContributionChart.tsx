@@ -1,55 +1,50 @@
 import { useState } from "react";
 import { ContributionData } from "../molecules/ContributionsChartWrapper";
 
+const getWeekDayFromIndex = (index: number) => {
+  const weekdays = ["", "Mon", "", "Wed", "", "Fri", ""];
+  return weekdays[index];
+};
+
 export const ContributionChartSkeleton = () => (
   <div className="overflow-x-auto bg-DarkNeutral300 rounded-lg mt-2 p-4">
     <div className="overflow-x-auto">
-      <div className="flex max-w-sm">
+      <div className="flex max-w-sm pt-4">
         {[...Array(52)].map((_, weekIndex) => (
-          <div key={weekIndex} className="flex-col animate-pulse">
+          <div key={weekIndex} className={`flex-col animate-pulse ${weekIndex === 0 ? "ml-10" : ""}`}>
             {[...Array(7)].map((_, dayIndex) => (
-              <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350"></div>
+              <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350 relative">
+                {weekIndex === 0 && (
+                  <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
+                )}
+              </div>
             ))}
           </div>
         ))}
+      </div>
+    </div>
+    <div>
+      <div className="flex justify-start items-center mt-4 text-xs">
+        <span className="mr-2">Less</span>
+        <div className="flex items-center">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex  items-center text-xs">
+              <span className="mr-0.5 bg-DarkNeutral350 w-4 h-4 rounded-sm animate-pulse"></span>
+            </div>
+          ))}
+          <span className="ml-2">More</span>
+        </div>
       </div>
     </div>
   </div>
 );
 
 export const ContributionChart = ({ contributions }: { contributions: ContributionData | null }) => {
-  const weekdays = ["", "Mon", "", "Wed", "", "Fri", ""];
   const [hoveredCell, setHoveredCell] = useState<{ weekIndex: number; dayIndex: number } | null>(null);
-
-  const mapColour = (colour: string): string => {
-    switch (colour) {
-      case "#ebedf0": // Original default white
-        return "#596773"; // DarkNeutral500
-
-      case "#9be9a8": // Original light green
-        return "#b5bde2";
-
-      case "#40c463": // Original medium green
-        return "#919ed3";
-
-      case "#30a14e": // Original deep green
-        return "#7887ca";
-
-      case "#216e39": // Original very deep green
-        return "#777fff";
-
-      default:
-        return colour; // Keep the color as is for any other color
-    }
-  };
 
   if (!contributions || !contributions.contributionCalendar) {
     return <p>Found no contributions.</p>;
   }
-
-  const getWeekDayFromIndex = (index: number) => {
-    return weekdays[index];
-  };
 
   // Function for calculating the position of the tooltip and tooltip pointer based on the week and day index.
   // This is necessary to avoid the tooltip overflowing the chart.
