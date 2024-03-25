@@ -55,10 +55,15 @@ async function fetchData(accountId: string): Promise<SyncData> {
     prepareCommitsForDB(accountId),
   ]);
 
-  const languagesArray = Object.keys(languages).map((languageName) => {
-    // Convert the object into an array of language objects as expected by Prisma
-    return { name: languageName, bytesWritten: languages[languageName] };
-  });
+  const languagesArray: { name: string; bytesWritten: number; firstUsedAt: string | Date }[] = [];
+
+  for (let languageName in languages) {
+    languagesArray.push({
+      name: languages[languageName].language,
+      bytesWritten: languages[languageName].size,
+      firstUsedAt: languages[languageName].firstUsedAt,
+    });
+  }
 
   return {
     data: {
@@ -107,7 +112,7 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
-      checkBadges(data.commits, data.pullRequests, data.issues, accountId),
+      checkBadges(data.commits, data.pullRequests, data.issues, accountId, data.programmingLanguages),
       syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
     ]);
 

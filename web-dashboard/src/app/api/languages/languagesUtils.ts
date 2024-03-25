@@ -10,6 +10,7 @@ export interface QueryResult {
         repositories: {
           edges: {
             node: {
+              createdAt: Date;
               owner: {
                 login: string;
               };
@@ -32,6 +33,7 @@ export interface QueryResult {
     repositories: {
       edges: {
         node: {
+          createdAt: Date;
           owner: {
             login: string;
           };
@@ -61,6 +63,7 @@ query ($username: String!, $afterCursorRepositories: String, $afterCursorOrg: St
           totalCount
           edges {
             node {
+              createdAt
               owner {
                 login
               }
@@ -91,6 +94,7 @@ query ($username: String!, $afterCursorRepositories: String, $afterCursorOrg: St
     repositories(first: 50, after: $afterCursorRepositories) {
       edges {
         node {
+          createdAt
           owner {
             login
           }

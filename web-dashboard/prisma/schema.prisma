@@ -141,10 +141,11 @@ model GitHubStats {
 
 // Represents programming languages used in GitHub statistics
 model ProgrammingLanguage {
-  id            String @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String
-  bytesWritten  Int    @map("bytes_written")
-  githubStatsId String @map("github_stats_id")
+  bytesWritten  Int       @map("bytes_written")
+  firstUsedAt   DateTime? @map("first_used_at")
+  githubStatsId String    @map("github_stats_id")
 
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 

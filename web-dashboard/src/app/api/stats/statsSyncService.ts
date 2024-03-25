@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
-import { MiscCommit, Modification } from "../commits/commitsService";
+import { Modification } from "../commits/commitsService";
 import { AssignedIssueInterface } from "../issues/issuesUtils";
 
 export async function syncStats(
@@ -71,6 +71,7 @@ export async function getStatsFromDB(accountId: string) {
           select: {
             name: true,
             bytesWritten: true,
+            firstUsedAt: true,
           },
         },
         dailyModifications: {
