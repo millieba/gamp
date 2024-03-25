@@ -116,6 +116,8 @@ model GitHubStats {
   id                      String @id @default(cuid())
   accountId               String @unique @map("account_id")
   commitCount             Int?   @map("commit_count")
+  nightCommitCount        Int?   @map("night_commit_count")
+  morningCommitCount      Int?   @map("morning_commit_count")
   repoCount               Int?   @map("repo_count")
   issueCount              Int?   @map("issue_count")
   avgTimeToCloseIssues    Int?   @map("avg_time_to_close_issues")
@@ -131,8 +133,6 @@ model GitHubStats {
   programmingLanguages ProgrammingLanguage[]
   dailyModifications   DailyModification[]
   assignedIssues       AssignedIssue[]
-  nightCommit          nightCommit[]
-  morningCommit        morningCommit[]
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
@@ -180,32 +180,4 @@ model AssignedIssue {
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 
   @@map("assigned_issues")
-}
-
-// Represents the commits done in the night
-model nightCommit {
-  id            String   @id @default(cuid())
-  oid           String
-  message       String
-  committedDate DateTime @map("committed_date")
-
-  githubStatsId String @map("github_stats_id")
-
-  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
-
-  @@map("night_commit")
-}
-
-// Represents the commits done in the night
-model morningCommit {
-  id            String   @id @default(cuid())
-  oid           String
-  message       String
-  committedDate DateTime @map("committed_date")
-
-  githubStatsId String @map("github_stats_id")
-
-  githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
-
-  @@map("morning_commit")
 }
