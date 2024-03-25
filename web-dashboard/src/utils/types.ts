@@ -65,6 +65,7 @@ export interface Repository {
     languages: {
       edges: Language[];
     };
+    createdAt: string | Date;
   };
 }
 

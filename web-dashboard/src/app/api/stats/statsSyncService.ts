@@ -69,6 +69,7 @@ export async function getStatsFromDB(accountId: string) {
           select: {
             name: true,
             bytesWritten: true,
+            firstUsedAt: true,
           },
         },
         dailyModifications: {

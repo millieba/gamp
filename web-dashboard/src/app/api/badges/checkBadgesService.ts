@@ -2,6 +2,7 @@ import prisma from "@/utils/prisma";
 import { Commit } from "../commits/commitsService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
 import { IssueQueryResultEdges } from "../issues/issuesUtils";
+import { ProgrammingLanguage } from "@/contexts/SyncContext";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
@@ -228,6 +229,44 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
   }
 }
 
+async function checkLanguages(languages: ProgrammingLanguage[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "languages_count" },
+    });
+
+    const languagesCount = languages.length;
+
+    for (const badge of badges) {
+      if (languagesCount >= badge.threshold) {
+        const dateEarned = languages[badge.threshold - 1].firstUsedAt;
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(`An error occurred while checking language badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
 async function updateTotalPoints(accountId: string) {
   try {
     const account = await prisma.account.findUnique({
@@ -268,7 +307,8 @@ export async function checkBadges(
   commits: Commit[],
   prs: PRData[],
   issues: IssueQueryResultEdges[],
-  accountId: string
+  accountId: string,
+  languages: ProgrammingLanguage[]
 ) {
   try {
     await prisma.badgeAward.deleteMany({
@@ -280,6 +320,7 @@ export async function checkBadges(
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),
       await checkClosedIssuesAssigned(issues, accountId),
+      await checkLanguages(languages, accountId),
     ]);
     await updateTotalPoints(accountId); // Update totalPoints after checking badges
   } catch (error) {

@@ -19,7 +19,7 @@ const BadgesHomePageWrap: React.FC<BadgesHomePageWrapProps> = ({ recentBadgesCar
         )}
         {approachingBadgesCards.length > 0 && (
           <>
-            <p className="pt-2 pl-4">Almost There:</p>
+            <p className="pt-2">Almost There:</p>
             <div>{approachingBadgesCards}</div>
           </>
         )}
