@@ -26,7 +26,7 @@ export interface Stats {
 export interface ProgrammingLanguage {
   name: string;
   bytesWritten: number;
-  firstUsedAt: Date;
+  firstUsedAt: Date | string;
 }
 
 export interface LevelData {

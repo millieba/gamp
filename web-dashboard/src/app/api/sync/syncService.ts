@@ -53,14 +53,15 @@ async function fetchData(accountId: string): Promise<SyncData> {
     prepareCommitsForDB(accountId),
   ]);
 
-  const languagesArray = Object.keys(languages).map((languageName: any) => {
-    // Convert the object into an array of language objects as expected by Prisma
-    return {
+  const languagesArray: { name: string; bytesWritten: number; firstUsedAt: string | Date }[] = [];
+
+  for (let languageName in languages) {
+    languagesArray.push({
       name: languages[languageName].language,
       bytesWritten: languages[languageName].size,
       firstUsedAt: languages[languageName].firstUsedAt,
-    };
-  });
+    });
+  }
 
   return {
     data: {
