@@ -1,29 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { ContributionData } from "../molecules/ContributionsChartWrapper";
 
-interface ContributionDay {
-  color: string;
-  contributionCount: number;
-  date: string;
-  weekday: number;
-}
-
-interface Week {
-  contributionDays: ContributionDay[];
-  firstDay: string;
-}
-
-interface ContributionCalendar {
-  colors: string[];
-  totalContributions: number;
-  weeks: Week[];
-}
-
-interface ContributionData {
-  contributionCalendar: ContributionCalendar;
-}
-
-const ContributionChartSkeleton = () => (
+export const ContributionChartSkeleton = () => (
   <div className="overflow-x-auto bg-DarkNeutral300 rounded-lg mt-2 p-4">
     <div className="overflow-x-auto">
       <div className="flex max-w-sm">
@@ -39,11 +17,8 @@ const ContributionChartSkeleton = () => (
   </div>
 );
 
-const ContributionChart = () => {
+export const ContributionChart = ({ contributions }: { contributions: ContributionData | null }) => {
   const weekdays = ["", "Mon", "", "Wed", "", "Fri", ""];
-
-  const [contributions, setContributions] = useState<ContributionData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ weekIndex: number; dayIndex: number } | null>(null);
 
   const mapColour = (colour: string): string => {
@@ -68,33 +43,7 @@ const ContributionChart = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchContributionData = async () => {
-      const response = await fetch("/api/contributions");
-      const data = await response.json();
-
-      const mappedData = {
-        ...data,
-        contributionCalendar: {
-          ...data.contributionCalendar,
-          weeks: data.contributionCalendar.weeks.map((week: Week) => ({
-            ...week,
-            contributionDays: week.contributionDays.map((day: ContributionDay) => ({
-              ...day,
-              color: mapColour(day.color),
-            })),
-          })),
-          colors: data.contributionCalendar.colors.map(mapColour),
-        },
-      };
-
-      setContributions(mappedData);
-      setIsLoading(false);
-    };
-    fetchContributionData();
-  }, []);
-
-  if (!isLoading && (!contributions || !contributions.contributionCalendar)) {
+  if (!contributions || !contributions.contributionCalendar) {
     return <p>Found no contributions.</p>;
   }
 
@@ -141,9 +90,7 @@ const ContributionChart = () => {
   let previousMonth = "";
   let monthIndices: number[] = [];
 
-  return isLoading || !contributions || !contributions.contributionCalendar ? (
-    <ContributionChartSkeleton />
-  ) : (
+  return (
     <div className="bg-DarkNeutral300 rounded-lg p-4 overflow-x-auto mt-2">
       <div className="overflow-x-auto">
         <div className="flex pt-4 relative max-w-sm">
@@ -220,5 +167,3 @@ const ContributionChart = () => {
     </div>
   );
 };
-
-export default ContributionChart;

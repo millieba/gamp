@@ -5,8 +5,7 @@ import RecentIssues from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
 import RecentBadges from "@/components/molecules/home/RecentBadges";
 import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
-import ContributionChart from "@/components/atoms/ContributionChart";
-import StatCard from "@/components/atoms/StatCard";
+import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
 
 const HomePage = () => {
   const { data: session, status } = useSession();
@@ -31,13 +30,7 @@ const HomePage = () => {
             <RecentBadges />
           </div>
           <div className="flex-grow">
-            <StatCard
-              name={"Contributions"}
-              description={
-                "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
-              }
-              content={<ContributionChart />}
-            />
+            <ContributionChartWrapper />
           </div>
         </div>
       </div>
