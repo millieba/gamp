@@ -1,8 +1,8 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
 import { getBadgeUnit, updateBadgeProgress } from "../../atoms/badges/BadgesWrapped";
-import BadgesHomePageWrap from "../../atoms/home/BadgesHomePageWrap";
 import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
+import StatCard from "@/components/atoms/StatCard";
 
 interface UnearnedBadges {
   description: string;
@@ -32,10 +32,12 @@ const ApproachingBadges = () => {
   }, [badges, allBadges, stats]);
 
   return (
-    <BadgesHomePageWrap
-      badgeCards={
+    <StatCard
+      name="Almost There"
+      description={approachingBadges.length > 0 ? "You're so close to earning these badges!" : ""}
+      content={
         approachingBadges.length <= 0
-          ? []
+          ? "Found no approaching badges. Keep an eye out for any future badges to achieve!"
           : approachingBadges
               .slice(0, approachingBadges.length <= 3 ? approachingBadges.length : 3)
               .map((badge) => (
@@ -52,7 +54,6 @@ const ApproachingBadges = () => {
                 />
               ))
       }
-      title="Almost there:"
     />
   );
 };

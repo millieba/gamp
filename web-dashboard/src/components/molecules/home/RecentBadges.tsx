@@ -1,9 +1,9 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
 import { getBadgeUnit } from "../../atoms/badges/BadgesWrapped";
-import BadgesHomePageWrap from "../../atoms/home/BadgesHomePageWrap";
 import { Badge } from "@/utils/types";
 import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
+import StatCard from "@/components/atoms/StatCard";
 
 export type FullBadge = Badge & {
   name: string;
@@ -29,10 +29,12 @@ const RecentBadges = () => {
   }, [badges, allBadges, stats]);
 
   return (
-    <BadgesHomePageWrap
-      badgeCards={
+    <StatCard
+      name="Recently Earned Badges"
+      description={recentBadges.length > 0 ? "Here are the badges you've recently earned. Keep up the good work!" : ""}
+      content={
         recentBadges.length <= 0
-          ? []
+          ? "Found no recently earned badges. Keep working, and you'll get there!"
           : recentBadges
               .slice(0, recentBadges.length <= 3 ? recentBadges.length : 3)
               .map((badge) => (
@@ -50,7 +52,6 @@ const RecentBadges = () => {
                 />
               ))
       }
-      title="Recently earned badges:"
     />
   );
 };
