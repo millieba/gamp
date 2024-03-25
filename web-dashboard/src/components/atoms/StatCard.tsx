@@ -1,9 +1,9 @@
-import React, { ReactElement } from "react";
+import React, { ReactNode } from "react";
 
 export interface StatDetails {
   name: string;
   description?: string;
-  content?: ReactElement<any, any>;
+  content?: ReactNode;
   maxWidth?: string;
 }
 

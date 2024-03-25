@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import tailwindConfig from "../../../tailwind.config";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { format } from "date-fns";
+import { TooltipProps } from "recharts";
 
 const colors = tailwindConfig?.theme?.extend?.colors as Record<string, string>;
 
@@ -19,7 +20,7 @@ const ModificationsChart = () => {
     return format(new Date(tickItem), "ccc");
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-50 min-w-[100px]">
@@ -34,7 +35,7 @@ const ModificationsChart = () => {
   };
 
   // To ignore the warning about defaultProps in recharts being outdated in a major future release
-  console.error = (...args: any) => {
+  console.error = (...args: string[]) => {
     if (/defaultProps/.test(args[0])) return;
     error(...args);
   };
