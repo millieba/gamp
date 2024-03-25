@@ -151,12 +151,12 @@ export function getCommitStreak(commits: Commit[]): StreakResponse {
   }
 }
 
-// Returns a set of all unique dates the commit array contains.
+// Returns a set of all unique dates the commit array contains
 export const getCommitDatesSet = (commits: Commit[]): Set<string> => {
   return new Set(commits.map((commit) => commit.committedDate.split("T")[0])); // Extracting only the date part
 };
 
-// Returns whether two dates are consecutive, where gaps during the weekend are allowed if isStrictStreak is false.
+// Returns whether two dates are consecutive, where gaps during the weekend are allowed if isStrictStreak is false
 const isConsecutive = (currentDate: Date, previousDate: Date | undefined, isStrictStreak: boolean): boolean => {
   const dayDiff =
     ((previousDate?.setUTCHours(0, 0, 0, 0) ?? currentDate.setUTCHours(0, 0, 0, 0)) -
@@ -200,7 +200,7 @@ function getHistoricalStreak(
 
     if (isConsecutive(currentDate, previousDate, isStrictStreak)) {
       if (isStrictStreak || !isWeekend(currentDate)) {
-        currentStreak++; // Only count day if is a strict streak or not during the weekend
+        currentStreak++; // Only count day if we are calculating a strict streak or if it is not a weekend
         currentStreakDates.push(date);
       }
     } else {

@@ -11,6 +11,8 @@ export const tags: string[] = [
   "Issue badges",
   "Commit badges",
   "Pull request badges",
+  "Workday streak badges",
+  "Strict streak badges",
   "Miscellaneous badges",
 ];
 
