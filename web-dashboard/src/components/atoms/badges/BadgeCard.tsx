@@ -29,9 +29,9 @@ const BadgeCard: React.FC<BadgeDetails> = ({
 
   return (
     <div
-      className={`p-8 rounded-lg shadow-md ${bgColor} flex flex-col justify-between items-center sm:flex-grow 2xl:flex-grow-0`}
+      className={`p-8 rounded-lg shadow-md ${bgColor} flex flex-col justify-between items-center sm:flex-grow 2xl:flex-grow-0 smallBounce`}
     >
-      <img src={image} alt="Badge" className="mb-2 w-[150px] bouncy" />
+      <img src={image} alt="Badge" className="mb-2 w-[150px]" />
       <h1 className="text-xl font-bold mb-2 text-DarkNeutral1000 text-center">{name}</h1>
       <p className="text-DarkNeutral1100 mb-2 text-center">{description}</p>
 

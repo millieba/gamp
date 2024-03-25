@@ -22,14 +22,6 @@ body {
   background: linear-gradient(to bottom, #282E33, #22272B);
 }
 
-.bouncy {
-  transition: transform 0.2s; /* Animation */
-}
-
-.bouncy:hover {
-  transform: scale(1.1); /* Animation */
-}
-
 .smallBounce {
   transition: transform 0.2s; /* Animation */
 }

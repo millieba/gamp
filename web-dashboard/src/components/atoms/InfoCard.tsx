@@ -6,6 +6,7 @@ import {
   SparklesIcon,
   StarIcon,
   FireIcon,
+  CommandLineIcon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 
@@ -37,6 +38,7 @@ const InfoCard: React.FC<InfoDetails> = ({
     star: StarIcon,
     language: LanguageIcon,
     fire: FireIcon,
+    command: CommandLineIcon,
   };
 
   const IconComponent = iconComponents[icon];
