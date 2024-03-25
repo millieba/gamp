@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import RecentBadges from "@/components/molecules/home/RecentBadges";
 import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
 import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
+import PageHeading from "@/components/atoms/PageHeading";
 
 const HomePage = () => {
   const { data: session, status } = useSession();
@@ -16,11 +17,11 @@ const HomePage = () => {
     return <p>Loading...</p>;
   } else {
     return (
-      <div className="mr-4">
-        <h1 className="text-2xl mb-5">{`Welcome, ${session?.user?.name}!`}</h1>
+      <>
+        <PageHeading title={`Welcome, ${session?.user?.name}!`} />
         <div className="flex flex-wrap gap-5">
           <StatPreview />
-          <div>
+          <div className="flex-grow">
             <RecentIssues stats={stats} />
           </div>
           <div className="flex-grow">
@@ -33,7 +34,7 @@ const HomePage = () => {
             <ContributionChartWrapper />
           </div>
         </div>
-      </div>
+      </>
     );
   }
 };
