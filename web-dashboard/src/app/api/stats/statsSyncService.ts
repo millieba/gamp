@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { DBStats } from "../sync/syncService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
-import { Commit, MiscCommit, Modification } from "../commits/commitsService";
+import { MiscCommit, Modification } from "../commits/commitsService";
 import { AssignedIssueInterface } from "../issues/issuesUtils";
 
 export async function syncStats(

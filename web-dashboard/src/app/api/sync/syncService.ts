@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { checkBadges } from "../badges/checkBadgesService";
 import { syncStats } from "../stats/statsSyncService";
-import { Commit, Modification, prepareCommitsForDB } from "../commits/commitsService";
+import { Commit, MiscCommit, Modification, prepareCommitsForDB } from "../commits/commitsService";
 import { fetchIssueVariables } from "../issues/issuesService";
 import { calculateLanguageSizes } from "../languages/languagesService";
 import { fetchPullRequestVariables } from "../pullrequests/pullrequestsService";
@@ -28,8 +28,8 @@ export interface SyncData {
   issues: IssueQueryResultEdges[];
   assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
-  nightlyCommits: Commit[];
-  morningCommits: Commit[];
+  nightlyCommits: MiscCommit[];
+  morningCommits: MiscCommit[];
 }
 
 export interface DBStats {
