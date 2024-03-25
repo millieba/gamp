@@ -19,7 +19,7 @@ const HomePage = () => {
     return (
       <>
         <PageHeading title={`Welcome, ${session?.user?.name}!`} />
-        <div className="flex flex-wrap gap-5">
+        <div className="flex flex-wrap gap-5 mb-4">
           <StatPreview />
           <div className="flex-grow">
             <RecentIssues stats={stats} />
@@ -30,10 +30,8 @@ const HomePage = () => {
           <div className="flex-grow">
             <RecentBadges />
           </div>
-          <div className="flex-grow">
-            <ContributionChartWrapper />
-          </div>
         </div>
+        <ContributionChartWrapper />
       </>
     );
   }
