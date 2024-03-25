@@ -87,13 +87,13 @@ export async function languagesServices(accountId: string) {
 export async function calculateLanguageSizes(accountId: string) {
   try {
     const sizes: { [key: string]: number } = {};
-    const firstUsedAt: { [key: string]: string } = {}; // Key is a language name, value is the earliest date it was used
+    const firstUsedAt: { [key: string]: string | Date } = {}; // Key is a language name, value is the earliest date it was used
 
     const data = await languagesServices(accountId);
 
-    data.forEach((repo: any) => {
+    data.forEach((repo: Repository) => {
       const createdAt = new Date(repo.node.createdAt);
-      repo.node.languages.edges.forEach((language: any) => {
+      repo.node.languages.edges.forEach((language: Language) => {
         if (sizes[language.node.name]) {
           sizes[language.node.name] += language.size;
           // If the current repository's creation date is earlier than the stored date, update it
