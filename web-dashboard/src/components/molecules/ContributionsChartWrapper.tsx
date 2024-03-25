@@ -83,7 +83,7 @@ const ContributionChartWrapper = () => {
       name={"Contributions"}
       description={
         contributions
-          ? `You have made ${contributions.contributionCalendar.totalContributions} contributions in the last year. In the chart below, you can see the contributions you have made per day.`
+          ? `You've made ${contributions.contributionCalendar.totalContributions} contributions in the last year. In the chart below, you can see the contributions you've made per day.`
           : ""
       }
       content={isLoading ? <ContributionChartSkeleton /> : <ContributionChart contributions={contributions} />}
