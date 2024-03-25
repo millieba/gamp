@@ -1,8 +1,8 @@
 import { Commit } from "@/app/api/commits/commitsService";
 import {
   getCommitDatesSet,
-  getLongestStrictStreak,
-  getLongestWorkdayStreak,
+  getHistoricalStrictStreak,
+  getHistoricalWorkdayStreak,
 } from "@/app/api/commits/streak/streakService";
 import "@testing-library/jest-dom";
 
@@ -46,12 +46,12 @@ describe("Check if commits are sorted new to old", () => {
   });
 });
 
-describe("Testing getLongestWorkdayStreak", () => {
+describe("Testing getHistoricalWorkdayStreak", () => {
   it("should return 0 if there are no commits", () => {
     const mockCommits = getCommitDatesSet([]);
 
     const expectedStreakLength = 0;
-    const actualStreakLength = getLongestWorkdayStreak(mockCommits).streakLength;
+    const actualStreakLength = getHistoricalWorkdayStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -62,7 +62,7 @@ describe("Testing getLongestWorkdayStreak", () => {
       generateMockCommits(new Date("2024-03-19T12:00:00Z"), 8, [0, 3, 4, 6])
     );
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithGaps).streakLength;
+    const actualStreakLength = getHistoricalWorkdayStreak(mockCommitsWithGaps).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -73,7 +73,7 @@ describe("Testing getLongestWorkdayStreak", () => {
       generateMockCommits(new Date("2024-03-18T12:00:00Z"), 7, [])
     );
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsWithoutWeekendGaps).streakLength;
+    const actualStreakLength = getHistoricalWorkdayStreak(mockCommitsWithoutWeekendGaps).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -84,7 +84,7 @@ describe("Testing getLongestWorkdayStreak", () => {
       generateMockCommits(new Date("2024-03-23T12:00:00Z"), 7, [])
     );
 
-    const actualStreakLength = getLongestWorkdayStreak(mockCommitsStartingOnWeekend).streakLength;
+    const actualStreakLength = getHistoricalWorkdayStreak(mockCommitsStartingOnWeekend).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -97,7 +97,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedStreakLength = 5;
     const expectedDayList = ["2024-03-12", "2024-03-11", "2024-03-08", "2024-03-07", "2024-03-06"];
 
-    const actualStreak = getLongestWorkdayStreak(mockCommits);
+    const actualStreak = getHistoricalWorkdayStreak(mockCommits);
     const actualStreakLength = actualStreak.streakLength;
     const actualDayList = actualStreak.streakDates;
 
@@ -114,7 +114,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const mockCommits = getCommitDatesSet(shortStreak1.concat(mediumStreak).concat(longStreak).concat(shortStreak2));
 
     const expectedStreakLength = 5;
-    const actualStreakLength = getLongestWorkdayStreak(mockCommits).streakLength;
+    const actualStreakLength = getHistoricalWorkdayStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -130,7 +130,7 @@ describe("Testing getLongestWorkdayStreak", () => {
     const expectedStreakLength = 2;
     const expectedDayList = ["2024-02-27", "2024-02-26"];
 
-    const actualStreak = getLongestWorkdayStreak(mockCommits, threshold);
+    const actualStreak = getHistoricalWorkdayStreak(mockCommits, threshold);
     const actualStreakLength = actualStreak.streakLength;
     const actualDayList = actualStreak.streakDates;
 
@@ -139,12 +139,12 @@ describe("Testing getLongestWorkdayStreak", () => {
   });
 });
 
-describe("Testing getLongestStrictStreak", () => {
+describe("Testing getHistoricalStrictStreak", () => {
   it("should return 0 if there are no commits", () => {
     const mockCommits = getCommitDatesSet([]);
 
     const expectedStreakLength = 0;
-    const actualStreakLength = getLongestStrictStreak(mockCommits).streakLength;
+    const actualStreakLength = getHistoricalStrictStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -153,7 +153,7 @@ describe("Testing getLongestStrictStreak", () => {
     const expectedStreakLength = 3;
     const mockCommitsWithGaps = getCommitDatesSet(generateMockCommits(new Date("2024-03-22T12:00:00Z"), 7, [1, 2]));
 
-    const actualStreakLength = getLongestStrictStreak(mockCommitsWithGaps).streakLength;
+    const actualStreakLength = getHistoricalStrictStreak(mockCommitsWithGaps).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });
@@ -174,7 +174,7 @@ describe("Testing getLongestStrictStreak", () => {
       "2024-03-06",
     ];
 
-    const actualStreak = getLongestStrictStreak(mockCommits);
+    const actualStreak = getHistoricalStrictStreak(mockCommits);
     const actualStreakLength = actualStreak.streakLength;
     const actualDayList = actualStreak.streakDates;
 
@@ -191,7 +191,7 @@ describe("Testing getLongestStrictStreak", () => {
     const mockCommits = getCommitDatesSet(shortStreak1.concat(mediumStreak).concat(longStreak).concat(shortStreak2));
 
     const expectedStreakLength = 7;
-    const actualStreakLength = getLongestStrictStreak(mockCommits).streakLength;
+    const actualStreakLength = getHistoricalStrictStreak(mockCommits).streakLength;
 
     expect(actualStreakLength).toEqual(expectedStreakLength);
   });

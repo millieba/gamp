@@ -2,7 +2,11 @@ import prisma from "@/utils/prisma";
 import { Commit } from "../commits/commitsService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
 import { IssueQueryResultEdges } from "../issues/issuesUtils";
-import { getCommitDatesSet, getLongestStrictStreak, getLongestWorkdayStreak } from "../commits/streak/streakService";
+import {
+  getCommitDatesSet,
+  getHistoricalStrictStreak,
+  getHistoricalWorkdayStreak,
+} from "../commits/streak/streakService";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
   try {
@@ -236,12 +240,12 @@ async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: str
     });
 
     for (const badge of badges) {
-      const bestWorkdayStreak = getLongestWorkdayStreak(commitDates, badge.threshold);
+      const bestWorkdayStreak = getHistoricalWorkdayStreak(commitDates, badge.threshold);
       const streakLength = bestWorkdayStreak.streakLength;
       const streakDates = bestWorkdayStreak.streakDates;
 
       if (streakLength >= badge.threshold) {
-        // The dates contributing to the streak are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
+        // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
         const dateEarned = new Date(streakDates[0]);
 
         // Create a new BadgeAward instance
@@ -275,12 +279,14 @@ async function checkStrictStreakBadges(commitDates: Set<string>, accountId: stri
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "strict_streak" },
     });
-    const bestStrictStreak = getLongestStrictStreak(commitDates);
-    const streakLength = bestStrictStreak.streakLength;
-    const streakDates = bestStrictStreak.streakDates;
 
     for (const badge of badges) {
+      const bestStrictStreak = getHistoricalStrictStreak(commitDates, badge.threshold);
+      const streakLength = bestStrictStreak.streakLength;
+      const streakDates = bestStrictStreak.streakDates;
+
       if (streakLength >= badge.threshold) {
+        // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
         const dateEarned = new Date(streakDates[0]);
 
         // Create a new BadgeAward instance
