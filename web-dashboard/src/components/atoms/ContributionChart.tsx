@@ -24,7 +24,7 @@ interface ContributionData {
 }
 
 const ContributionChartSkeleton = () => (
-  <div className="overflow-x-auto bg-DarkNeutral400 rounded-lg mt-2 p-4">
+  <div className="overflow-x-auto bg-DarkNeutral300 rounded-lg mt-2 p-4">
     <div className="overflow-x-auto">
       <div className="flex max-w-sm">
         {[...Array(52)].map((_, weekIndex) => (

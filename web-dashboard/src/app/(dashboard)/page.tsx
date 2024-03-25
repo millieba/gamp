@@ -3,7 +3,10 @@ import StatPreview from "@/components/molecules/home/StatPreview";
 import { useSyncContext } from "@/contexts/SyncContext";
 import RecentIssues from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
-import RecentAndApproachingBadges from "@/components/atoms/home/RecentAndApproachingBadges";
+import RecentBadges from "@/components/atoms/home/RecentBadges";
+import ApproachingBadges from "@/components/atoms/home/ApproachingBadges";
+import ContributionChart from "@/components/atoms/ContributionChart";
+import StatCard from "@/components/atoms/StatCard";
 
 const HomePage = () => {
   const { data: session, status } = useSession();
@@ -16,13 +19,25 @@ const HomePage = () => {
     return (
       <div className="mr-4">
         <h1 className="text-2xl mb-5">{`Welcome, ${session?.user?.name}!`}</h1>
-        <StatPreview />
-        <div className="flex flex-wrap">
-          <div className="mr-5 mb-5">
+        <div className="flex flex-wrap gap-5">
+          <StatPreview />
+          <div>
             <RecentIssues stats={stats} />
           </div>
-          <div className="max-w-[350px] mb-5">
-            <RecentAndApproachingBadges />
+          <div className="flex-grow">
+            <ApproachingBadges />
+          </div>
+          <div className="flex-grow">
+            <RecentBadges />
+          </div>
+          <div className="flex-grow">
+            <StatCard
+              name={"Contributions"}
+              description={
+                "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
+              }
+              content={<ContributionChart />}
+            />
           </div>
         </div>
       </div>
