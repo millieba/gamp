@@ -162,9 +162,14 @@ const isConsecutive = (currentDate: Date, previousDate: Date | undefined, isStri
       currentDate.setUTCHours(0, 0, 0, 0)) /
     (1000 * 60 * 60 * 24);
 
+  const previousDay = previousDate?.getDay();
+  const currentDay = currentDate.getDay();
+
   return isStrictStreak
     ? !previousDate || dayDiff === 1
-    : !previousDate || dayDiff === 1 || (dayDiff <= 3 && previousDate.getDay() === 1);
+    : !previousDate ||
+        dayDiff === 1 ||
+        (dayDiff <= 3 && (previousDay === 0 || previousDay === 1) && (currentDay === 5 || currentDay === 6));
 };
 
 const isWeekend = (date: Date): boolean => {
@@ -187,8 +192,8 @@ function getHistoricalStreak(
     if (threshold && currentStreak >= threshold) {
       longestStreak = threshold; // Set streak to threshold, it is irrelevant if the current streak is longer than the threshold
       longestStreakDates = currentStreakDates.slice(-threshold); // Remove any commit dates that happened after the threshold was reached
-    } else if (currentStreak >= longestStreak) {
-      // Update streak if current streak is longer than the longest streak
+    } else if (!threshold && currentStreak >= longestStreak) {
+      // Update streak if current streak is longer than the longest streak and no threshold is given
       longestStreak = currentStreak;
       longestStreakDates = [...currentStreakDates];
     }

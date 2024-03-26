@@ -240,6 +240,9 @@ async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: str
       where: { type: "workday_streak" },
     });
 
+    // Sort badges by threshold in descending order so we can choose to stop checking badges early
+    badges.sort((a, b) => a.threshold - b.threshold);
+
     for (const badge of badges) {
       const historicalWorkdayStreak = getHistoricalWorkdayStreak(commitDates, badge.threshold);
       const streakLength = historicalWorkdayStreak.streakLength;
@@ -267,6 +270,8 @@ async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: str
             },
           },
         });
+      } else {
+        break; // If the streak is not long enough to earn the badge, break the loop. Badges are sorted by threshold, so no further badges will be earned either
       }
     }
   } catch (error) {
@@ -280,6 +285,9 @@ async function checkStrictStreakBadges(commitDates: Set<string>, accountId: stri
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "strict_streak" },
     });
+
+    // Sort badges by threshold in descending order so we can choose to stop checking badges early
+    badges.sort((a, b) => a.threshold - b.threshold);
 
     for (const badge of badges) {
       const historicalStrictStreak = getHistoricalStrictStreak(commitDates, badge.threshold);
@@ -308,6 +316,8 @@ async function checkStrictStreakBadges(commitDates: Set<string>, accountId: stri
             },
           },
         });
+      } else {
+        break; // If the streak is not long enough to earn the badge, break the loop. Badges are sorted by threshold, so no further badges will be earned either
       }
     }
   } catch (error) {
@@ -486,6 +496,7 @@ export async function checkBadges(
       where: { accountId },
     });
     const commitDates = getCommitDatesSet(commits);
+
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
       await checkMiscNight(nightlyCommits, accountId),
