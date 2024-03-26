@@ -426,14 +426,15 @@ export async function prepareCommitsForDB(
 ): Promise<{
   commits: Commit[];
   streak: StreakResponse;
-  nightlyCommits: number;
-  morningCommits: number;
+  nightlyCommits: Commit[];
+  morningCommits: Commit[];
   commitCount: number;
   dailyModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
+
     const nightlyCommits = commits.filter((commit) => {
       const commitDate = new Date(commit.committedDate);
       const hour = commitDate.getUTCHours();
@@ -446,25 +447,14 @@ export async function prepareCommitsForDB(
       return hour >= 5 && hour < 8;
     });
 
-    const filteredNightlyCommits = nightlyCommits.map((commit) => ({
-      oid: commit.oid,
-      message: commit.message,
-      committedDate: commit.committedDate,
-    }));
-
-    const filteredMorningCommits = morningCommits.map((commit) => ({
-      oid: commit.oid,
-      message: commit.message,
-      committedDate: commit.committedDate,
-    }));
     const dailyModifications = await fetchDailyModifications(commits);
     console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
     return {
       commits: commits,
       streak: streak,
-      nightlyCommits: filteredNightlyCommits.length,
-      morningCommits: filteredMorningCommits.length,
+      nightlyCommits: nightlyCommits,
+      morningCommits: morningCommits,
       commitCount: commits.length,
       dailyModifications: dailyModifications || [],
     };

@@ -229,31 +229,17 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
   }
 }
 
-async function checkMiscNight(commits: Commit[], accountId: string) {
+async function checkMiscNight(nightlyCommits: Commit[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "miscellaneous_nighttime" },
     });
 
-    let commitsAtNight = [];
-
-    for (const commit of commits) {
-      if (commit.committedDate) {
-        const date = new Date(commit.committedDate);
-        const hour = date.getUTCHours(); // get the hour in UTC
-
-        if (hour >= 0 && hour < 5) {
-          // The commit was made between 12 AM and 5 AM
-          commitsAtNight.push(commit);
-        }
-      }
-    }
-
-    commitsAtNight.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+    nightlyCommits.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
 
     for (const badge of badges) {
-      if (commitsAtNight.length >= badge.threshold) {
-        const dateEarned = commitsAtNight[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
+      if (nightlyCommits.length >= badge.threshold) {
+        const dateEarned = nightlyCommits[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
 
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({
@@ -284,31 +270,17 @@ async function checkMiscNight(commits: Commit[], accountId: string) {
   }
 }
 
-async function checkMiscMorning(commits: Commit[], accountId: string) {
+async function checkMiscMorning(morningCommits: Commit[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
       where: { type: "miscellaneous_morningtime" },
     });
 
-    let commitsInTheMorning = [];
-
-    for (const commit of commits) {
-      if (commit.committedDate) {
-        const date = new Date(commit.committedDate);
-        const hour = date.getUTCHours(); // get the hour in UTC
-
-        if (hour >= 5 && hour < 8) {
-          // The commit was made between 12 AM and 5 AM
-          commitsInTheMorning.push(commit);
-        }
-      }
-    }
-
-    commitsInTheMorning.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+    morningCommits.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
 
     for (const badge of badges) {
-      if (commitsInTheMorning.length >= badge.threshold) {
-        const dateEarned = commitsInTheMorning[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
+      if (morningCommits.length >= badge.threshold) {
+        const dateEarned = morningCommits[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
 
         // Create a new BadgeAward instance
         const badgeAward = await prisma.badgeAward.create({
@@ -415,6 +387,8 @@ async function updateTotalPoints(accountId: string) {
 
 export async function checkBadges(
   commits: Commit[],
+  nightlyCommits: Commit[],
+  morningCommits: Commit[],
   prs: PRData[],
   issues: IssueQueryResultEdges[],
   accountId: string,
@@ -426,8 +400,8 @@ export async function checkBadges(
     });
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
-      await checkMiscNight(commits, accountId),
-      await checkMiscMorning(commits, accountId),
+      await checkMiscNight(nightlyCommits, accountId),
+      await checkMiscMorning(morningCommits, accountId),
       await checkPrOpenedBadges(prs, accountId),
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),
