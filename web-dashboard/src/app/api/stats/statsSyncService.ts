@@ -55,6 +55,8 @@ export async function getStatsFromDB(accountId: string) {
       where: { accountId: accountId },
       select: {
         commitCount: true,
+        nightCommitCount: true,
+        morningCommitCount: true,
         repoCount: true,
         issueCount: true,
         avgTimeToCloseIssues: true,

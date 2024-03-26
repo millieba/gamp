@@ -192,6 +192,60 @@ const badgeConfigs: BadgeConfig[] = [
     ],
   },
   {
+    type: "miscellaneous_nighttime",
+    prefix: "misc-night",
+    badges: [
+      {
+        name: "Night Owl",
+        description: "Earned by making 5 commits between 12 AM and 5 AM.",
+        points: 1000,
+        threshold: 5,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Hardcore Night Owl",
+        description: "Earned by making 10 commits between 12 AM and 5 AM.",
+        points: 2000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Nocturnal Night Owl",
+        description: "Earned by making 20 commits between 12 AM and 5 AM.",
+        points: 3000,
+        threshold: 20,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
+  {
+    type: "miscellaneous_morningtime",
+    prefix: "misc-morning",
+    badges: [
+      {
+        name: "Early Bird",
+        description: "Earned by making 5 commits between 5 AM and 8 AM.",
+        points: 1000,
+        threshold: 5,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Dedicated Early Bird",
+        description: "Earned by making 10 commits between 5 AM and 8 AM.",
+        points: 2000,
+        threshold: 10,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+      {
+        name: "Extreme Early Bird",
+        description: "Earned by making 20 commits between 5 AM and 8 AM.",
+        points: 3000,
+        threshold: 20,
+        image: "/badges/Gold_Medal_Badge.svg",
+      },
+    ],
+  },
+  {
     type: "languages_count",
     prefix: "languages",
     badges: [
