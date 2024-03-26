@@ -35,20 +35,21 @@ const ContributionChartWrapper = () => {
       case "#ebedf0": // Original default white
         return "#596773"; // DarkNeutral500
 
+      // For now we keep the original green colours, but they can be replaced by anything by returning different hex colour codes
       case "#9be9a8": // Original light green
-        return "#b5bde2";
+        return colour;
 
       case "#40c463": // Original medium green
-        return "#919ed3";
+        return colour;
 
       case "#30a14e": // Original deep green
-        return "#7887ca";
+        return colour;
 
       case "#216e39": // Original very deep green
-        return "#777fff";
+        return colour;
 
       default:
-        return colour; // Keep the color as is for any other color
+        return colour; // For any other colour, just return the original colour as is. Shouldn't happen, but just in case e.g. GitHub changes the colours
     }
   };
 
