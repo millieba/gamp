@@ -1,4 +1,3 @@
-import { th } from "date-fns/locale";
 import { Commit } from "../commitsService";
 
 // Returns all unique dates the user has committed in a row, with the exception that gaps during weekends are allowed.
