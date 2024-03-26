@@ -24,6 +24,8 @@ export interface SyncData {
   data: DBStats;
   programmingLanguages: ProgrammingLanguage[];
   commits: Commit[];
+  nightlyCommits: Commit[];
+  morningCommits: Commit[];
   pullRequests: PRData[];
   issues: IssueQueryResultEdges[];
   assignedIssues: AssignedIssueInterface[];
@@ -32,6 +34,8 @@ export interface SyncData {
 
 export interface DBStats {
   commitCount: number;
+  nightCommitCount: number;
+  morningCommitCount: number;
   repoCount: number;
   issueCount: number;
   avgTimeToCloseIssues: number;
@@ -53,15 +57,22 @@ async function fetchData(accountId: string): Promise<SyncData> {
     prepareCommitsForDB(accountId),
   ]);
 
-  const languagesArray = Object.keys(languages).map((languageName) => {
-    // Convert the object into an array of language objects as expected by Prisma
-    return { name: languageName, bytesWritten: languages[languageName] };
-  });
+  const languagesArray: { name: string; bytesWritten: number; firstUsedAt: string | Date }[] = [];
+
+  for (let languageName in languages) {
+    languagesArray.push({
+      name: languages[languageName].language,
+      bytesWritten: languages[languageName].size,
+      firstUsedAt: languages[languageName].firstUsedAt,
+    });
+  }
 
   return {
     data: {
       // Data that can be inserted directly to database
       commitCount: commitData?.commitCount,
+      nightCommitCount: commitData?.nightlyCommits.length,
+      morningCommitCount: commitData?.morningCommits.length,
       repoCount: repoCount?.repoCount,
       issueCount: issueVariables?.issueCount,
       avgTimeToCloseIssues: issueVariables?.avgTimeToCloseIssues,
@@ -75,6 +86,8 @@ async function fetchData(accountId: string): Promise<SyncData> {
     },
     programmingLanguages: languagesArray,
     commits: commitData?.commits,
+    nightlyCommits: commitData?.nightlyCommits,
+    morningCommits: commitData?.morningCommits,
     pullRequests: prVariables?.pullRequests,
     issues: issueVariables?.data,
     dailyModifications: commitData?.dailyModifications,
@@ -103,7 +116,15 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
-      checkBadges(data.commits, data.pullRequests, data.issues, accountId),
+      checkBadges(
+        data.commits,
+        data.nightlyCommits,
+        data.morningCommits,
+        data.pullRequests,
+        data.issues,
+        accountId,
+        data.programmingLanguages
+      ),
       syncStats(data.data, data.programmingLanguages, data.dailyModifications, data.assignedIssues, accountId),
     ]);
 

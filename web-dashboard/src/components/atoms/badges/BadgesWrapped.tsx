@@ -20,6 +20,9 @@ const badgeUnitMapping: { [key: string]: string } = {
   "issues-closed-": "issues",
   "workday-streak-": "days",
   "strict-streak-": "days",
+  "misc-night": "night commits",
+  "misc-morning": "early commits",
+  "languages-": "languages",
 };
 
 const badgeProgressMapping = (stats: Stats) => ({
@@ -30,6 +33,9 @@ const badgeProgressMapping = (stats: Stats) => ({
   "issues-closed-": () => stats?.closedIssueCount || 0,
   "workday-streak-": () => stats?.workdayStreak || 0,
   "strict-streak-": () => stats?.strictStreak || 0,
+  "misc-night-": () => stats?.nightCommitCount || 0,
+  "misc-morning-": () => stats?.morningCommitCount || 0,
+  "languages-": () => stats?.programmingLanguages.length || 0,
 });
 
 export const getBadgeUnit = (id: string) => {
@@ -66,9 +72,13 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   let prRelatedBadges: BadgeArray[] = [];
   let workdayStreakBadges: BadgeArray[] = [];
   let strictStreakBadges: BadgeArray[] = [];
+  let miscRelatedBadges: BadgeArray[] = [];
+  let languagesRelatedBadges: BadgeArray[] = [];
   let organizedAllBadges: BadgeArray[] = [];
 
   useEffect(() => {}, [selectedTags]);
+
+  console.log(earnedBadgeIds);
 
   function processBadge(array: BadgeArray[], types: string[]) {
     let typeArrays: BadgeArray[][] = types.map(() => []);
@@ -95,13 +105,19 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
   commitsRelatedBadges = processBadge(commitsRelatedBadges, ["cc-"]);
   workdayStreakBadges = processBadge(workdayStreakBadges, ["workday-streak-"]);
   strictStreakBadges = processBadge(strictStreakBadges, ["strict-streak-"]);
+  miscRelatedBadges = processBadge(miscRelatedBadges, ["misc-night-", "misc-morning-"]);
+  languagesRelatedBadges = processBadge(languagesRelatedBadges, ["languages-"]);
 
   // Combining all the badges into one array, which is sorted as desired
   organizedAllBadges = issueRelatedBadges
+
     .concat(prRelatedBadges)
+
     .concat(commitsRelatedBadges)
     .concat(workdayStreakBadges)
-    .concat(strictStreakBadges);
+    .concat(strictStreakBadges)
+    .concat(miscRelatedBadges)
+    .concat(languagesRelatedBadges);
 
   return (
     <div className="flex flex-col gap-5">
@@ -241,7 +257,44 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
           ))}
         />
       )}
-      {selectedTags.includes(tags[7]) && <p>Currently we don't have badges for miscellaneous</p>}
+      {selectedTags.includes(tags[7]) && (
+        <BadgesWrap
+          title={tags[7] + ":"}
+          cards={languagesRelatedBadges.map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateBadgeProgress(badge.id, stats)}
+              threshold={badge.threshold}
+              achieved={badge.achieved}
+              date={badge.achieved ? badge.dateAchieved : undefined}
+              unit={getBadgeUnit(badge.id)}
+            />
+          ))}
+        />
+      )}
+      {selectedTags.includes(tags[8]) && (
+        <BadgesWrap
+          title={tags[8] + ":"}
+          cards={miscRelatedBadges.map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateBadgeProgress(badge.id, stats)}
+              threshold={badge.threshold}
+              achieved={badge.achieved}
+              date={badge.achieved ? badge.dateAchieved : undefined}
+              unit={getBadgeUnit(badge.id)}
+            />
+          ))}
+        />
+      )}
     </div>
   );
 };

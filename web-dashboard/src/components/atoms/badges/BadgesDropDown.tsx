@@ -13,6 +13,7 @@ export const tags: string[] = [
   "Pull request badges",
   "Workday streak badges",
   "Strict streak badges",
+  "Language badges",
   "Miscellaneous badges",
 ];
 
@@ -94,7 +95,7 @@ const BadgesDropDown = () => {
                 <div
                   key={tag}
                   className="bg-DarkNeutral1100 hover:bg-DarkNeutral1000 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350
-                    flex items-center gap-2"
+                    flex items-center gap-2 cursor-pointer"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setSelectedTags(selectedTags.filter((i) => i !== tag))}
                 >
