@@ -11,8 +11,10 @@ export const tags: string[] = [
   "Issue badges",
   "Commit badges",
   "Pull request badges",
-  "Miscellaneous badges",
+  "Workday streak badges",
+  "Strict streak badges",
   "Language badges",
+  "Miscellaneous badges",
 ];
 
 const BadgesDropDown = () => {
