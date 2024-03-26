@@ -9,7 +9,6 @@ export const GET = async () => {
     if (!session || !session.user.githubAccountId) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
-
     const commits = await prepareCommitsForDB(session.user.githubAccountId);
 
     return NextResponse.json(commits, { status: 200 });

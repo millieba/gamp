@@ -424,20 +424,37 @@ export async function prepareCommitsForDB(
   accountId: string,
   retries = 0
 ): Promise<{
-  streak: StreakResponse;
   commits: Commit[];
+  streak: StreakResponse;
+  nightlyCommits: Commit[];
+  morningCommits: Commit[];
   commitCount: number;
   dailyModifications: Modification[];
 }> {
   try {
     const commits = await fetchAllCommitsHandler(accountId);
     const streak = getCommitStreak(commits);
+
+    const nightlyCommits = commits.filter((commit) => {
+      const commitDate = new Date(commit.committedDate);
+      const hour = commitDate.getUTCHours();
+      return hour >= 0 && hour < 5;
+    });
+
+    const morningCommits = commits.filter((commit) => {
+      const commitDate = new Date(commit.committedDate);
+      const hour = commitDate.getUTCHours();
+      return hour >= 5 && hour < 8;
+    });
+
     const dailyModifications = await fetchDailyModifications(commits);
     console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
 
     return {
-      streak: streak,
       commits: commits,
+      streak: streak,
+      nightlyCommits: nightlyCommits,
+      morningCommits: morningCommits,
       commitCount: commits.length,
       dailyModifications: dailyModifications || [],
     };
