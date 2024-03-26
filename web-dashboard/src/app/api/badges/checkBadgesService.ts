@@ -2,6 +2,11 @@ import prisma from "@/utils/prisma";
 import { Commit } from "../commits/commitsService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
 import { IssueQueryResultEdges } from "../issues/issuesUtils";
+import {
+  getCommitDatesSet,
+  getHistoricalStrictStreak,
+  getHistoricalWorkdayStreak,
+} from "../commits/streak/streakService";
 import { ProgrammingLanguage } from "@/contexts/SyncContext";
 
 async function checkCommitCountBadges(commits: Commit[], accountId: string) {
@@ -229,6 +234,98 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
   }
 }
 
+async function checkWorkdayStreakBadges(commitDates: Set<string>, accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "workday_streak" },
+    });
+
+    // Sort badges by threshold in descending order so we can choose to stop checking badges early
+    badges.sort((a, b) => a.threshold - b.threshold);
+
+    for (const badge of badges) {
+      const historicalWorkdayStreak = getHistoricalWorkdayStreak(commitDates, badge.threshold);
+      const streakLength = historicalWorkdayStreak.streakLength;
+      const streakDates = historicalWorkdayStreak.streakDates;
+
+      if (streakLength >= badge.threshold) {
+        // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
+        const dateEarned = new Date(streakDates[0]);
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      } else {
+        break; // If the streak is not long enough to earn the badge, break the loop. Badges are sorted by threshold, so no further badges will be earned either
+      }
+    }
+  } catch (error) {
+    console.error(`An error occurred while checking workday streak badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
+async function checkStrictStreakBadges(commitDates: Set<string>, accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "strict_streak" },
+    });
+
+    // Sort badges by threshold in descending order so we can choose to stop checking badges early
+    badges.sort((a, b) => a.threshold - b.threshold);
+
+    for (const badge of badges) {
+      const historicalStrictStreak = getHistoricalStrictStreak(commitDates, badge.threshold);
+      const streakLength = historicalStrictStreak.streakLength;
+      const streakDates = historicalStrictStreak.streakDates;
+
+      if (streakLength >= badge.threshold) {
+        // streakDates are sorted from new to old, so the first date is the last date of the streak (the date the streak was high enough to earn the badge)
+        const dateEarned = new Date(streakDates[0]);
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      } else {
+        break; // If the streak is not long enough to earn the badge, break the loop. Badges are sorted by threshold, so no further badges will be earned either
+      }
+    }
+  } catch (error) {
+    console.error(`An error occurred while checking strict streak badges for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
 async function checkMiscNight(nightlyCommits: Commit[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
@@ -398,6 +495,8 @@ export async function checkBadges(
     await prisma.badgeAward.deleteMany({
       where: { accountId },
     });
+    const commitDates = getCommitDatesSet(commits);
+
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
       await checkMiscNight(nightlyCommits, accountId),
@@ -406,6 +505,8 @@ export async function checkBadges(
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),
       await checkClosedIssuesAssigned(issues, accountId),
+      await checkWorkdayStreakBadges(commitDates, accountId),
+      await checkStrictStreakBadges(commitDates, accountId),
       await checkLanguages(languages, accountId),
     ]);
     await updateTotalPoints(accountId); // Update totalPoints after checking badges
