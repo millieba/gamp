@@ -17,6 +17,8 @@ export interface Stats {
   programmingLanguages: ProgrammingLanguage[];
   assignedIssues: AssignedIssueInterface[];
   dailyModifications: Modification[];
+  nightCommitCount: number;
+  morningCommitCount: number;
   strictStreak: number | null;
   strictStreakToContinue: number | null;
   workdayStreak: number | null;

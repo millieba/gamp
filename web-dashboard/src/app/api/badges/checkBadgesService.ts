@@ -229,6 +229,88 @@ async function checkClosedIssuesAssigned(issues: IssueQueryResultEdges[], accoun
   }
 }
 
+async function checkMiscNight(nightlyCommits: Commit[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "miscellaneous_nighttime" },
+    });
+
+    nightlyCommits.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+
+    for (const badge of badges) {
+      if (nightlyCommits.length >= badge.threshold) {
+        const dateEarned = nightlyCommits[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(
+      `An error occurred while checking assigned miscellaneous night badges for account ${accountId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
+async function checkMiscMorning(morningCommits: Commit[], accountId: string) {
+  try {
+    const badges = await prisma.badgeDefinition.findMany({
+      where: { type: "miscellaneous_morningtime" },
+    });
+
+    morningCommits.sort((a, b) => new Date(a.committedDate).getTime() - new Date(b.committedDate).getTime());
+
+    for (const badge of badges) {
+      if (morningCommits.length >= badge.threshold) {
+        const dateEarned = morningCommits[badge.threshold === 0 ? 0 : badge.threshold - 1].committedDate;
+
+        // Create a new BadgeAward instance
+        const badgeAward = await prisma.badgeAward.create({
+          data: {
+            badgeId: badge.id,
+            accountId: accountId,
+            dateEarned: dateEarned,
+          },
+        });
+
+        // Fetch the account and update its list of earned badges
+        await prisma.account.update({
+          where: { id: accountId },
+          data: {
+            badges: {
+              connect: { id: badgeAward.id }, // Connect the new BadgeAward to the account
+            },
+          },
+        });
+      }
+    }
+  } catch (error) {
+    console.error(
+      `An error occurred while checking assigned miscellaneous morning badges for account ${accountId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
 async function checkLanguages(languages: ProgrammingLanguage[], accountId: string) {
   try {
     const badges = await prisma.badgeDefinition.findMany({
@@ -305,6 +387,8 @@ async function updateTotalPoints(accountId: string) {
 
 export async function checkBadges(
   commits: Commit[],
+  nightlyCommits: Commit[],
+  morningCommits: Commit[],
   prs: PRData[],
   issues: IssueQueryResultEdges[],
   accountId: string,
@@ -316,6 +400,8 @@ export async function checkBadges(
     });
     await Promise.all([
       await checkCommitCountBadges(commits, accountId),
+      await checkMiscNight(nightlyCommits, accountId),
+      await checkMiscMorning(morningCommits, accountId),
       await checkPrOpenedBadges(prs, accountId),
       await checkPrMergedBadges(prs, accountId),
       await checkOpenedIssuesAssigned(issues, accountId),

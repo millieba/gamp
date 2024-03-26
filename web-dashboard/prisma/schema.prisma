@@ -116,6 +116,8 @@ model GitHubStats {
   id                      String @id @default(cuid())
   accountId               String @unique @map("account_id")
   commitCount             Int?   @map("commit_count")
+  nightCommitCount        Int?   @map("night_commit_count")
+  morningCommitCount      Int?   @map("morning_commit_count")
   repoCount               Int?   @map("repo_count")
   issueCount              Int?   @map("issue_count")
   avgTimeToCloseIssues    Int?   @map("avg_time_to_close_issues")
