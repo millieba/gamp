@@ -4,7 +4,8 @@ import LanguageChart from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard from "@/components/atoms/InfoCard";
 import ModificationsChart from "@/components/atoms/ModificationsChart";
-import ContributionsChart from "@/components/atoms/ContributionsChart";
+import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
+import PageHeading from "@/components/atoms/PageHeading";
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges, preferences } = useSyncContext();
@@ -117,13 +118,13 @@ const StatsPage = () => {
   ];
 
   return (
-    <div className="mr-4">
-      <h1 className="text-2xl">Stats</h1>
+    <div className="">
+      <PageHeading title="Stats" />
       {isLoading ? (
         <p>Loading...</p>
       ) : (
         <>
-          <div className="flex flex-wrap">
+          <div className="flex flex-wrap gap-4 mb-4">
             {data.map(
               (item, index: number) =>
                 (item.number !== 0 || item.number !== null || stats !== undefined) && (
@@ -141,10 +142,10 @@ const StatsPage = () => {
                 )
             )}
           </div>
-          <div className="flex flex-grow">
+          <div className="flex flex-grow gap-4 mb-4">
             <div>
-              <div className="lg:flex">
-                <div className="lg:flex-1">
+              <div className="lg:flex gap-4">
+                <div className="lg:flex-1 mb-4">
                   <StatCard
                     name={"Most used languages"}
                     description={
@@ -153,7 +154,7 @@ const StatsPage = () => {
                     content={<LanguageChart />}
                   />
                 </div>
-                <div className="lg:flex-1">
+                <div className="lg:flex-1 mb-4">
                   <StatCard
                     name={"Additions and deletions"}
                     description={
@@ -164,13 +165,7 @@ const StatsPage = () => {
                 </div>
               </div>
               <div>
-                <StatCard
-                  name={"Contributions"}
-                  description={
-                    "In the chart below, you can see your GitHub contribution chart for the last year. The chart shows the number of contributions per day."
-                  }
-                  content={<ContributionsChart />}
-                />
+                <ContributionChartWrapper />
               </div>
             </div>
           </div>

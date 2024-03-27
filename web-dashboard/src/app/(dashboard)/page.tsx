@@ -3,7 +3,10 @@ import StatPreview from "@/components/molecules/home/StatPreview";
 import { useSyncContext } from "@/contexts/SyncContext";
 import RecentIssues from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
-import RecentAndApproachingBadges from "@/components/atoms/home/RecentAndApproachingBadges";
+import RecentBadges from "@/components/molecules/home/RecentBadges";
+import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
+import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
+import PageHeading from "@/components/atoms/PageHeading";
 
 const HomePage = () => {
   const { data: session, status } = useSession();
@@ -14,18 +17,22 @@ const HomePage = () => {
     return <p>Loading...</p>;
   } else {
     return (
-      <div className="mr-4">
-        <h1 className="text-2xl mb-5">{`Welcome, ${session?.user?.name}!`}</h1>
-        <StatPreview />
-        <div className="flex flex-wrap">
-          <div className="mr-5 mb-5">
+      <>
+        <PageHeading title={`Welcome, ${session?.user?.name}!`} />
+        <div className="flex flex-wrap gap-5 mb-4">
+          <StatPreview />
+          <div className="flex-grow">
             <RecentIssues stats={stats} />
           </div>
-          <div className="max-w-[350px] mb-5">
-            <RecentAndApproachingBadges />
+          <div className="flex-grow">
+            <ApproachingBadges />
+          </div>
+          <div className="flex-grow">
+            <RecentBadges />
           </div>
         </div>
-      </div>
+        <ContributionChartWrapper />
+      </>
     );
   }
 };

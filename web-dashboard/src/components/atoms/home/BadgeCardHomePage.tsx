@@ -37,7 +37,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   const randomMessage = messages[randomIndex];
 
   return (
-    <div className={`p-2 rounded-lg shadow-md flex flex-col md:flex-row ${bgColor} max-w-[350px] m-2 smallBounce`}>
+    <div className={`p-2 rounded-lg shadow-md flex flex-row ${bgColor} m-2 smallBounce`}>
       <div className="flex flex-col justify-center items-center">
         <img src={image} alt="Badge" className="mb-2 min-w-[50px] w-[50px]" />
       </div>
@@ -56,11 +56,11 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
           </div>
         ) : (
           <div className="items-center text-center md:items-left md:text-left w-full">
-            <div className="flex justify-between text-DarkNeutral1000 md:w-[200px] w-full">
+            <div className="flex justify-between text-DarkNeutral1000 w-full">
               <span className="text-xs">0</span>
               <span className="text-xs">{threshold}</span>
             </div>
-            <div className="w-full md:w-[200px] bg-DarkNeutral500 rounded-full h-1 text-DarkNeutral1000 items-center text-center md:items-left md:text-left">
+            <div className="w-full bg-DarkNeutral500 rounded-full h-1 text-DarkNeutral1000 items-center text-center md:items-left md:text-left">
               <div
                 className="bg-Lime500 h-1 rounded-full text-DarkNeutral1000"
                 style={{ width: `${percentage}%` }}

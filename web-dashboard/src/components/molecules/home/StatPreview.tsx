@@ -1,7 +1,7 @@
 "use client";
 import ShortStatView from "@/components/atoms/home/ShortStatView";
 import { useSyncContext } from "@/contexts/SyncContext";
-import { FullBadge } from "@/components/atoms/home/RecentAndApproachingBadges";
+import { FullBadge } from "./RecentBadges";
 
 const StatPreview = () => {
   const { preferences, stats, badges, allBadges } = useSyncContext();
@@ -34,7 +34,7 @@ const StatPreview = () => {
 
   return (
     <div
-      className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between mb-4`}
+      className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between`}
     >
       {preferences?.showWorkdayStreak ? (
         <ShortStatView
