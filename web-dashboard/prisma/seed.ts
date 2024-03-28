@@ -471,8 +471,31 @@ interface QuoteData {
   source: string;
 }
 
+// Function to insert quotes from a CSV file into the database, filtering out duplicates
 async function insertQuotesFromCSV(filePath: string) {
-  const quotes: QuoteData[] = [];
+  const uniqueQuotes = await getUniqueQuotes(filePath);
+
+  try {
+    await prisma.quote.createMany({
+      data: uniqueQuotes.map((quote) => ({
+        text: quote.text,
+        source: quote.source,
+      })),
+    });
+    console.log(
+      `Inserted ${uniqueQuotes.length} ${uniqueQuotes.length === 1 ? "quote" : "quotes"} from ${filePath}!📝`
+    );
+  } catch (error) {
+    console.error("Error inserting quotes:", error);
+  }
+}
+
+// Function for filtering out duplicate quotes both within the CSV file and compared to the existing quotes in the database
+async function getUniqueQuotes(filePath: string) {
+  const existingQuotes = await prisma.quote.findMany(); // Fetch all existing quotes from the database
+  const existingTexts = new Set(existingQuotes.map((quote) => quote.text.toLowerCase())); // Create a set of existing quote texts, ignoring case
+  const uniqueQuotes: QuoteData[] = [];
+
   const parser = fs.createReadStream(filePath).pipe(parse({ columns: true }));
 
   for await (const row of parser) {
@@ -481,23 +504,13 @@ async function insertQuotesFromCSV(filePath: string) {
       source: row.source.trim() !== "" ? row.source : null, // Check if source is empty string, if so set to null
     };
 
-    const existingQuote = await prisma.quote.findFirst({ where: { text: quote.text } });
-    if (!existingQuote) {
-      quotes.push(quote); // Only add unique quotes
+    if (!existingTexts.has(quote.text.toLowerCase())) {
+      uniqueQuotes.push(quote); // Add the quote to the list of unique quotes if it's not in existing texts
+      existingTexts.add(quote.text.toLowerCase()); // Add the quote text to the set of existing texts
     }
   }
 
-  try {
-    await prisma.quote.createMany({
-      data: quotes.map((quote) => ({
-        text: quote.text,
-        source: quote.source,
-      })),
-    });
-    console.log(`Inserted ${quotes.length} ${quotes.length === 1 ? "quote" : "quotes"} from ${filePath}.`);
-  } catch (error) {
-    console.error("Error inserting quotes:", error);
-  }
+  return uniqueQuotes;
 }
 
 async function main() {
