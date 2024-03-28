@@ -47,6 +47,7 @@ model Account {
   provider                 String
   providerAccountId        String    @map("provider_account_id")
   totalPoints              Int       @default(0) @map("total_points") // Total points earned from badges
+  skippedQuotes            Int       @default(0) // Number of quotes skipped by the user
   refresh_token            String?   @db.Text
   refresh_token_expires_in Int?
   access_token             String?   @db.Text
@@ -56,12 +57,14 @@ model Account {
   id_token                 String?   @db.Text
   session_state            String?
   lastSync                 DateTime? @map("last_sync") // Timestamp of last sync (for badges and stats)
+  lastQuoteId              String?   @map("last_quote_id") // Last quote shown to the user
 
   githubStats GitHubStats?
   preferences UserPreferences?
   badges      BadgeAward[] // List of badges the user has been awarded with
   level       Level            @relation(fields: [levelId], references: [id])
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quote       Quote?           @relation(fields: [lastQuoteId], references: [id])
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -181,4 +184,14 @@ model AssignedIssue {
   githubStats GitHubStats @relation(fields: [githubStatsId], references: [id], onDelete: Cascade)
 
   @@map("assigned_issues")
+}
+
+model Quote {
+  id     String  @id @default(cuid())
+  text   String  @unique
+  source String?
+
+  Account Account[] // One quote can be related (shown) to many accounts
+
+  @@map("quotes")
 }

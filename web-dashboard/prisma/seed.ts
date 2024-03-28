@@ -1,4 +1,7 @@
 import { Level, PrismaClient } from "@prisma/client";
+import fs from "fs";
+import { parse } from "csv-parse";
+
 const prisma = new PrismaClient();
 
 interface BadgeConfig {
@@ -463,8 +466,43 @@ async function createLevels(levelConfig: Level[]) {
   console.log("All levels created successfully.");
 }
 
+interface QuoteData {
+  text: string;
+  source: string;
+}
+
+async function insertQuotesFromCSV(filePath: string) {
+  const quotes: QuoteData[] = [];
+  const parser = fs.createReadStream(filePath).pipe(parse({ columns: true }));
+
+  for await (const row of parser) {
+    const quote: QuoteData = {
+      text: row.text,
+      source: row.source.trim() !== "" ? row.source : null, // Check if source is empty string, if so set to null
+    };
+
+    const existingQuote = await prisma.quote.findFirst({ where: { text: quote.text } });
+    if (!existingQuote) {
+      quotes.push(quote); // Only add unique quotes
+    }
+  }
+
+  try {
+    await prisma.quote.createMany({
+      data: quotes.map((quote) => ({
+        text: quote.text,
+        source: quote.source,
+      })),
+    });
+    console.log(`Inserted ${quotes.length} ${quotes.length === 1 ? "quote" : "quotes"} from ${filePath}.`);
+  } catch (error) {
+    console.error("Error inserting quotes:", error);
+  }
+}
+
 async function main() {
   try {
+    await insertQuotesFromCSV("quotes.csv");
     await createBadges(badgeConfigs);
     await createLevels(levelConfig);
   } catch (error) {
@@ -474,5 +512,4 @@ async function main() {
     await prisma.$disconnect();
   }
 }
-
 main();
