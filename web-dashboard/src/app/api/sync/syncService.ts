@@ -10,6 +10,7 @@ import { ProgrammingLanguage } from "@/contexts/SyncContext";
 import { checkLevel } from "../level/levelService";
 import { PRData } from "../pullrequests/pullrequestsUtils";
 import { AssignedIssueInterface, IssueQueryResultEdges } from "../issues/issuesUtils";
+import { getTodaysQuote } from "../quote/quoteService";
 
 export class TooManyRequestsError extends Error {
   retryAfter: number;
@@ -116,6 +117,7 @@ export async function syncWithGithub(accountId: string) {
     const data = await fetchData(accountId);
     await Promise.all([
       // Use Promise.all for independent tasks that can run concurrently
+      getTodaysQuote(accountId),
       checkBadges(
         data.commits,
         data.nightlyCommits,

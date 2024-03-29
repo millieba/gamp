@@ -28,14 +28,12 @@ export async function getTodaysQuote(accountId: string) {
   }
 }
 
-export async function updateQuote(accountId: string, quoteId: string, incrementSkippedQuotes = false) {
+export async function updateQuote(accountId: string, quoteId: string, isSkipUpdate = false) {
   try {
     const quote = await prisma.account.update({
       where: { id: accountId },
       data: {
-        skippedQuotes: {
-          increment: incrementSkippedQuotes ? 1 : 0,
-        },
+        skippedQuotes: isSkipUpdate ? { increment: 1 } : { set: 0 },
         quote: {
           connect: { id: quoteId },
         },
