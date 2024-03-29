@@ -78,8 +78,6 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   useEffect(() => {}, [selectedTags]);
 
-  console.log(earnedBadgeIds);
-
   function processBadge(array: BadgeArray[], types: string[]) {
     let typeArrays: BadgeArray[][] = types.map(() => []);
 

@@ -10,7 +10,12 @@ export async function getTodaysQuote(accountId: string) {
   try {
     const account = await prisma.account.findUnique({
       where: { id: accountId },
-      select: { lastSync: true, quote: true },
+      select: {
+        lastSync: true,
+        quote: {
+          select: { text: true, source: true },
+        },
+      },
     });
 
     if (!account?.quote || (account?.lastSync && !isLastSyncToday(account.lastSync))) {
@@ -38,7 +43,11 @@ export async function updateQuote(accountId: string, quoteId: string, isSkipUpda
           connect: { id: quoteId },
         },
       },
-      select: { quote: true },
+      select: {
+        quote: {
+          select: { text: true, source: true },
+        },
+      },
     });
 
     return quote;
