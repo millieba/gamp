@@ -189,6 +189,7 @@ model AssignedIssue {
 model Quote {
   id     String  @id @default(cuid())
   text   String  @unique
+  type   String
   source String?
 
   Account Account[] // One quote can be related (shown) to many accounts

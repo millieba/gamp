@@ -1,11 +1,7 @@
 "use client";
 import StatCard from "@/components/atoms/StatCard";
 import { useEffect, useState } from "react";
-
-interface Quote {
-  text: string;
-  source: string;
-}
+import { Quote } from "../../../../prisma/seed";
 
 const QuoteBoxSkeleton = () => (
   <StatCard
@@ -28,7 +24,7 @@ const QuoteBox = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await (await fetch("api/quote")).json();
-      setQuote(res.quote);
+      setQuote(res);
       setIsLoading(false);
     };
 
@@ -39,7 +35,13 @@ const QuoteBox = () => {
     <QuoteBoxSkeleton />
   ) : (
     <StatCard
-      name="Quote of the Day"
+      name={
+        quote?.type === "quote"
+          ? "Quote of the Day"
+          : quote?.type === "affirmation"
+          ? "Affirmation of the Day"
+          : "Tip of the Day"
+      }
       content={
         <div className="text-DarkNeutral1100">
           <p className="text-lg mb-3">{quote?.text}</p>

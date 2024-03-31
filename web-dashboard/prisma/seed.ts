@@ -466,8 +466,9 @@ async function createLevels(levelConfig: Level[]) {
   console.log("All levels created successfully.");
 }
 
-interface QuoteData {
+export interface Quote {
   text: string;
+  type: string;
   source: string;
 }
 
@@ -479,6 +480,7 @@ async function insertQuotesFromCSV(filePath: string) {
     await prisma.quote.createMany({
       data: uniqueQuotes.map((quote) => ({
         text: quote.text,
+        type: quote.type,
         source: quote.source,
       })),
     });
@@ -494,13 +496,14 @@ async function insertQuotesFromCSV(filePath: string) {
 async function getUniqueQuotes(filePath: string) {
   const existingQuotes = await prisma.quote.findMany(); // Fetch all existing quotes from the database
   const existingTexts = new Set(existingQuotes.map((quote) => quote.text.toLowerCase())); // Create a set of existing quote texts, ignoring case
-  const uniqueQuotes: QuoteData[] = [];
+  const uniqueQuotes: Quote[] = [];
 
   const parser = fs.createReadStream(filePath).pipe(parse({ columns: true }));
 
   for await (const row of parser) {
-    const quote: QuoteData = {
+    const quote: Quote = {
       text: row.text,
+      type: row.type,
       source: row.source.trim() !== "" ? row.source : null, // Check if source is empty string, if so set to null
     };
 
@@ -515,7 +518,7 @@ async function getUniqueQuotes(filePath: string) {
 
 async function main() {
   try {
-    await insertQuotesFromCSV("quotes.csv");
+    await insertQuotesFromCSV("typed_quotes.csv");
     await createBadges(badgeConfigs);
     await createLevels(levelConfig);
   } catch (error) {
