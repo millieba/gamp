@@ -12,21 +12,24 @@ export async function getTodaysQuote(accountId: string) {
       where: { id: accountId },
       select: {
         lastSync: true,
-        quote: {
-          select: { text: true, source: true },
-        },
+        quote: true,
       },
     });
 
     if (!account?.quote || (account?.lastSync && !isLastSyncToday(account.lastSync))) {
-      const newQuote = await getRandomQuote();
+      let newQuote = await getRandomQuote();
+
+      // Make sure the new quote is different from the existing one
+      while (newQuote?.id === account?.quote?.id) {
+        newQuote = await getRandomQuote();
+      }
 
       const quote = newQuote && (await updateQuote(accountId, newQuote?.id));
       return quote;
     }
 
     // If the last sync was today, just return the existing quote
-    return { quote: account.quote };
+    return { text: account.quote.text, source: account.quote.source };
   } catch (error) {
     console.error("An error occurred while fetching today's random quote:", error);
     throw error;
@@ -59,12 +62,20 @@ export async function updateQuote(accountId: string, quoteId: string, isSkipUpda
 
 export async function skipQuote(accountId: string) {
   try {
-    const account = await prisma.account.findUnique({
+    let account = await prisma.account.findUnique({
       where: { id: accountId },
-      select: { skippedQuotes: true },
+      select: { skippedQuotes: true, lastSync: true, quote: true },
     });
 
     if (!account) throw new Error(`Account with id ${accountId} not found`);
+
+    if (account?.lastSync && !isLastSyncToday(account.lastSync)) {
+      account = await prisma.account.update({
+        where: { id: accountId },
+        data: { skippedQuotes: 0 },
+        select: { skippedQuotes: true, lastSync: true, quote: true },
+      });
+    }
 
     if (account?.skippedQuotes >= 3) {
       const tomorrow = new Date();
@@ -76,10 +87,17 @@ export async function skipQuote(accountId: string) {
         tomorrow.getTime()
       );
     }
-    const randomQuote = await getRandomQuote();
-    const quote = randomQuote && (await updateQuote(accountId, randomQuote?.id, true));
 
-    return quote;
+    let newQuote = await getRandomQuote();
+
+    // Check if new quote is the same as previous quote
+    while (newQuote?.id === account?.quote?.id) {
+      newQuote = await getRandomQuote();
+    }
+
+    const quote = newQuote && (await updateQuote(accountId, newQuote?.id, true));
+
+    return quote?.quote;
   } catch (error) {
     console.error("An error occurred while skipping today's quote:", error);
     throw error;
