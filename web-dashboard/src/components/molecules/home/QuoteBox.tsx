@@ -5,7 +5,7 @@ import { Quote } from "../../../../prisma/seed";
 
 const QuoteBoxSkeleton = () => (
   <StatCard
-    name="Quote of the Day"
+    name={null}
     content={
       <div>
         <div className="animate-pulse bg-DarkNeutral300 rounded-full h-6 mb-1.5" />
