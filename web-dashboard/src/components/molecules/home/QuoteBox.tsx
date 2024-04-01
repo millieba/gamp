@@ -21,9 +21,7 @@ const QuoteBoxSkeleton = () => (
 const QuoteBox = () => {
   const [quote, setQuote] = useState<Quote>();
   const [isLoading, setIsLoading] = useState(true);
-  const [isSkipButtonDisabled, setIsSkipButtonDisabled] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,16 +37,14 @@ const QuoteBox = () => {
     setIsLoading(true);
     const res = await (await fetch("api/quote/skip")).json();
     if (res?.error) {
-      setIsSkipButtonDisabled(true);
       setIsLoading(false);
-      setError(res.error);
       return;
     }
     setQuote(res);
     setIsLoading(false);
   };
 
-  return isLoading ? (
+  return isLoading || quote?.skippedQuotes === undefined ? (
     <QuoteBoxSkeleton />
   ) : (
     <div
@@ -68,13 +64,13 @@ const QuoteBox = () => {
           <div className="text-DarkNeutral1100">
             <p className="text-lg mb-3">{quote?.text}</p>
             {quote?.source && <p className="text-sm">- {quote.source}</p>}
-            <Button label="Skip Quote" clickHandler={handleSkipQuote} isDisabled={isSkipButtonDisabled} />
+            <Button label="Skip Quote" clickHandler={handleSkipQuote} isDisabled={quote?.skippedQuotes >= 3} />
           </div>
         }
       />
-      {tooltipVisible && error && (
+      {tooltipVisible && quote?.skippedQuotes >= 3 && (
         <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-10 max-w-[60%] bottom-5 left-40 mr-3">
-          {error}
+          You've already skipped 3 quotes today. Please come back tomorrow for a new quote!
         </div>
       )}
     </div>

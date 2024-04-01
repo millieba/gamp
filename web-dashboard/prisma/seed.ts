@@ -470,6 +470,7 @@ export interface Quote {
   text: string;
   type: string;
   source: string;
+  skippedQuotes?: number;
 }
 
 // Function to insert quotes from a CSV file into the database, filtering out duplicates
