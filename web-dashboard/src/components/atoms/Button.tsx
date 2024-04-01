@@ -10,7 +10,7 @@ const Button = ({ label, clickHandler, isDisabled, styles, children }: ButtonPro
   return (
     <button
       onClick={clickHandler}
-      className={`mt-2 mb-4 px-4 py-2 rounded-full ${
+      className={`mt-2 px-4 py-2 rounded-full ${
         isDisabled
           ? "bg-DarkNeutral400 text-DarkNeutral700 cursor-not-allowed"
           : "text-DarkNeutral1100 bg-Magenta600 hover:bg-pink-600"
