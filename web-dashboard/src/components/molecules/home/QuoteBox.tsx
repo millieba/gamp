@@ -47,33 +47,33 @@ const QuoteBox = () => {
   return isLoading || quote?.skippedQuotes === undefined ? (
     <QuoteBoxSkeleton />
   ) : (
-    <div
-      onMouseEnter={() => setTooltipVisible(true)}
-      onMouseLeave={() => setTooltipVisible(false)}
-      className="relative w-full "
-    >
-      <StatCard
-        name={
-          quote?.type === "quote"
-            ? "Quote of the Day"
-            : quote?.type === "affirmation"
-            ? "Affirmation of the Day"
-            : "Tip of the Day"
-        }
-        content={
-          <div className="text-DarkNeutral1100">
-            <p className="text-lg mb-3">{quote?.text}</p>
-            {quote?.source && <p className="text-sm">- {quote.source}</p>}
+    <StatCard
+      name={
+        quote?.type === "quote"
+          ? "Quote of the Day"
+          : quote?.type === "affirmation"
+          ? "Affirmation of the Day"
+          : "Tip of the Day"
+      }
+      content={
+        <div className="text-DarkNeutral1100">
+          <p className="text-lg mb-3">{quote?.text}</p>
+          {quote?.source && <p className="text-sm mb-3">- {quote.source}</p>}
+          <div
+            onMouseEnter={() => setTooltipVisible(true)}
+            onMouseLeave={() => setTooltipVisible(false)}
+            className="relative w-fit"
+          >
             <Button label="Skip Quote" clickHandler={handleSkipQuote} isDisabled={quote?.skippedQuotes >= 3} />
+            {tooltipVisible && quote?.skippedQuotes >= 3 && (
+              <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 w-44 rounded-md shadow-lg z-10 -bottom-2 left-36 mr-2">
+                You've skipped 3 quotes today. Come back tomorrow for a new quote!
+              </div>
+            )}
           </div>
-        }
-      />
-      {tooltipVisible && quote?.skippedQuotes >= 3 && (
-        <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 rounded-md shadow-lg z-10 max-w-[60%] bottom-5 left-40 mr-3">
-          You've already skipped 3 quotes today. Please come back tomorrow for a new quote!
         </div>
-      )}
-    </div>
+      }
+    />
   );
 };
 
