@@ -13,7 +13,6 @@ export const DELETE = async (req: NextRequest) => {
       return NextResponse.json({ error: "Method Not Allowed" }, { status: 405 });
     }
     const userId = await req.json();
-    console.log("User id", userId);
 
     if (typeof userId !== "string") {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });

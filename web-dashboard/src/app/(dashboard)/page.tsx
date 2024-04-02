@@ -7,6 +7,7 @@ import RecentBadges from "@/components/molecules/home/RecentBadges";
 import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
 import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
 import PageHeading from "@/components/atoms/PageHeading";
+import QuoteBox from "@/components/molecules/home/QuoteBox";
 
 const HomePage = () => {
   const { data: session, status } = useSession();
@@ -21,8 +22,11 @@ const HomePage = () => {
         <PageHeading title={`Welcome, ${session?.user?.name}!`} />
         <div className="flex flex-wrap gap-5 mb-4">
           <StatPreview />
-          <div className="flex-grow">
-            <RecentIssues stats={stats} />
+          <div className="2xl:w-1/4 lg:w-1/3 md:w-full sm:w-full xs:w-full flex-grow">
+            <div className="flex flex-col gap-5">
+              <RecentIssues stats={stats} />
+              <QuoteBox />
+            </div>
           </div>
           <div className="flex-grow">
             <ApproachingBadges />

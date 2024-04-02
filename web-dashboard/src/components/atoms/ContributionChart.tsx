@@ -127,8 +127,9 @@ export const ContributionChart = ({ contributions }: { contributions: Contributi
                           calculateTooltipPosition(weekIndex, dayIndex).tooltipPlacement
                         }`}
                       >
-                        {day.contributionCount} contributions on {new Date(day.date).toLocaleDateString()}
                         {/* TOOLTIP POINTER */}
+                        {day.contributionCount} {day.contributionCount === 1 ? "contribution" : "contributions"} on{" "}
+                        {new Date(day.date).toLocaleDateString()}
                         <div
                           className={`absolute w-2 h-2 bg-DarkNeutral300 transform rotate-45 ${
                             calculateTooltipPosition(weekIndex, dayIndex).tooltipPointer

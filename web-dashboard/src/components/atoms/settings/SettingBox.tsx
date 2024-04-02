@@ -7,7 +7,7 @@ const SettingBox = ({
   description: string;
   children: React.ReactNode;
 }) => (
-  <div className="bg-DarkNeutral100 rounded-lg shadow-lg px-4 py-2 mb-4">
+  <div className="bg-DarkNeutral100 rounded-lg shadow-lg p-4 mb-4">
     <h2 className="text-lg font-bold">{title}</h2>
     <p className="text-sm my-2">{description}</p>
     {children}
