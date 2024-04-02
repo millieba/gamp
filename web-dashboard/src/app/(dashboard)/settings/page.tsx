@@ -5,6 +5,7 @@ import { useSyncContext } from "@/contexts/SyncContext";
 import DeleteAccountModal from "@/components/atoms/settings/DeleteAccountModal";
 import Button from "@/components/atoms/Button";
 import SettingBox from "@/components/atoms/settings/SettingBox";
+import PageHeading from "@/components/atoms/PageHeading";
 
 interface CheckboxState {
   strictStreak: boolean;
@@ -78,8 +79,8 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="mr-4">
-      <h1 className="text-2xl mb-3">Settings</h1>
+    <>
+      <PageHeading title="Settings" />
       <SettingBox
         title="Exclude Programming Languages"
         description="Select the programming languages you want to exclude from your stats. You can always change this later to include them again."
@@ -138,7 +139,7 @@ const SettingsPage = () => {
       <div className="ml-2">
         <Button label="Save" isDisabled={!changesMade} clickHandler={handleSave} />
       </div>
-    </div>
+    </>
   );
 };
 

@@ -39,7 +39,7 @@ const NavItems = () => {
   const NavItemButton = ({ onClick, children }: NavItemButtonProps) => (
     <button
       onClick={onClick}
-      className="text-DarkNeutral1100 font-semibold mb-4 pl-4 py-2 relative rounded-full hover:bg-DarkNeutral200 hover:rounded-full flex items-center"
+      className="text-DarkNeutral1100 font-semibold mb-2 pl-4 py-2 relative rounded-full hover:bg-DarkNeutral200 hover:rounded-full flex items-center"
     >
       {children}
     </button>
@@ -47,7 +47,7 @@ const NavItems = () => {
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col mb-4">
         <NavItem href="/">
           <HomeIcon className="h-5 w-5 text-DarkNeutral1100 mr-3" />
           Home

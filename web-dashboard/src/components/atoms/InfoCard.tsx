@@ -44,9 +44,7 @@ const InfoCard: React.FC<InfoDetails> = ({
   const IconComponent = iconComponents[icon];
 
   return (
-    <div
-      className={`p-8 m-2 rounded-lg shadow-md bg-DarkNeutral100 overflow-visible overflow-wrap-anywhere min-w-[250px]`}
-    >
+    <div className={`p-8 rounded-lg shadow-md bg-DarkNeutral100 overflow-visible overflow-wrap-anywhere min-w-[250px]`}>
       <div className="flex items-center mb-1 justify-between">
         <div className="flex items-center">
           {IconComponent && <IconComponent className={`h-5 w-5 mr-2 ${iconColour}`} />}
