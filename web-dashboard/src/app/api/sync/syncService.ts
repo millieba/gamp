@@ -96,6 +96,9 @@ async function fetchData(accountId: string): Promise<SyncData> {
   };
 }
 
+export const isLastSyncToday = (lastSync: Date) =>
+  new Date().setUTCHours(0, 0, 0, 0) === lastSync.setUTCHours(0, 0, 0, 0);
+
 export async function syncWithGithub(accountId: string) {
   try {
     const account = await prisma.account.findUnique({ where: { id: accountId } });
@@ -112,6 +115,11 @@ export async function syncWithGithub(accountId: string) {
         )} seconds.`,
         retryAfter
       );
+    }
+
+    if (account.lastSync && !isLastSyncToday(account.lastSync)) {
+      // If this is the first sync of a new day, update today's quote
+      await getTodaysQuote(accountId);
     }
 
     const data = await fetchData(accountId);

@@ -1,7 +1,6 @@
 import prisma from "@/utils/prisma";
 import { TooManyRequestsError } from "../sync/syncService";
-
-const isLastSyncToday = (lastSync: Date) => new Date().setUTCHours(0, 0, 0, 0) === lastSync.setUTCHours(0, 0, 0, 0);
+import { isLastSyncToday } from "../sync/syncService";
 
 export async function getTodaysQuote(accountId: string) {
   try {
