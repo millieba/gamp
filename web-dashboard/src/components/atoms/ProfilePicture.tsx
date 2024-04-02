@@ -5,6 +5,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
 import Button from "./Button";
+import Image from "next/image";
 
 const LevelSkeleton = () => (
   <>
@@ -120,10 +121,12 @@ const ProfilePicture = () => {
         <NameAndPictureSkeleton />
       ) : (
         <>
-          <img
+          <Image
             src={session?.user?.image}
+            width={96}
+            height={96}
             alt="Github profile picture"
-            className="rounded-full w-24 h-24 mt-9 shadow-sm"
+            className="rounded-full mt-9 shadow-sm"
           />
           <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
         </>
