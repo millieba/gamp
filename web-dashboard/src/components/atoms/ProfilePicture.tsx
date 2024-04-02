@@ -34,7 +34,6 @@ const ProfilePicture = () => {
   const { setIsLoading, setBadges, setAllBadges, setStats, setLevel, isLoading, level } = useSyncContext();
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const lastSync = session?.user.lastSync;
 
   useEffect(() => {
     if (session?.user.lastSync) {
@@ -47,10 +46,10 @@ const ProfilePicture = () => {
         setCountdown(Math.floor((5 - diffInMinutes) * 60));
       }
     }
-    if (!lastSync) {
+    if (!session?.user.lastSync) {
       setCountdown(300);
     }
-  }, [session?.user.lastSync, isLoading]);
+  }, [isLoading, session?.user.lastSync]);
 
   useEffect(() => {
     let countdownWorker: Worker | null = null;

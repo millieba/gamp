@@ -35,7 +35,7 @@ const LanguageChart = () => {
       delete sizes[language];
     });
     setLanguageSizes(sizes);
-  }, [stats]);
+  }, [stats, preferences]);
 
   // Sort the languages by decreasing size in bytes
   const sortedLanguages: DataItem[] = Object.entries(languageSizes)
