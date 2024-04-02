@@ -18,7 +18,7 @@ const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
       content={
         <div className={`max-w-[600px] rounded-lg bg-DarkNeutral100 w-full grid grid-row`}>
           {stats?.assignedIssues.length === 0 ? (
-            <span className="mb-1">Your Plate's Clear: No Assigned Issues &#x1F60A;</span>
+            <span className="mb-1">Your Plate&apos;s Clear: No Assigned Issues &#x1F60A;</span>
           ) : (
             <>
               <div className="max-h-[100px] overflow-auto p-1.5 text-sm">
