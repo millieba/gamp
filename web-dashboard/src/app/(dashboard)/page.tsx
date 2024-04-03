@@ -3,9 +3,11 @@ import StatPreview, { StatPreviewSkeleton } from "@/components/molecules/home/St
 import { useSyncContext } from "@/contexts/SyncContext";
 import RecentIssues, { RecentIssuesSkeleton } from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
-import RecentBadges from "@/components/molecules/home/RecentBadges";
+import RecentBadges, { RecentBadgesSkeleton } from "@/components/molecules/home/RecentBadges";
 import ApproachingBadges, { ApproachingBadgesSkeleton } from "@/components/molecules/home/ApproachingBadges";
-import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
+import ContributionChartWrapper, {
+  ContributionChartWrapperSkeleton,
+} from "@/components/molecules/ContributionsChartWrapper";
 import PageHeading, { PageHeadingSkeleton } from "@/components/atoms/PageHeading";
 import QuoteBox, { QuoteBoxSkeleton } from "@/components/molecules/home/QuoteBox";
 
@@ -23,8 +25,11 @@ const HomePageSkeleton = () => (
       <div className="flex-grow">
         <ApproachingBadgesSkeleton />
       </div>
-      <div className="flex-grow">{/* <RecentBadges /> */}</div>
+      <div className="flex-grow">
+        <RecentBadgesSkeleton />
+      </div>
     </div>
+    <ContributionChartWrapperSkeleton />
   </>
 );
 

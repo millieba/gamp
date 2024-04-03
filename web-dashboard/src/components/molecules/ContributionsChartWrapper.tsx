@@ -26,6 +26,16 @@ export interface ContributionData {
   contributionCalendar: ContributionCalendar;
 }
 
+export const ContributionChartWrapperSkeleton = () => (
+  <StatCard
+    name={"Contributions"}
+    description={
+      "You've made 0 contributions in the last year. In the chart below, you can see the contributions you've made per day."
+    }
+    content={<ContributionChartSkeleton />}
+  />
+);
+
 const ContributionChartWrapper = () => {
   const [contributions, setContributions] = useState<ContributionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
