@@ -8,10 +8,10 @@ export const StatPreviewSkeleton = () => (
     className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between`}
   >
     <ShortStatViewSkeleton border={true}>
-      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-28"></div>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-36"></div>
     </ShortStatViewSkeleton>
     <ShortStatViewSkeleton border={true}>
-      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-32"></div>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-36"></div>
     </ShortStatViewSkeleton>
     <ShortStatViewSkeleton border={false} width={36}>
       <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-60"></div>
