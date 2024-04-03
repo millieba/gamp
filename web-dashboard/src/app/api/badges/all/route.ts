@@ -4,8 +4,9 @@ import { options } from "../../auth/[...nextauth]/options";
 import { getBadgesFromDB } from "./getAllBadgesService";
 
 export const GET = async () => {
+  const session = await getServerSession(options);
+
   try {
-    const session = await getServerSession(options);
     if (!session || !session.user.githubAccountId) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }

@@ -1,5 +1,5 @@
-import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
-import React from "react";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
 
 export interface BadgeDetails {
   name: string;
@@ -39,7 +39,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   return (
     <div className={`p-2 rounded-lg shadow-md flex flex-row ${bgColor} m-2 smallBounce`}>
       <div className="flex flex-col justify-center items-center">
-        <img src={image} alt="Badge" className="mb-2 min-w-[50px] w-[50px]" />
+        <Image src={image} alt="Badge" width={50} height={50} className="mb-2" />
       </div>
       <div className="ml-4 items-center text-center sm:text-left">
         <div className="flex items-center">

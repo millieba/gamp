@@ -5,6 +5,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { useSyncContext, sync } from "@/contexts/SyncContext";
 import { redirect } from "next/navigation";
 import Button from "./Button";
+import Image from "next/image";
 
 const LevelSkeleton = () => (
   <>
@@ -33,7 +34,6 @@ const ProfilePicture = () => {
   const { setIsLoading, setBadges, setAllBadges, setStats, setLevel, isLoading, level } = useSyncContext();
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const lastSync = session?.user.lastSync;
 
   useEffect(() => {
     if (session?.user.lastSync) {
@@ -46,10 +46,10 @@ const ProfilePicture = () => {
         setCountdown(Math.floor((5 - diffInMinutes) * 60));
       }
     }
-    if (!lastSync) {
+    if (!session?.user.lastSync) {
       setCountdown(300);
     }
-  }, [session?.user.lastSync, isLoading]);
+  }, [isLoading, session?.user.lastSync]);
 
   useEffect(() => {
     let countdownWorker: Worker | null = null;
@@ -120,10 +120,12 @@ const ProfilePicture = () => {
         <NameAndPictureSkeleton />
       ) : (
         <>
-          <img
+          <Image
             src={session?.user?.image}
+            width={96}
+            height={96}
             alt="Github profile picture"
-            className="rounded-full w-24 h-24 mt-9 shadow-sm"
+            className="rounded-full mt-9 shadow-sm"
           />
           <span className="text-lg font-semibold mt-3 mb-1">{session?.user?.name}</span>
         </>
