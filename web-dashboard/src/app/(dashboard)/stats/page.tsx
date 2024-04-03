@@ -1,9 +1,9 @@
 "use client";
 import StatCard from "@/components/atoms/StatCard";
-import LanguageChart from "@/components/atoms/LanguageChart";
+import LanguageChart, { LanguageChartSkeleton } from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
 import InfoCard, { InfoCardSkeleton } from "@/components/atoms/InfoCard";
-import ModificationsChart from "@/components/atoms/ModificationsChart";
+import ModificationsChart, { ModificationsChartSkeleton } from "@/components/atoms/ModificationsChart";
 import ContributionChartWrapper, {
   ContributionChartWrapperSkeleton,
 } from "@/components/molecules/ContributionsChartWrapper";
@@ -35,7 +35,7 @@ const StatsPageSkeleton = () => {
                 description={
                   "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
                 }
-                // content={<LanguageChart />}
+                content={<LanguageChartSkeleton />}
               />
             </div>
             <div className="lg:flex-1 mb-4">
@@ -44,7 +44,7 @@ const StatsPageSkeleton = () => {
                 description={
                   "In the chart below, you can see the code lines added and deleted per day the last seven days."
                 }
-                // content={<ModificationsChart />}
+                content={<ModificationsChartSkeleton />}
               />
             </div>
           </div>
