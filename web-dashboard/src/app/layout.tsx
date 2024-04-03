@@ -1,25 +1,23 @@
-import './globals.css'
-import type { Metadata } from 'next'
+import "./globals.css";
+import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: 'Web Dashboard',
-  description: 'Motivational GitHub badge dashboard',
-}
+  title: "Web Dashboard",
+  description: "Motivational GitHub badge dashboard",
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const montserrat = Montserrat({
+  subsets: ["cyrillic", "cyrillic-ext", "latin", "latin-ext", "vietnamese"],
+  display: "swap",
+  weight: ["400", "700"],
+  preload: true,
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
-        />
-      </head>
-      <body>{children}</body>
+      <body className={montserrat.className}>{children}</body>
     </html>
-  )
+  );
 }

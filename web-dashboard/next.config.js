@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {}
 module.exports = {
+    images: {
+      domains: ['avatars.githubusercontent.com'],
+    },
     webpack(config) {
       // Grab the existing rule that handles SVG imports
       const fileLoaderRule = config.module.rules.find((rule) =>
