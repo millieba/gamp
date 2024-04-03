@@ -1,7 +1,23 @@
 "use client";
-import ShortStatView from "@/components/atoms/home/ShortStatView";
+import ShortStatView, { ShortStatViewSkeleton } from "@/components/atoms/home/ShortStatView";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { FullBadge } from "./RecentBadges";
+
+export const StatPreviewSkeleton = () => (
+  <div
+    className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between`}
+  >
+    <ShortStatViewSkeleton border={true}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-28"></div>
+    </ShortStatViewSkeleton>
+    <ShortStatViewSkeleton border={true}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-32"></div>
+    </ShortStatViewSkeleton>
+    <ShortStatViewSkeleton border={false} width={36}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-60"></div>
+    </ShortStatViewSkeleton>
+  </div>
+);
 
 const StatPreview = () => {
   const { preferences, stats, badges, allBadges } = useSyncContext();
