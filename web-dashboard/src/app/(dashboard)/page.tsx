@@ -1,13 +1,13 @@
 "use client";
 import StatPreview, { StatPreviewSkeleton } from "@/components/molecules/home/StatPreview";
 import { useSyncContext } from "@/contexts/SyncContext";
-import RecentIssues from "@/components/molecules/issues/RecentIssues";
+import RecentIssues, { RecentIssuesSkeleton } from "@/components/molecules/issues/RecentIssues";
 import { useSession } from "next-auth/react";
 import RecentBadges from "@/components/molecules/home/RecentBadges";
-import ApproachingBadges from "@/components/molecules/home/ApproachingBadges";
+import ApproachingBadges, { ApproachingBadgesSkeleton } from "@/components/molecules/home/ApproachingBadges";
 import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
 import PageHeading, { PageHeadingSkeleton } from "@/components/atoms/PageHeading";
-import QuoteBox from "@/components/molecules/home/QuoteBox";
+import QuoteBox, { QuoteBoxSkeleton } from "@/components/molecules/home/QuoteBox";
 
 const HomePageSkeleton = () => (
   <>
@@ -16,11 +16,13 @@ const HomePageSkeleton = () => (
       <StatPreviewSkeleton />
       <div className="2xl:w-1/4 lg:w-1/3 md:w-full sm:w-full xs:w-full flex-grow">
         <div className="flex flex-col gap-5">
-          {/* <RecentIssues /> */}
-          {/* <QuoteBox /> */}
+          <RecentIssuesSkeleton />
+          <QuoteBoxSkeleton />
         </div>
       </div>
-      <div className="flex-grow">{/* <ApproachingBadges /> */}</div>
+      <div className="flex-grow">
+        <ApproachingBadgesSkeleton />
+      </div>
       <div className="flex-grow">{/* <RecentBadges /> */}</div>
     </div>
   </>

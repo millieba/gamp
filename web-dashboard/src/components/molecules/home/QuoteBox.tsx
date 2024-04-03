@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Button from "@/components/atoms/Button";
 import { Quote } from "../../../../prisma/seed";
 
-const QuoteBoxSkeleton = () => (
+export const QuoteBoxSkeleton = () => (
   <StatCard
     name={null}
     content={

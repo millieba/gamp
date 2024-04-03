@@ -5,6 +5,21 @@ import React from "react";
 export interface RecentIssuesProps {
   stats: Stats | undefined;
 }
+export const RecentIssuesSkeleton = () => (
+  <StatCard
+    name="Assigned Issues"
+    content={
+      <div className={`max-h-[100px] overflow-auto p-1.5 text-sm bg-DarkNeutral100 rounded-lg`}>
+        <div
+          className={`relative z-[1000] p-2 mb-2 rounded-lg shadow-md bg-DarkNeutral300 flex flex-col sm:flex-grow 2xl:flex-grow-0`}
+        >
+          <div className="animate-pulse bg-DarkNeutral500 rounded-full h-4 w-11/12 mb-1"></div>
+          <div className="animate-pulse bg-DarkNeutral500 rounded-full h-3 w-3/4"></div>
+        </div>
+      </div>
+    }
+  />
+);
 
 const RecentIssues: React.FC<RecentIssuesProps> = ({ stats }) => {
   const getRepoNameFromUrl = (url: string) => {
