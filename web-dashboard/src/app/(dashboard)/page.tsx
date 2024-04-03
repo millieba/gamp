@@ -37,7 +37,6 @@ const HomePage = () => {
   const { data: session, status } = useSession();
   const { stats, isLoading } = useSyncContext();
 
-  // Loading when site is fetching
   if (isLoading) {
     return <HomePageSkeleton />;
   } else {
