@@ -13,6 +13,43 @@ export interface BadgeDetails {
   unit?: string;
 }
 
+interface BadgeCardHomePageSkeletonProps {
+  achieved?: boolean;
+}
+
+export const BadgeCardHomePageSkeleton = ({ achieved = false }: BadgeCardHomePageSkeletonProps) => (
+  <div className="p-2 rounded-lg shadow-md flex flex-row bg-DarkNeutral300 m-2">
+    <div className="flex flex-col justify-center items-center">
+      <div className="animate-pulse bg-DarkNeutral400 rounded-full h-[50px] w-[50px] mb-2" />
+    </div>
+    <div className="flex flex-col w-full ml-4">
+      <div className="items-center sm:items-left">
+        <div className="flex items-center">
+          <div className="animate-pulse bg-DarkNeutral400 rounded-full h-4 w-3/5 mb-1" />
+          {achieved && <CheckCircleIcon className="w-[18px] h-[18px] text-Lime500 ml-1 mb-1" />}
+        </div>
+        <div className="animate-pulse bg-DarkNeutral400 rounded-full h-3 w-11/12 mb-2" />
+      </div>
+      <div>
+        <div className="items-center md:items-left w-full">
+          <div className="flex justify-between w-full mb-1">
+            {!achieved && (
+              <>
+                <div className="animate-pulse bg-DarkNeutral400 rounded-full h-3 w-3" />
+                <div className="animate-pulse bg-DarkNeutral400 rounded-full h-3 w-3" />
+              </>
+            )}
+          </div>
+          {!achieved && <div className="w-full bg-DarkNeutral400 rounded-full h-2 items-center md:items-left"></div>}
+          <div className="mt-2">
+            <div className="animate-pulse bg-DarkNeutral400 rounded-full h-3 w-36" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   name,
   image,
