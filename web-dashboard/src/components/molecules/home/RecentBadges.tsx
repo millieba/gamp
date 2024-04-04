@@ -2,7 +2,7 @@ import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
 import { getBadgeUnit } from "../../atoms/badges/BadgesWrapped";
 import { Badge } from "@/utils/types";
-import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
+import BadgeCardHomePage, { BadgeCardHomePageSkeleton } from "../../atoms/home/BadgeCardHomePage";
 import StatCard from "@/components/atoms/StatCard";
 
 export type FullBadge = Badge & {
@@ -13,6 +13,20 @@ export type FullBadge = Badge & {
   threshold: number;
   type: string;
 };
+
+export const RecentBadgesSkeleton = () => (
+  <StatCard
+    name="Recently Earned Badges"
+    description="Here are the badges you've recently earned. Keep up the good work!"
+    content={
+      <>
+        <BadgeCardHomePageSkeleton achieved={true} />
+        <BadgeCardHomePageSkeleton achieved={true} />
+        <BadgeCardHomePageSkeleton achieved={true} />
+      </>
+    }
+  />
+);
 
 const RecentBadges = () => {
   const { badges, allBadges, stats } = useSyncContext();

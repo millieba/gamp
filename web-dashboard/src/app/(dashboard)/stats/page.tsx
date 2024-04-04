@@ -1,11 +1,61 @@
 "use client";
 import StatCard from "@/components/atoms/StatCard";
-import LanguageChart from "@/components/atoms/LanguageChart";
+import LanguageChart, { LanguageChartSkeleton } from "@/components/atoms/LanguageChart";
 import { useSyncContext } from "@/contexts/SyncContext";
-import InfoCard from "@/components/atoms/InfoCard";
-import ModificationsChart from "@/components/atoms/ModificationsChart";
-import ContributionChartWrapper from "@/components/molecules/ContributionsChartWrapper";
-import PageHeading from "@/components/atoms/PageHeading";
+import InfoCard, { InfoCardSkeleton } from "@/components/atoms/InfoCard";
+import ModificationsChart, { ModificationsChartSkeleton } from "@/components/atoms/ModificationsChart";
+import ContributionChartWrapper, {
+  ContributionChartWrapperSkeleton,
+} from "@/components/molecules/ContributionsChartWrapper";
+import PageHeading, { PageHeadingSkeleton } from "@/components/atoms/PageHeading";
+
+const StatsPageSkeleton = () => {
+  return (
+    <>
+      <PageHeadingSkeleton />
+      <div className="flex flex-wrap gap-4 mb-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index: number) => (
+          <div className="flex-grow" key={index}>
+            {index <= 2 ? (
+              <InfoCardSkeleton headingWidth="w-40" numberUnitWidth="w-44" subheadingWidth="w-60" />
+            ) : index >= 2 && index < 7 ? (
+              <InfoCardSkeleton headingWidth="w-20" numberUnitWidth="w-36" subheadingWidth="w-40" />
+            ) : (
+              <InfoCardSkeleton />
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-grow gap-4 mb-4">
+        <div>
+          <div className="lg:flex gap-4">
+            <div className="lg:flex-1 mb-4">
+              <StatCard
+                name={"Most used languages"}
+                description={
+                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                }
+                content={<LanguageChartSkeleton />}
+              />
+            </div>
+            <div className="lg:flex-1 mb-4">
+              <StatCard
+                name={"Additions and deletions"}
+                description={
+                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                }
+                content={<ModificationsChartSkeleton />}
+              />
+            </div>
+          </div>
+          <div>
+            <ContributionChartWrapperSkeleton />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const StatsPage = () => {
   const { badges, isLoading, stats, allBadges, preferences } = useSyncContext();
@@ -119,11 +169,11 @@ const StatsPage = () => {
 
   return (
     <div className="">
-      <PageHeading title="Stats" />
       {isLoading ? (
-        <p>Loading...</p>
+        <StatsPageSkeleton />
       ) : (
         <>
+          <PageHeading title="Stats" />
           <div className="flex flex-wrap gap-4 mb-4">
             {data.map(
               (item, index: number) =>
