@@ -14,6 +14,18 @@ const innerRadius = 2;
 const outerRadius = radius;
 const colors = ["#604ad2", "#735eda", "#8471e2", "#9685e9", "#a798f0"];
 
+export const LanguageChartSkeleton = () => {
+  return (
+    <>
+      <div className="w-full h-48 flex justify-center items-center mb-4">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-[#735eda]"></div>
+      </div>
+      <div className="w-full h-4 bg-DarkNeutral300 rounded-full animate-pulse mb-1"></div>
+      <div className="w-1/2 h-4 bg-DarkNeutral300 rounded-full animate-pulse"></div>
+    </>
+  );
+};
+
 const LanguageChart = () => {
   const [languageSizes, setLanguageSizes] = useState<{ [key: string]: number }>({});
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
@@ -131,7 +143,7 @@ const LanguageChart = () => {
       </div>
       {sortedLanguages.length > 4 && (
         <p>
-          Amongst your other used languages:{" "}
+          Other languages:{" "}
           {sortedLanguages.slice(4).map((item, index, arr) => (
             <React.Fragment key={item.name}>
               {item.name} ({calculatePercentage(item.value, total)}%)

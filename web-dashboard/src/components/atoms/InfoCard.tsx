@@ -19,6 +19,38 @@ export interface InfoDetails {
   description: string;
   iconColour?: string;
 }
+interface InfoCardSkeletonProps {
+  headingWidth?: string;
+  numberUnitWidth?: string;
+  subheadingWidth?: string;
+}
+
+export const InfoCardSkeleton: React.FC<InfoCardSkeletonProps> = ({
+  headingWidth = "w-24",
+  numberUnitWidth = "w-32",
+  subheadingWidth = "w-52",
+}) => {
+  return (
+    <div className="p-8 rounded-lg shadow-md bg-DarkNeutral100 overflow-visible overflow-wrap-anywhere min-w-[250px]">
+      <div className="flex items-center mb-2 justify-between">
+        <div className="flex items-center">
+          {/* Icon, e.g. fire icon */}
+          <div className="h-6 w-6 bg-DarkNeutral300 rounded-full animate-pulse mr-2"></div>
+          {/* Heading */}
+          <div className={`h-5 ${headingWidth} bg-DarkNeutral300 rounded-full animate-pulse`}></div>
+        </div>
+        {/* Information icon in right top corner */}
+        <div className="h-5 w-5 bg-DarkNeutral300 rounded-full animate-pulse"></div>
+      </div>
+      <div className="flex">
+        {/* Number + unit */}
+        <div className={`h-6 ${numberUnitWidth} bg-DarkNeutral300 rounded-full animate-pulse mb-2`}></div>
+      </div>
+      {/* Subheading */}
+      <div className={`h-4 ${subheadingWidth} bg-DarkNeutral300 rounded-full animate-pulse`}></div>
+    </div>
+  );
+};
 
 const InfoCard: React.FC<InfoDetails> = ({
   icon,
