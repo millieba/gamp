@@ -108,14 +108,21 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   // Combining all the badges into one array, which is sorted as desired
   organizedAllBadges = issueRelatedBadges
-
     .concat(prRelatedBadges)
-
     .concat(commitsRelatedBadges)
     .concat(workdayStreakBadges)
     .concat(strictStreakBadges)
     .concat(miscRelatedBadges)
     .concat(languagesRelatedBadges);
+
+  // Function to sort the badges based on progress percentage
+  const sortBasedOnProgress = (badgeArray: BadgeArray[]) => {
+    return badgeArray.sort((a, b) => {
+      const progressA = (updateBadgeProgress(a.id, stats) / a.threshold) * 100;
+      const progressB = (updateBadgeProgress(b.id, stats) / b.threshold) * 100;
+      return progressB - progressA;
+    });
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -143,9 +150,8 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
       {selectedTags.includes(tags[1]) && (
         <BadgesWrap
           title="Badges yet to achieve:"
-          cards={organizedAllBadges
-            ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
-            .map((badge) => (
+          cards={sortBasedOnProgress(organizedAllBadges?.filter((badge) => !earnedBadgeIds.includes(badge.id))).map(
+            (badge) => (
               <BadgeCard
                 key={badge.id}
                 name={badge.name}
@@ -157,7 +163,8 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
                 achieved={false}
                 unit={getBadgeUnit(badge.id)}
               />
-            ))}
+            )
+          )}
         />
       )}
       {selectedTags.includes(tags[2]) && (
