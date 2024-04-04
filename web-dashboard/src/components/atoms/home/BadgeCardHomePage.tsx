@@ -67,7 +67,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
   const messages = [
     `You're only ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} away!`,
     `Keep going, only ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} to go!`,
-    `Make ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} more to achieve this`,
+    `Only ${threshold - progress} ${threshold - progress === 1 ? unit.slice(0, -1) : unit} more to achieve this`,
   ];
 
   const randomIndex = Math.floor(Math.random() * messages.length);
