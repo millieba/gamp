@@ -123,8 +123,6 @@ const ProfilePicture = () => {
     }
   }, [session, status]);
 
-  console.log(calculateProgressBarPercentage());
-
   return (
     <div className="flex flex-col items-center">
       {/* Profile picture, name and level name */}
