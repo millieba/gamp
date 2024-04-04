@@ -8,6 +8,34 @@ import { TooltipProps } from "recharts";
 
 const colors = tailwindConfig?.theme?.extend?.colors as Record<string, string>;
 
+export const ModificationsChartSkeleton = () => {
+  return (
+    <div className="animate-pulse ml-9 flex mb-12">
+      {/* Y-axis labels */}
+      <div className="flex flex-col justify-between h-64">
+        {Array.from({ length: 5 }, (_, i) => (
+          <div key={i} className="h-3 w-5 bg-DarkNeutral300 rounded-full"></div>
+        ))}
+      </div>
+      <div className="relative w-full h-64 rounded ml-2">
+        {/* Dashed grid lines */}
+        <div className="absolute inset-0 flex flex-col justify-between">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="border-t border-[#8C9BAB]  border-dashed"></div>
+          ))}
+        </div>
+        {/* Axes lines */}
+        <div className="absolute inset-0 flex items-center justify-between border-l border-b border-[#8C9BAB]"></div>
+        {/* X-axis labels */}
+        <div className="absolute -bottom-6 left-0 right-0 flex justify-between">
+          {Array.from({ length: 7 }, (_, i) => (
+            <div key={i} className="h-3 w-5 bg-DarkNeutral300 rounded-full"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 const ModificationsChart = () => {
   const { stats } = useSyncContext();
   const error = console.error;
