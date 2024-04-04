@@ -13,7 +13,7 @@ export const StatPreviewSkeleton = () => (
     <ShortStatViewSkeleton border={true}>
       <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-36"></div>
     </ShortStatViewSkeleton>
-    <ShortStatViewSkeleton border={false} width={36}>
+    <ShortStatViewSkeleton border={false} width={"w-36"}>
       <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-60"></div>
     </ShortStatViewSkeleton>
   </div>

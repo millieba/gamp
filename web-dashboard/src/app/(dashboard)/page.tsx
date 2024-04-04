@@ -13,7 +13,7 @@ import QuoteBox, { QuoteBoxSkeleton } from "@/components/molecules/home/QuoteBox
 
 const HomePageSkeleton = () => (
   <>
-    <PageHeadingSkeleton width={"1/3"} />
+    <PageHeadingSkeleton width={"w-96"} />
     <div className="flex flex-wrap gap-5 mb-4">
       <StatPreviewSkeleton />
       <div className="2xl:w-1/4 lg:w-1/3 md:w-full sm:w-full xs:w-full flex-grow">
