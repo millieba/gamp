@@ -16,6 +16,44 @@ export const tags: string[] = [
   "Language badges",
   "Miscellaneous badges",
 ];
+export const BadgesDropDownSkeleton = () => {
+  return (
+    <div className="mt-2 mb-2">
+      <div className="text-sm mb-5">
+        {/* Search bar */}
+        <div className="card flex items-center justify-between p-3 gap-2.5 rounded-lg w-[69.25%] min-w-[300px] bg-DarkNeutral350 text-DarkNeutral1100">
+          <MagnifyingGlassIcon className="w-[20px] text-DarkNeutral1100" />
+          <input
+            type="text"
+            placeholder="Select categories to show"
+            className="bg-transparent text-sm flex-1 animate-pulse"
+            disabled
+          />
+        </div>
+      </div>
+
+      {/* Selected tags */}
+      <p>Selected badge categories:</p>
+      <div className="relative text-xs flex flex-wrap gap-1 p-2 mb-4 animate-pulse">
+        <div className="bg-DarkNeutral1100 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350 flex items-center gap-2">
+          Earned badges
+          <div>
+            <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+          </div>
+        </div>
+        <div className="bg-DarkNeutral1100 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350 flex items-center gap-2">
+          Upcoming badges
+          <div>
+            <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+          </div>
+        </div>
+        <div className="pt-2 pl-2">
+          <span className="text-DarkNeutral1100 text-sm animate-pulse">Clear all</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const BadgesDropDown = () => {
   const [searchQuery, setSearchQuery] = useState("");
