@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Web Dashboard",
+  title: "Gamp Dashboard",
   description: "Motivational GitHub badge dashboard",
 };
 
