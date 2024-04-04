@@ -1,7 +1,7 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
 import { getBadgeUnit, updateBadgeProgress } from "../../atoms/badges/BadgesWrapped";
-import BadgeCardHomePage from "../../atoms/home/BadgeCardHomePage";
+import BadgeCardHomePage, { BadgeCardHomePageSkeleton } from "../../atoms/home/BadgeCardHomePage";
 import StatCard from "@/components/atoms/StatCard";
 
 interface UnearnedBadges {
@@ -14,6 +14,20 @@ interface UnearnedBadges {
   threshold: number;
   type: string;
 }
+
+export const ApproachingBadgesSkeleton = () => (
+  <StatCard
+    name="Almost There"
+    description="You're so close to earning these badges!"
+    content={
+      <>
+        <BadgeCardHomePageSkeleton />
+        <BadgeCardHomePageSkeleton />
+        <BadgeCardHomePageSkeleton />
+      </>
+    }
+  />
+);
 
 const ApproachingBadges = () => {
   const { badges, allBadges, stats } = useSyncContext();

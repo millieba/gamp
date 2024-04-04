@@ -137,7 +137,8 @@ export const SyncProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     fetchData();
-  }, [status]);
+    // Ignore the ESLint warning about missing dependencies, as including session.user causes this useEffect to be triggered too often
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <SyncContext.Provider

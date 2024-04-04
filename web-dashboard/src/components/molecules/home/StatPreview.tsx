@@ -1,7 +1,23 @@
 "use client";
-import ShortStatView from "@/components/atoms/home/ShortStatView";
+import ShortStatView, { ShortStatViewSkeleton } from "@/components/atoms/home/ShortStatView";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { FullBadge } from "./RecentBadges";
+
+export const StatPreviewSkeleton = () => (
+  <div
+    className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between`}
+  >
+    <ShortStatViewSkeleton border={true}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-36"></div>
+    </ShortStatViewSkeleton>
+    <ShortStatViewSkeleton border={true}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-36"></div>
+    </ShortStatViewSkeleton>
+    <ShortStatViewSkeleton border={false} width={36}>
+      <div className="animate-pulse bg-DarkNeutral300 rounded-full h-3 w-60"></div>
+    </ShortStatViewSkeleton>
+  </div>
+);
 
 const StatPreview = () => {
   const { preferences, stats, badges, allBadges } = useSyncContext();
@@ -37,48 +53,34 @@ const StatPreview = () => {
       className={`rounded-lg shadow-md bg-DarkNeutral100 p-4 w-[100%] grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-between`}
     >
       {preferences?.showWorkdayStreak ? (
-        <ShortStatView
-          title="💼 Workday Streak"
-          children={checkStreakAndReturnString(stats?.workdayStreakToContinue, stats?.workdayStreak)}
-          border={true}
-        />
+        <ShortStatView title="💼 Workday Streak" border={true}>
+          {checkStreakAndReturnString(stats?.workdayStreakToContinue, stats?.workdayStreak)}
+        </ShortStatView>
       ) : (
-        <ShortStatView
-          title="🏅 Recent Badge"
-          children={
-            sorted[0]?.name === undefined
-              ? "No recent badges."
-              : `${sorted[0].name} is your most recently earned badge!`
-          }
-          border={true}
-        />
+        <ShortStatView title="🏅 Recent Badge" border={true}>
+          {sorted[0]?.name === undefined
+            ? "No recent badges."
+            : `${sorted[0].name} is your most recently earned badge!`}
+        </ShortStatView>
       )}
       {preferences?.showStrictStreak ? (
-        <ShortStatView
-          title="📅 Strict Streak"
-          children={checkStreakAndReturnString(stats?.strictStreakToContinue, stats?.strictStreak)}
-          border={true}
-        />
+        <ShortStatView title="📅 Strict Streak" border={true}>
+          {checkStreakAndReturnString(stats?.strictStreakToContinue, stats?.strictStreak)}
+        </ShortStatView>
       ) : (
-        <ShortStatView
-          title="📝 Assigned Issues"
-          children={`${stats?.issueCount} issues assigned to you!`}
-          border={true}
-        />
+        <ShortStatView title="📝 Assigned Issues" border={true}>
+          {`${stats?.issueCount} issues assigned to you!`}
+        </ShortStatView>
       )}
-      <ShortStatView
-        title="👨‍💻 Most Used Language"
-        children={`${
-          programmingLanguages?.[0]?.name === undefined ? "No languages used" : programmingLanguages?.[0]?.name
-        }${
+      <ShortStatView title="👨‍💻 Most Used Language" border={false}>
+        {`${programmingLanguages?.[0]?.name === undefined ? "No languages used" : programmingLanguages?.[0]?.name}${
           preferences?.excludeLanguages?.length === 0
             ? ", no languages excluded"
             : `, you've excluded ${preferences?.excludeLanguages?.length} ${
                 preferences?.excludeLanguages?.length === 1 ? "language" : "languages"
               }`
         }`}
-        border={false}
-      />
+      </ShortStatView>
     </div>
   );
 };

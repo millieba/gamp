@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Button from "@/components/atoms/Button";
 import { Quote } from "../../../../prisma/seed";
 
-const QuoteBoxSkeleton = () => (
+export const QuoteBoxSkeleton = () => (
   <StatCard
     name={null}
     content={
@@ -67,7 +67,7 @@ const QuoteBox = () => {
             <Button label="Skip Quote" clickHandler={handleSkipQuote} isDisabled={quote?.skippedQuotes >= 3} />
             {tooltipVisible && quote?.skippedQuotes >= 3 && (
               <div className="absolute bg-DarkNeutral400 text-DarkNeutral1000 p-2 w-44 rounded-md shadow-lg z-10 -bottom-2 left-36 mr-2">
-                You've skipped 3 quotes today. Come back tomorrow for a new quote!
+                You&apos;ve skipped 3 quotes today. Come back tomorrow for a new quote!
               </div>
             )}
           </div>
