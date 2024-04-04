@@ -36,10 +36,16 @@ const ProfilePicture = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
-    if (session?.user.lastSync) {
+    if (session?.user.lastSync || localStorage.getItem("visited")) {
       const currentTime = new Date();
-      const lastSyncDate = new Date(session.user.lastSync);
-      const diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
+      let diffInMilliseconds = 0;
+      if (session?.user.lastSync) {
+        const lastSyncDate = new Date(session.user.lastSync);
+        diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
+      } else {
+        const lastVisitedDate = new Date(localStorage.getItem("visited") as string);
+        diffInMilliseconds = currentTime.getTime() - lastVisitedDate.getTime();
+      }
       const diffInMinutes = diffInMilliseconds / (1000 * 60);
 
       if (diffInMinutes < 5) {
@@ -48,6 +54,7 @@ const ProfilePicture = () => {
     }
     if (!session?.user.lastSync) {
       setCountdown(300);
+      localStorage.setItem("visited", "true");
     }
   }, [isLoading, session?.user.lastSync]);
 
@@ -93,6 +100,7 @@ const ProfilePicture = () => {
       await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
       setIsDisabled(true);
       setCountdown(300);
+      localStorage.setItem("visited", "true");
     } catch (err) {
       err instanceof Error && setError(err.message);
       console.error(err);
