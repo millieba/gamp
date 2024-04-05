@@ -44,16 +44,16 @@ export const BadgeCardSkeleton: React.FC<BadgeCardSkeletonProps> = ({ achieved }
       ) : (
         <>
           {/* Progress bar labels */}
-          <div className="flex justify-between w-full mb-0.5">
+          <div className="flex justify-between w-full mb-1.5 mt-2">
             <div className="bg-DarkNeutral500 w-3 h-3 rounded-full" />
             <div className="bg-DarkNeutral500 w-5 h-3 rounded-full" />
           </div>
           {/* Progress bar */}
-          <div className="w-full bg-DarkNeutral500 rounded-full h-2.5 mb-1" />
+          <div className="w-full bg-DarkNeutral500 rounded-full h-2.5 mb-1.5" />
           {/* [Progress]/[threshold] [unit] text */}
-          <div className="bg-DarkNeutral500 w-8 h-4 rounded-full mb-1" />
+          <div className="bg-DarkNeutral500 w-24 h-4 rounded-full mb-2" />
           {/* Badge points */}
-          <div className="bg-DarkNeutral500 w-16 h-4 rounded-full" />
+          <div className="bg-DarkNeutral500 w-24 h-3 rounded-full" />
         </>
       )}
     </div>

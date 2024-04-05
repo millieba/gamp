@@ -65,10 +65,10 @@ type BadgeArray = BadgeDefinition & {
 };
 
 export const BadgesWrappedSkeleton = ({ selectedTags }: BadgesWrappedProps) => {
-  const numberOfCards = 1;
+  const numberOfCards = 10;
   // Rename selectedTags[0] to "Badges you've earned" and selectedTags[1] to "Badges yet to achieve" to match the actual BadgesWrapped component
-  selectedTags[0] = "Badges you've earned";
-  selectedTags[1] = "Badges yet to achieve";
+  selectedTags[0] = selectedTags[0] === tags[0] ? "Badges you've earned" : selectedTags[0];
+  selectedTags[1] = selectedTags[1] === tags[1] ? "Badges yet to achieve" : selectedTags[1];
   return (
     <div className="flex flex-col gap-5">
       {selectedTags.map((tag, index) => (
