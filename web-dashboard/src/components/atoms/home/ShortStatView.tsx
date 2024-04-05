@@ -6,13 +6,13 @@ interface StreakViewProps {
   border: boolean;
 }
 
-interface StreackViewSkeletonProps {
+interface ShortStatSkeletonProps {
   children: ReactNode;
   border: boolean;
   width?: string;
 }
 
-export const ShortStatViewSkeleton = ({ children, border, width = "w-32" }: StreackViewSkeletonProps) => {
+export const ShortStatViewSkeleton = ({ children, border, width = "w-32" }: ShortStatSkeletonProps) => {
   const borderRight = border ? "md:border-r" : "";
   return (
     <div className={`${borderRight} border-DarkNeutral300 grid p-1 items-center smallBounce`}>
