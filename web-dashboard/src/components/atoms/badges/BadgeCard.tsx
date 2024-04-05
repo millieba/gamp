@@ -14,13 +14,29 @@ export interface BadgeDetails {
 }
 
 export const BadgeCardSkeleton = () => {
+  const bgColor = "bg-DarkNeutral300";
   return (
-    <div className="p-8 rounded-lg shadow-md bg-DarkNeutral300 flex flex-col justify-between items-center sm:flex-grow 2xl:flex-grow-0 animate-pulse">
-      <div className="w-24 h-24 bg-DarkNeutral500 rounded-full mb-2"></div>
-      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
-      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
-      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
-      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
+    <div
+      className={`p-8 rounded-lg shadow-md ${bgColor} flex flex-col justify-between items-center sm:flex-grow 2xl:flex-grow-0 animate-pulse`}
+    >
+      {/* Badge image */}
+      <div className="h-[125px] w-[125px] bg-DarkNeutral400 rounded-full mb-4"></div>
+
+      {/* Badge name */}
+      <div className="w-40 h-5 bg-DarkNeutral400 rounded-full mb-4"></div>
+
+      {/* Badge description */}
+      <div className="w-44 h-4 bg-DarkNeutral400 rounded-full mb-1"></div>
+      <div className="w-36 h-4 bg-DarkNeutral400 rounded-full mb-3"></div>
+
+      {/* Badge progress */}
+      <div className="w-5 h-5 bg-DarkNeutral400 rounded-full mb-1"></div>
+
+      {/* Badge points */}
+      <div className="w-24 h-4 bg-DarkNeutral400 rounded-full mb-1.5"></div>
+
+      {/* Badge date */}
+      <div className="w-32 h-3 bg-DarkNeutral400 rounded-full"></div>
     </div>
   );
 };
