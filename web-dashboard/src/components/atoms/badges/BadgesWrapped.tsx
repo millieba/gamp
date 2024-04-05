@@ -1,6 +1,6 @@
 "use client";
 
-import BadgeCard from "@/components/atoms/badges/BadgeCard";
+import BadgeCard, { BadgeCardSkeleton } from "@/components/atoms/badges/BadgeCard";
 import BadgesWrap from "@/components/atoms/badges/BadgesWrap";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { tags } from "./BadgesDropDown";
@@ -62,6 +62,26 @@ export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
 type BadgeArray = BadgeDefinition & {
   achieved: boolean;
   dateAchieved?: Date | undefined;
+};
+
+export const BadgesWrappedSkeleton = ({ selectedTags }: BadgesWrappedProps) => {
+  const numberOfCards = 10;
+  // Rename selectedTags[0] to "Badges you've earned" and selectedTags[1] to "Badges yet to achieve" to match the actual BadgesWrapped component
+  selectedTags[0] = selectedTags[0] === tags[0] ? "Badges you've earned" : selectedTags[0];
+  selectedTags[1] = selectedTags[1] === tags[1] ? "Badges yet to achieve" : selectedTags[1];
+  return (
+    <div className="flex flex-col gap-5">
+      {selectedTags.map((tag, index) => (
+        <BadgesWrap
+          key={index}
+          title={tag + ":"}
+          cards={Array.from({ length: numberOfCards }, (_, i) => (
+            <BadgeCardSkeleton achieved={index === 0} key={i} />
+          ))}
+        />
+      ))}
+    </div>
+  );
 };
 
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {

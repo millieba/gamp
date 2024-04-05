@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import BadgesWrapped from "./BadgesWrapped";
+import BadgesWrapped, { BadgesWrappedSkeleton } from "./BadgesWrapped";
 
 // Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
@@ -16,6 +16,45 @@ export const tags: string[] = [
   "Language badges",
   "Miscellaneous badges",
 ];
+export const BadgesDropDownSkeleton = () => {
+  return (
+    <div className="mt-2 mb-2">
+      <div className="text-sm mb-5">
+        {/* Search bar */}
+        <div className="card flex items-center justify-between p-3 gap-2.5 rounded-lg w-[69.25%] min-w-[300px] bg-DarkNeutral350 text-DarkNeutral1100">
+          <MagnifyingGlassIcon className="w-[20px] text-DarkNeutral1100" />
+          <input
+            type="text"
+            placeholder="Select categories to show"
+            className="bg-transparent text-sm flex-1 animate-pulse"
+            disabled
+          />
+        </div>
+      </div>
+
+      {/* Selected tags */}
+      <p>Selected badge categories:</p>
+      <div className="relative text-xs flex flex-wrap gap-1 p-2 mb-4 animate-pulse">
+        <div className="bg-DarkNeutral1100 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350 flex items-center gap-2">
+          Earned badges
+          <div>
+            <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+          </div>
+        </div>
+        <div className="bg-DarkNeutral1100 rounded-full w-fit py-1.5 px-3 border border-DarkNeutral350 text-DarkNeutral350 flex items-center gap-2">
+          Upcoming badges
+          <div>
+            <XMarkIcon className="w-[20px] text-DarkNeutral350 " />
+          </div>
+        </div>
+        <div className="pt-2 pl-2">
+          <span className="text-DarkNeutral1100 text-sm animate-pulse">Clear all</span>
+        </div>
+      </div>
+      <BadgesWrappedSkeleton selectedTags={tags.slice(0, 2)} />
+    </div>
+  );
+};
 
 const BadgesDropDown = () => {
   const [searchQuery, setSearchQuery] = useState("");

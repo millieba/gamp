@@ -33,7 +33,7 @@ const StatsPageSkeleton = () => {
               <StatCard
                 name={"Most used languages"}
                 description={
-                  "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                  "This chart displays the most frequently used programming languages across the repositories you have access to. The data is calculated from the number of bytes written in each language."
                 }
                 content={<LanguageChartSkeleton />}
               />
@@ -42,7 +42,7 @@ const StatsPageSkeleton = () => {
               <StatCard
                 name={"Additions and deletions"}
                 description={
-                  "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                  "In the chart below, you can see the number of code lines added and deleted per day over the last seven days."
                 }
                 content={<ModificationsChartSkeleton />}
               />
@@ -199,7 +199,7 @@ const StatsPage = () => {
                   <StatCard
                     name={"Most used languages"}
                     description={
-                      "The following chart shows the most used languages used in the repositories you have a connection to. The data is calculated from the number bytes written in each language."
+                      "This chart displays the most frequently used programming languages across the repositories you have access to. The data is calculated from the number of bytes written in each language."
                     }
                     content={<LanguageChart />}
                   />
@@ -208,7 +208,7 @@ const StatsPage = () => {
                   <StatCard
                     name={"Additions and deletions"}
                     description={
-                      "In the chart below, you can see the code lines added and deleted per day the last seven days."
+                      "In the chart below, you can see the number of code lines added and deleted per day over the last seven days."
                     }
                     content={<ModificationsChart />}
                   />
