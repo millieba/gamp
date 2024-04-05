@@ -65,7 +65,7 @@ type BadgeArray = BadgeDefinition & {
 };
 
 export const BadgesWrappedSkeleton = ({ selectedTags }: BadgesWrappedProps) => {
-  const numberOfCards = 10;
+  const numberOfCards = 1;
   // Rename selectedTags[0] to "Badges you've earned" and selectedTags[1] to "Badges yet to achieve" to match the actual BadgesWrapped component
   selectedTags[0] = "Badges you've earned";
   selectedTags[1] = "Badges yet to achieve";
@@ -76,7 +76,7 @@ export const BadgesWrappedSkeleton = ({ selectedTags }: BadgesWrappedProps) => {
           key={index}
           title={tag + ":"}
           cards={Array.from({ length: numberOfCards }, (_, i) => (
-            <BadgeCardSkeleton key={i} />
+            <BadgeCardSkeleton achieved={index === 0} key={i} />
           ))}
         />
       ))}
