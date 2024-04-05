@@ -13,6 +13,18 @@ export interface BadgeDetails {
   unit?: string;
 }
 
+export const BadgeCardSkeleton = () => {
+  return (
+    <div className="p-8 rounded-lg shadow-md bg-DarkNeutral300 flex flex-col justify-between items-center sm:flex-grow 2xl:flex-grow-0 animate-pulse">
+      <div className="w-24 h-24 bg-DarkNeutral500 rounded-full mb-2"></div>
+      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
+      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
+      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
+      <div className="w-24 h-4 bg-DarkNeutral500 rounded mb-2"></div>
+    </div>
+  );
+};
+
 const BadgeCard: React.FC<BadgeDetails> = ({
   name,
   image,

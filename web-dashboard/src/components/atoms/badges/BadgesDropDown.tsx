@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import BadgesWrapped from "./BadgesWrapped";
+import BadgesWrapped, { BadgesWrappedSkeleton } from "./BadgesWrapped";
 
 // Inspired by https://github.com/Sridhar-C-25/react-createabl-multi-selector/blob/main/src/App.jsx
 
@@ -51,6 +51,7 @@ export const BadgesDropDownSkeleton = () => {
           <span className="text-DarkNeutral1100 text-sm animate-pulse">Clear all</span>
         </div>
       </div>
+      <BadgesWrappedSkeleton selectedTags={tags.slice(0, 2)} />
     </div>
   );
 };
