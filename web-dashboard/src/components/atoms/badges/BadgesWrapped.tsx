@@ -59,9 +59,19 @@ export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
   return 0;
 };
 
-type BadgeArray = BadgeDefinition & {
+export type BadgeArray = BadgeDefinition & {
   achieved: boolean;
   dateAchieved?: Date | undefined;
+  progress?: number;
+};
+
+// Function to sort the badges based on progress percentage
+export const sortBasedOnProgress = (badgeArray: BadgeArray[], stats: Stats | undefined) => {
+  return badgeArray.sort((a, b) => {
+    const progressA = (updateBadgeProgress(a.id, stats) / a.threshold) * 100;
+    const progressB = (updateBadgeProgress(b.id, stats) / b.threshold) * 100;
+    return progressB - progressA;
+  });
 };
 
 const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
@@ -115,15 +125,6 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
     .concat(miscRelatedBadges)
     .concat(languagesRelatedBadges);
 
-  // Function to sort the badges based on progress percentage
-  const sortBasedOnProgress = (badgeArray: BadgeArray[]) => {
-    return badgeArray.sort((a, b) => {
-      const progressA = (updateBadgeProgress(a.id, stats) / a.threshold) * 100;
-      const progressB = (updateBadgeProgress(b.id, stats) / b.threshold) * 100;
-      return progressB - progressA;
-    });
-  };
-
   return (
     <div className="flex flex-col gap-5">
       {selectedTags.includes(tags[0]) && badges.length > 0 && (
@@ -150,21 +151,22 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
       {selectedTags.includes(tags[1]) && (
         <BadgesWrap
           title="Badges yet to achieve:"
-          cards={sortBasedOnProgress(organizedAllBadges?.filter((badge) => !earnedBadgeIds.includes(badge.id))).map(
-            (badge) => (
-              <BadgeCard
-                key={badge.id}
-                name={badge.name}
-                image={badge.image}
-                description={badge.description}
-                points={badge.points}
-                progress={updateBadgeProgress(badge.id, stats)}
-                threshold={badge.threshold}
-                achieved={false}
-                unit={getBadgeUnit(badge.id)}
-              />
-            )
-          )}
+          cards={sortBasedOnProgress(
+            organizedAllBadges?.filter((badge) => !earnedBadgeIds.includes(badge.id)),
+            stats
+          ).map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateBadgeProgress(badge.id, stats)}
+              threshold={badge.threshold}
+              achieved={false}
+              unit={getBadgeUnit(badge.id)}
+            />
+          ))}
         />
       )}
       {selectedTags.includes(tags[2]) && (
