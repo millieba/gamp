@@ -85,14 +85,14 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
           </h1>
           {achieved && <CheckCircleIcon className="w-[18px] h-[18px] text-Lime500 ml-1 mb-1" />}
         </div>
-        <p className="text-DarkNeutral1100 mb-1 text-xs">{description}</p>
+        <p className="text-DarkNeutral1100 mb-1 text-xs w-[35vw]">{description}</p>
 
         {achieved ? (
           <div className="text-DarkNeutral1000 text-xs">
             Achieved: {date ? new Date(date).toISOString().split("T")[0] : ""}
           </div>
         ) : (
-          <div className="items-center text-center md:items-left md:text-left w-full">
+          <div className="items-center text-center md:items-left md:text-left w-[full]">
             <div className="flex justify-between text-DarkNeutral1000 w-full">
               <span className="text-xs">0</span>
               <span className="text-xs">{threshold}</span>
