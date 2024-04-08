@@ -90,7 +90,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
             Achieved: {date ? new Date(date).toISOString().split("T")[0] : ""}
           </div>
         ) : (
-          <div className="items-center text-center md:items-left md:text-left w-full">
+          <div className="items-center text-center md:items-left md:text-left w-[full]">
             <div className="flex justify-between text-DarkNeutral1000 w-full">
               <span className="text-xs">0</span>
               <span className="text-xs">{threshold}</span>

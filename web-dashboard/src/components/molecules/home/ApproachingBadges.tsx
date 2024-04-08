@@ -1,19 +1,9 @@
 import { useSyncContext } from "@/contexts/SyncContext";
 import React, { useEffect, useState } from "react";
-import { getBadgeUnit, updateBadgeProgress } from "../../atoms/badges/BadgesWrapped";
+import { BadgeArray, getBadgeUnit, updateBadgeProgress } from "../../atoms/badges/BadgesWrapped";
 import BadgeCardHomePage, { BadgeCardHomePageSkeleton } from "../../atoms/home/BadgeCardHomePage";
 import StatCard from "@/components/atoms/StatCard";
-
-interface UnearnedBadges {
-  description: string;
-  id: string;
-  image: string;
-  name: string;
-  points: number;
-  progress: number;
-  threshold: number;
-  type: string;
-}
+import { sortBasedOnProgress } from "../../atoms/badges/BadgesWrapped";
 
 export const ApproachingBadgesSkeleton = () => (
   <StatCard
@@ -31,7 +21,7 @@ export const ApproachingBadgesSkeleton = () => (
 
 const ApproachingBadges = () => {
   const { badges, allBadges, stats } = useSyncContext();
-  const [approachingBadges, setApproachingBadges] = useState<UnearnedBadges[]>([]);
+  const [approachingBadges, setApproachingBadges] = useState<BadgeArray[]>([]);
 
   useEffect(() => {
     const badgeIds = badges.map((badge) => badge.badgeId);
@@ -40,9 +30,9 @@ const ApproachingBadges = () => {
       .map((badge) => ({
         ...badge,
         progress: updateBadgeProgress(badge.id, stats),
-      }))
-      .sort((a, b) => a.threshold - a.progress - (b.threshold - b.progress));
-    setApproachingBadges(remaining);
+        achieved: false,
+      }));
+    setApproachingBadges(sortBasedOnProgress(remaining, stats));
   }, [badges, allBadges, stats]);
 
   return (
@@ -61,7 +51,7 @@ const ApproachingBadges = () => {
                   image={badge.image}
                   description={badge.description}
                   points={badge.points}
-                  progress={badge.progress}
+                  progress={badge.progress ? badge.progress : 0}
                   threshold={badge.threshold}
                   achieved={false}
                   unit={getBadgeUnit(badge.id)}

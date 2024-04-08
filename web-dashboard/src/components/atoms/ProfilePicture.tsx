@@ -111,7 +111,9 @@ const ProfilePicture = () => {
     if (!level?.nextLevel) {
       return 100; // User is already at the highest level
     }
-    const progressPercentage = (level.totalPoints / level.nextLevel.threshold) * 100;
+    const diff = level.nextLevel.threshold - level.currentLevel.threshold;
+    const progress = level.totalPoints - level.currentLevel.threshold;
+    const progressPercentage = (progress / diff) * 100;
     return Math.round(Math.min(progressPercentage, 100)); // Cap at 100% just in case, round to nearest integer
   };
 

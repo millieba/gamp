@@ -59,9 +59,19 @@ export const updateBadgeProgress = (id: string, stats: Stats | undefined) => {
   return 0;
 };
 
-type BadgeArray = BadgeDefinition & {
+export type BadgeArray = BadgeDefinition & {
   achieved: boolean;
   dateAchieved?: Date | undefined;
+  progress?: number;
+};
+
+// Function to sort the badges based on progress percentage
+export const sortBasedOnProgress = (badgeArray: BadgeArray[], stats: Stats | undefined) => {
+  return badgeArray.sort((a, b) => {
+    const progressA = (updateBadgeProgress(a.id, stats) / a.threshold) * 100;
+    const progressB = (updateBadgeProgress(b.id, stats) / b.threshold) * 100;
+    return progressB - progressA;
+  });
 };
 
 export const BadgesWrappedSkeleton = ({ selectedTags }: BadgesWrappedProps) => {
@@ -128,9 +138,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
 
   // Combining all the badges into one array, which is sorted as desired
   organizedAllBadges = issueRelatedBadges
-
     .concat(prRelatedBadges)
-
     .concat(commitsRelatedBadges)
     .concat(workdayStreakBadges)
     .concat(strictStreakBadges)
@@ -163,21 +171,22 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
       {selectedTags.includes(tags[1]) && (
         <BadgesWrap
           title="Badges yet to achieve:"
-          cards={organizedAllBadges
-            ?.filter((badge) => !earnedBadgeIds.includes(badge.id))
-            .map((badge) => (
-              <BadgeCard
-                key={badge.id}
-                name={badge.name}
-                image={badge.image}
-                description={badge.description}
-                points={badge.points}
-                progress={updateBadgeProgress(badge.id, stats)}
-                threshold={badge.threshold}
-                achieved={false}
-                unit={getBadgeUnit(badge.id)}
-              />
-            ))}
+          cards={sortBasedOnProgress(
+            organizedAllBadges?.filter((badge) => !earnedBadgeIds.includes(badge.id)),
+            stats
+          ).map((badge) => (
+            <BadgeCard
+              key={badge.id}
+              name={badge.name}
+              image={badge.image}
+              description={badge.description}
+              points={badge.points}
+              progress={updateBadgeProgress(badge.id, stats)}
+              threshold={badge.threshold}
+              achieved={false}
+              unit={getBadgeUnit(badge.id)}
+            />
+          ))}
         />
       )}
       {selectedTags.includes(tags[2]) && (

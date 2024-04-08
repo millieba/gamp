@@ -331,21 +331,21 @@ const badgeConfigs: BadgeConfig[] = [
     badges: [
       {
         name: "Night Owl",
-        description: "Earned by making 5 commits between 12 AM and 5 AM.",
+        description: "Earned by making 5 commits between 23 PM and 5 AM.",
         points: 1000,
         threshold: 5,
         image: "/badges/misc/night_owl_1.svg",
       },
       {
         name: "Hardcore Night Owl",
-        description: "Earned by making 10 commits between 12 AM and 5 AM.",
+        description: "Earned by making 10 commits between 23 PM and 5 AM.",
         points: 2000,
         threshold: 10,
         image: "/badges/misc/night_owl_2.svg",
       },
       {
         name: "Nocturnal Night Owl",
-        description: "Earned by making 20 commits between 12 AM and 5 AM.",
+        description: "Earned by making 20 commits between 23 PM and 5 AM.",
         points: 3000,
         threshold: 20,
         image: "/badges/misc/night_owl_3.svg",
@@ -429,7 +429,7 @@ const levelConfig: Level[] = [
   { id: 4, name: "Proficient Apprentice", threshold: 12000 },
   { id: 5, name: "Curious Crusader", threshold: 17000 },
   { id: 6, name: "Knowledge Climber", threshold: 22000 },
-  { id: 7, name: "Leaping Learner ", threshold: 28000 },
+  { id: 7, name: "Leaping Learner", threshold: 28000 },
   { id: 8, name: "Passionate Pathfinder", threshold: 34000 },
   { id: 9, name: "Steady Strider", threshold: 41000 },
   { id: 10, name: "Strategic Scholar", threshold: 48000 },
