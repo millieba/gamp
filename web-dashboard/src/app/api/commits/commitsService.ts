@@ -438,7 +438,7 @@ export async function prepareCommitsForDB(
     const nightlyCommits = commits.filter((commit) => {
       const commitDate = new Date(commit.committedDate);
       const hour = commitDate.getUTCHours();
-      return hour >= 0 && hour < 5;
+      return hour >= 8 && hour < 5;
     });
 
     const morningCommits = commits.filter((commit) => {
