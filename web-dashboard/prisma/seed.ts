@@ -331,21 +331,21 @@ const badgeConfigs: BadgeConfig[] = [
     badges: [
       {
         name: "Night Owl",
-        description: "Earned by making 5 commits between 12 AM and 5 AM.",
+        description: "Earned by making 5 commits between 23 PM and 5 AM.",
         points: 1000,
         threshold: 5,
         image: "/badges/misc/night_owl_1.svg",
       },
       {
         name: "Hardcore Night Owl",
-        description: "Earned by making 10 commits between 12 AM and 5 AM.",
+        description: "Earned by making 10 commits between 23 PM and 5 AM.",
         points: 2000,
         threshold: 10,
         image: "/badges/misc/night_owl_2.svg",
       },
       {
         name: "Nocturnal Night Owl",
-        description: "Earned by making 20 commits between 12 AM and 5 AM.",
+        description: "Earned by making 20 commits between 23 PM and 5 AM.",
         points: 3000,
         threshold: 20,
         image: "/badges/misc/night_owl_3.svg",
