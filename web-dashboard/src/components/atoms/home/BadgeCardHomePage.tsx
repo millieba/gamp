@@ -85,7 +85,7 @@ const BadgeCardHomePage: React.FC<BadgeDetails> = ({
           </h1>
           {achieved && <CheckCircleIcon className="w-[18px] h-[18px] text-Lime500 ml-1 mb-1" />}
         </div>
-        <p className="text-DarkNeutral1100 mb-1 text-xs w-[35vw]">{description}</p>
+        <p className="text-DarkNeutral1100 mb-1 text-xs">{description}</p>
 
         {achieved ? (
           <div className="text-DarkNeutral1000 text-xs">
