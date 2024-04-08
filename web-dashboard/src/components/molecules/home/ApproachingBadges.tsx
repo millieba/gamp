@@ -5,17 +5,6 @@ import BadgeCardHomePage, { BadgeCardHomePageSkeleton } from "../../atoms/home/B
 import StatCard from "@/components/atoms/StatCard";
 import { sortBasedOnProgress } from "../../atoms/badges/BadgesWrapped";
 
-interface UnearnedBadges {
-  description: string;
-  id: string;
-  image: string;
-  name: string;
-  points: number;
-  progress: number;
-  threshold: number;
-  type: string;
-}
-
 export const ApproachingBadgesSkeleton = () => (
   <StatCard
     name="Almost There"
