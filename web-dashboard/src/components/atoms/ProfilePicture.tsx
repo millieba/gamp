@@ -48,9 +48,6 @@ const ProfilePicture = () => {
       } else if (localStorage.getItem("visited")) {
         const lastVisitedDate = new Date(localStorage.getItem("visitedDate") as string);
         diffInMilliseconds = currentTime.getTime() - lastVisitedDate.getTime();
-        console.log("diffInMilliseconds", diffInMilliseconds);
-        console.log("currentTime", currentTime.getTime());
-        console.log("lastVisitedDate", lastVisitedDate.getTime());
       }
       const diffInMinutes = diffInMilliseconds / (1000 * 60);
 
@@ -60,8 +57,6 @@ const ProfilePicture = () => {
         }
       }
     }
-    console.log("session?.user.lastSync", session?.user.lastSync);
-    console.log("localStorage.getItem('visited')", localStorage.getItem("visited"));
   }, [isLoading, session, session?.user.lastSync]);
 
   useEffect(() => {
