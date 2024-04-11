@@ -10,7 +10,6 @@ const config: Config = {
     extend: {
       colors: {
         // Color palette from https://atlassian.design/foundations/color-new/color-palette-new/
-        "DarkNeutral-100": "#101214",
         DarkNeutral0: "#161A1D",
         DarkNeutral100: "#1D2125",
         DarkNeutral200: "#22272B",
