@@ -10,6 +10,7 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 ### Create database
 - I used PGAdmin4 to create the database: Servers > PostgreSQL 16 > Databases > Object > Create > Database:
 	- Default options, database name: `masters_db` on default user, `postgres`
+- Alternatively, you could access the PostgreSQL prompt (`psql`), ensure that you are logged in as the default user (`postgres`), and run `CREATE DATABASE masters_db;`. Verify that the database was created by running `\l`, exit with `\q`.
 
 ## Register new GitHub OAuth App
 - Go to https://github.com/settings/applications/new
@@ -28,7 +29,7 @@ You will need to set up a local PostgreSQL 16 database to run this project.
 # Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
 # See the documentation for all the connection string options: https://pris.ly/d/connection-strings
 
-DATABASE_URL="postgresql://postgres:verySecretPasswordHere@localhost:5432/masters_db?schema=public"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/masters_db?schema=public"
 ```
 - Modify the code above with the correct user (default user, `postgres`), correct password (placeholder, but the password for your default user) and database name (`masters_db`).
 
@@ -36,9 +37,10 @@ DATABASE_URL="postgresql://postgres:verySecretPasswordHere@localhost:5432/master
 - Generate a secret key using the following command in Git Bash: `openssl rand -base64 32`
 - Then create a `.env.local` file in the `web-dashboard` folder where you paste the generated key along with the GitHub client secret and client id:
 ```
-NEXTAUTH_SECRET=YourSecretKeyHere_NoNeedForQuotationMarksOrAnything
-GITHUB_SECRET=ClientSecretFromOAuthAppSetupOnGitHub
-GITHUB_ID=ClientIDFromOAuthAppSetupOnGitHub
+NEXTAUTH_SECRET="your-next-auth-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+GITHUB_SECRET="client-secret-from-oauth-app-setup-on-github"
+GITHUB_ID="client-id-from-oauth-app-setup-on-github"
 ```
 
 ## Migrate
