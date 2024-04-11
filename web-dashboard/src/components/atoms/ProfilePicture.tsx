@@ -36,27 +36,28 @@ const ProfilePicture = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
-    if (session?.user.lastSync || localStorage.getItem("visited")) {
+    if (typeof window !== "undefined") {
       const currentTime = new Date();
       let diffInMilliseconds = 0;
+      if (session?.user.lastSync === null) {
+        setCountdown(300);
+      }
       if (session?.user.lastSync) {
         const lastSyncDate = new Date(session.user.lastSync);
         diffInMilliseconds = currentTime.getTime() - lastSyncDate.getTime();
-      } else {
-        const lastVisitedDate = new Date(localStorage.getItem("visited") as string);
+      } else if (localStorage.getItem("visited")) {
+        const lastVisitedDate = new Date(localStorage.getItem("visitedDate") as string);
         diffInMilliseconds = currentTime.getTime() - lastVisitedDate.getTime();
       }
       const diffInMinutes = diffInMilliseconds / (1000 * 60);
 
-      if (diffInMinutes < 5) {
-        setCountdown(Math.floor((5 - diffInMinutes) * 60));
+      if (session?.user.lastSync || localStorage.getItem("visited") === "true") {
+        if (diffInMinutes < 5) {
+          setCountdown(Math.floor((5 - diffInMinutes) * 60));
+        }
       }
     }
-    if (!session?.user.lastSync) {
-      setCountdown(300);
-      localStorage.setItem("visited", "true");
-    }
-  }, [isLoading, session?.user.lastSync]);
+  }, [isLoading, session, session?.user.lastSync]);
 
   useEffect(() => {
     let countdownWorker: Worker | null = null;
@@ -132,6 +133,7 @@ const ProfilePicture = () => {
         <>
           <Image
             src={session?.user?.image}
+            priority={true}
             width={96}
             height={96}
             alt="Github profile picture"

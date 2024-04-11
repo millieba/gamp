@@ -69,7 +69,7 @@ const StatPreview = () => {
         </ShortStatView>
       ) : (
         <ShortStatView title="📝 Assigned Issues" border={true}>
-          {`${stats?.issueCount} issues assigned to you!`}
+          {`${stats?.issueCount} ${stats?.issueCount === 1 ? "issue" : "issues"} assigned to you!`}
         </ShortStatView>
       )}
       <ShortStatView title="👨‍💻 Most Used Language" border={false}>
