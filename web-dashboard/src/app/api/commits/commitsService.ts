@@ -448,7 +448,11 @@ export async function prepareCommitsForDB(
     });
 
     const dailyModifications = await fetchDailyModifications(commits);
-    console.log(`Commits fetched successfully ${retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`}`);
+    console.log(
+      `Commits fetched successfully ${
+        retries === 0 ? "on first attempt" : `on attempt ${retries + 1}`
+      } for account ${accountId}`
+    );
 
     return {
       commits: commits,
