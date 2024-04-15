@@ -86,7 +86,7 @@ const StatsPage = () => {
           : "Commit today to start a streak",
       number: stats?.strictStreak !== null ? stats?.strictStreak : stats?.strictStreakToContinue || 0,
       unit: stats?.strictStreak === 1 ? "day" : "days",
-      description: "This is how many days in a row you have committed",
+      description: "This is how many days in a row you have committed to a repository's default branch.",
     });
   }
 
@@ -105,7 +105,8 @@ const StatsPage = () => {
           : "Commit today to start a streak",
       number: stats?.workdayStreak !== null ? stats?.workdayStreak : stats?.workdayStreakToContinue || 0,
       unit: stats?.workdayStreak === 1 ? "workday" : "workdays",
-      description: "This is how many weekdays (Monday to Friday) in a row you have committed",
+      description:
+        "This is how many weekdays (Monday to Friday) in a row you have committed to a repository's default branch.",
     });
   }
 
@@ -163,7 +164,8 @@ const StatsPage = () => {
       subheading: "Your total commits",
       number: stats?.commitCount || 0,
       unit: stats?.commitCount === 1 ? "commit" : "commits",
-      description: "Number of unique commits authored by you. Keep them coming!",
+      description:
+        "Number of unique commits you've made to the default branches across all your repositories. Keep them coming!",
     },
   ];
 
@@ -208,7 +210,7 @@ const StatsPage = () => {
                   <StatCard
                     name={"Additions and deletions"}
                     description={
-                      "In the chart below, you can see the number of code lines added and deleted per day over the last seven days."
+                      "In the chart below, you can see the number of code lines added and deleted per day over the last seven days, specifically from the default branches across all your repositories."
                     }
                     content={<ModificationsChart />}
                   />
