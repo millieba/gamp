@@ -7,13 +7,13 @@ const getWeekDayFromIndex = (index: number) => {
 };
 
 export const ContributionChartSkeleton = () => (
-  <div className="overflow-x-auto bg-DarkNeutral300 rounded-lg mt-2 p-4">
+  <div className="overflow-x-auto bg-DarkNeutral300 rounded-lg mt-2 p-4 max-w-[65em]">
     <div className="overflow-x-auto">
       <div className="flex max-w-sm pt-4">
-        {[...Array(52)].map((_, weekIndex) => (
+        {[...Array(53)].map((_, weekIndex) => (
           <div key={weekIndex} className={`flex-col animate-pulse ${weekIndex === 0 ? "ml-10" : ""}`}>
             {[...Array(7)].map((_, dayIndex) => (
-              <div key={dayIndex} className="rounded-sm m-0.5 h-4 w-4 bg-DarkNeutral350 relative">
+              <div key={dayIndex} className="rounded-sm mr-0.5 mb-0.5 mt-0.5 h-4 w-4 bg-DarkNeutral350 relative">
                 {weekIndex === 0 && (
                   <p className="absolute text-xs -left-9 text-DarkNeutral1000">{getWeekDayFromIndex(dayIndex)}</p>
                 )}
@@ -24,15 +24,20 @@ export const ContributionChartSkeleton = () => (
       </div>
     </div>
     <div>
-      <div className="flex justify-start items-center mt-4 text-xs">
-        <span className="mr-2">Less</span>
+      <div className="flex items-center mt-4 text-xs justify-between mr-3">
+        <div className="ml-1.5 mr-8">
+          <p>Learn how we count contributions</p>
+        </div>
         <div className="flex items-center">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex  items-center text-xs">
-              <span className="mr-0.5 bg-DarkNeutral350 w-4 h-4 rounded-sm animate-pulse"></span>
-            </div>
-          ))}
-          <span className="ml-2">More</span>
+          <span className="mr-2">Less</span>
+          <div className="flex items-center">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="flex  items-center text-xs">
+                <span className="mr-0.5 bg-DarkNeutral350 w-4 h-4 rounded-sm animate-pulse"></span>
+              </div>
+            ))}
+            <span className="ml-2">More</span>
+          </div>
         </div>
       </div>
     </div>
@@ -86,7 +91,7 @@ export const ContributionChart = ({ contributions }: { contributions: Contributi
   let monthIndices: number[] = [];
 
   return (
-    <div className="bg-DarkNeutral300 rounded-lg p-4 overflow-x-auto mt-2">
+    <div className="bg-DarkNeutral300 rounded-lg p-4 overflow-x-auto mt-2 max-w-[65em]">
       <div className="overflow-x-auto">
         <div className="flex pt-4 relative max-w-sm">
           {contributions.contributionCalendar.weeks.map((week, weekIndex) => {
@@ -150,9 +155,14 @@ export const ContributionChart = ({ contributions }: { contributions: Contributi
         </div>
       </div>
       {/* LEGEND */}
-      <div className="flex justify-start items-center mt-4 text-xs">
-        <span className="mr-2">Less</span>
+      <div className="flex items-center mt-4 text-xs justify-between mr-3">
+        <div className="ml-1.5 mr-8 hover:text-green-400">
+          <a href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/why-are-my-contributions-not-showing-up-on-my-profile">
+            Learn how we count contributions
+          </a>
+        </div>
         <div className="flex items-center">
+          <span className="mr-2">Less</span>
           <div key="legendNoContributions" className="w-4 h-4 m-0.5 rounded-sm bg-DarkNeutral500"></div>
           {contributions?.contributionCalendar.colors.map((color, index) => (
             <div key={index} className="w-4 h-4 m-0.5 rounded-sm" style={{ backgroundColor: color }}></div>

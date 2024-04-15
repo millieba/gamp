@@ -40,24 +40,25 @@ model BadgeAward {
 
 // One user can have multiple accounts with different providers.
 model Account {
-  id                       String    @id @default(cuid())
-  userId                   String    @map("user_id")
-  levelId                  Int       @default(1) @map("level_id") // Default level is 1
+  id                       String     @id @default(cuid())
+  userId                   String     @map("user_id")
+  levelId                  Int        @default(1) @map("level_id") // Default level is 1
   type                     String
   provider                 String
-  providerAccountId        String    @map("provider_account_id")
-  totalPoints              Int       @default(0) @map("total_points") // Total points earned from badges
-  skippedQuotes            Int       @default(0) // Number of quotes skipped by the user
-  refresh_token            String?   @db.Text
+  providerAccountId        String     @map("provider_account_id")
+  totalPoints              Int        @default(0) @map("total_points") // Total points earned from badges
+  skippedQuotes            Int        @default(0) // Number of quotes skipped by the user
+  refresh_token            String?    @db.Text
   refresh_token_expires_in Int?
-  access_token             String?   @db.Text
+  access_token             String?    @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String?   @db.Text
+  id_token                 String?    @db.Text
   session_state            String?
-  lastSync                 DateTime? @map("last_sync") // Timestamp of last sync (for badges and stats)
-  lastQuoteId              String?   @map("last_quote_id") // Last quote shown to the user
+  lastSync                 DateTime?  @map("last_sync") // Timestamp of last sync (for badges and stats)
+  lastSyncs                DateTime[] @map("last_syncs") // Array of timestamps of most recent syncs
+  lastQuoteId              String?    @map("last_quote_id") // Last quote shown to the user
 
   githubStats GitHubStats?
   preferences UserPreferences?

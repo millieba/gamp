@@ -99,6 +99,24 @@ async function fetchData(accountId: string): Promise<SyncData> {
 export const isLastSyncToday = (lastSync: Date) =>
   new Date().setUTCHours(0, 0, 0, 0) === lastSync.setUTCHours(0, 0, 0, 0);
 
+async function updateLastSyncAndSyncs(accountId: string) {
+  try {
+    const lastSync = new Date();
+    await prisma.account.update({
+      where: { id: accountId },
+      data: {
+        lastSync: lastSync,
+        lastSyncs: {
+          push: lastSync,
+        },
+      },
+    });
+  } catch (error) {
+    console.error(`An error occurred while updating last sync for account ${accountId}:`, error);
+    throw error;
+  }
+}
+
 export async function syncWithGithub(accountId: string) {
   try {
     const account = await prisma.account.findUnique({ where: { id: accountId } });
@@ -139,7 +157,7 @@ export async function syncWithGithub(accountId: string) {
 
     await checkLevel(accountId); // Check level after badges are checked (total score depends on how many badges a user has)
 
-    await prisma.account.update({ where: { id: accountId }, data: { lastSync: new Date() } }); // Update last sync timestamp
+    await updateLastSyncAndSyncs(accountId); // Update last sync and last syncs array
   } catch (error) {
     if (error instanceof TooManyRequestsError) {
       console.error("Throttling sync for account " + accountId + " for " + error.retryAfter + " seconds");
