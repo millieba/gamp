@@ -98,10 +98,13 @@ const ProfilePicture = () => {
 
   const handleClick = async () => {
     try {
-      await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
-      setIsDisabled(true);
-      setCountdown(300);
-      localStorage.setItem("visited", "true");
+      const synced = await sync(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
+      // If sync is successful, set the countdown to 5 minutes and disable the button
+      if (synced) {
+        setIsDisabled(true);
+        setCountdown(300);
+        localStorage.setItem("visited", "true");
+      }
     } catch (err) {
       err instanceof Error && setError(err.message);
       console.error(err);

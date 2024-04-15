@@ -43,17 +43,20 @@ export async function sync(
   setAllBadges: Dispatch<SetStateAction<BadgeDefinition[]>>,
   setStats: Dispatch<SetStateAction<Stats | undefined>>,
   setLevel: Dispatch<SetStateAction<LevelData | undefined>>
-) {
+): Promise<boolean> {
+  let isSuccess = false;
   try {
     setIsLoading(true);
     const syncResponse = await fetch("/api/sync");
     if (syncResponse.ok) {
       await fetchFromDB(setIsLoading, setBadges, setAllBadges, setStats, setLevel);
+      isSuccess = true;
     }
   } catch (error) {
     console.error(error);
   } finally {
     setIsLoading(false);
+    return isSuccess;
   }
 }
 
