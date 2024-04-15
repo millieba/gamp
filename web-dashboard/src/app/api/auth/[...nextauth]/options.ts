@@ -128,6 +128,7 @@ export const options: NextAuthOptions = {
               providerAccountId: account.providerAccountId,
               userId: user.id,
               lastSync: null,
+              lastSyncs: [],
               preferences: {
                 create: {}, // Sets default preferences for the account
               },
