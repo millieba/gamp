@@ -146,7 +146,7 @@ const BadgesWrapped = ({ selectedTags }: BadgesWrappedProps) => {
     .concat(languagesRelatedBadges);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {selectedTags.includes(tags[0]) && badges.length > 0 && (
         <BadgesWrap
           title="Badges you've earned:"
