@@ -1,17 +1,13 @@
 import pandas as pd
-from scipy.stats import levene
+from scipy.stats import levene, linregress, shapiro, jarque_bera
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.stats import linregress
-from scipy.stats import shapiro
-from scipy.stats import jarque_bera
-import os
+
+def read_csv(csv_file):
+    return pd.read_csv(csv_file)
 
 ######################################################### Check linearity ###############################################################
-def plot_linearity(csv_file, x_column, y_column):
-    # Check that the relationship between X and the mean of Y is linear
-    df = pd.read_csv(csv_file)
-
+def plot_linearity(df, x_column, y_column):
     # Calculate the mean of Y for each unique value of X
     mean_y_by_x = df.groupby(x_column)[y_column].mean().reset_index()
 
@@ -19,7 +15,7 @@ def plot_linearity(csv_file, x_column, y_column):
     sns.scatterplot(x=x_column, y=y_column, data=df, label='Individual Data Points')
 
     # Regression line
-    slope, intercept, r_value, p_value, std_err = linregress(df[x_column], df[y_column])
+    slope, intercept, _, _, _ = linregress(df[x_column], df[y_column])
     line = slope * df[x_column] + intercept
     plt.plot(df[x_column], line, color='red', label='Regression Line')
 
@@ -34,26 +30,15 @@ def plot_linearity(csv_file, x_column, y_column):
 
 
 ######################################################### Check homoscedasticity ########################################################
-def levene_test(csv_file, group_column, value_column):
-    df = pd.read_csv(csv_file)
+def levene_test(df, group_column, value_column):
     groups = df.groupby(group_column)
-
-    for name, group in groups:
-        print(name) 
-        print(str(group[value_column]) + "\n")
-
-    # Filter out groups with very small variance
-    filtered_data = []
-    for name, group in groups:
-        if group[value_column].var() > 1e-10:  # Check for variance greater than a small tolerance
-            filtered_data.append(group[value_column])
+    filtered_data = [group[value_column] for _, group in groups if group[value_column].var() > 1e-10] # Filter out groups with very small variance
 
     if len(filtered_data) < 2:
         print("Error: Not enough data to perform Levene test")
         return None
 
     p_value = levene(*filtered_data).pvalue
-    
     alpha = 0.05
     if p_value > alpha:
         result = "Homoscedasticity is supported (p-value = {:.4f})".format(p_value)
@@ -63,12 +48,9 @@ def levene_test(csv_file, group_column, value_column):
     print(result)
     return result
 
-def plot_homoscedasticity(csv_file, group_column, value_column):
-    df = pd.read_csv(csv_file)
-    groups = df.groupby(group_column)
-    
+def plot_homoscedasticity(df, group_column, value_column):
     unique_group_values = sorted(df[group_column].unique()) # Needed to get right order on x-axis
-    data_list = [group[value_column].values for name, group in groups] # List to hold the data for each group value
+    data_list = [group[value_column].values for _, group in df.groupby(group_column)] # List to hold the data for each group value
     
     plt.figure(figsize=(8, 6))
     plt.boxplot(data_list, labels=unique_group_values)
@@ -79,8 +61,7 @@ def plot_homoscedasticity(csv_file, group_column, value_column):
 
 
 ######################################################### Check normality ###############################################################
-def shapiro_wilk_test(csv_file, column_name):
-    df = pd.read_csv(csv_file)
+def shapiro_wilk_test(df, column_name):
     column_data = df[column_name]
     p_value = shapiro(column_data).pvalue
 
@@ -95,8 +76,7 @@ def shapiro_wilk_test(csv_file, column_name):
 
 # Jarque-Bera test should be used if sample size is greater than 2000, as Shapiro-Wilk test is not reliable for large sample sizes
 # https://www.statology.org/jarque-bera-test-python/
-def jarque_bera_test(csv_file, column_name): 
-    df = pd.read_csv(csv_file)
+def jarque_bera_test(df, column_name): 
     column_data = df[column_name]
     p_value = jarque_bera(column_data).pvalue
 
@@ -109,10 +89,8 @@ def jarque_bera_test(csv_file, column_name):
     print(result)
     return result
 
-def plot_histogram(csv_file, column_name):
-    data_frame = pd.read_csv(csv_file)
-    column_data = data_frame[column_name]
-    
+def plot_histogram(df, column_name):
+    column_data = df[column_name]
     # Make a histogram of the data (showing the frequency of each value)
     plt.hist(column_data)
     plt.xlabel(column_name)
@@ -121,40 +99,23 @@ def plot_histogram(csv_file, column_name):
 
 
 ######################################################### Check each RQ #################################################################
-csv_file = "cleaned.csv"
-
-def test_rq(independent_variable, dependent_variable):
+def test_rq_for_masters(df, independent_variable, dependent_variable):
     print("Testing for linearity ...")
-    plot_linearity(csv_file, independent_variable, dependent_variable)
-    print("Testing for homoscedasticity ...")
-    levene_test(csv_file, independent_variable, dependent_variable)
-    plot_homoscedasticity(csv_file, independent_variable, dependent_variable)
-
-    # We need to do the normality test for each group and the dependent variable separately
-    unique_group_values = sorted(pd.read_csv(csv_file)[independent_variable].unique())
-    for group_value in unique_group_values:
-        group_indices = pd.read_csv(csv_file)[independent_variable] == group_value
-        group_data = pd.read_csv(csv_file)[group_indices]
-        group_data.to_csv("temp.csv", index=False) # Write the data for the current group to a temporary csv file
-        print(f"Testing for normality for {dependent_variable} and {independent_variable} = {group_value} ...")
-        jarque_bera_test("temp.csv", dependent_variable)
-        plot_histogram("temp.csv", dependent_variable)
-        os.remove("temp.csv")
-
-def test_rq_for_masters(independent_variable, dependent_variable):
-    print("Testing for linearity ...")
-    plot_linearity(csv_file, independent_variable, dependent_variable)
+    plot_linearity(df, independent_variable, dependent_variable)
     print("Testing for homoscedasticity with dependent variable as independent variable ...")
-    levene_test(csv_file, dependent_variable, independent_variable)
-    plot_homoscedasticity(csv_file, dependent_variable, independent_variable)
+    levene_test(df, dependent_variable, independent_variable)
+    plot_homoscedasticity(df, dependent_variable, independent_variable)
     print("Testing for homoscedasticity as normal ...")
-    levene_test(csv_file, independent_variable, dependent_variable)
-    plot_homoscedasticity(csv_file, independent_variable, dependent_variable)
+    levene_test(df, independent_variable, dependent_variable)
+    plot_homoscedasticity(df, independent_variable, dependent_variable)
     print("Testing for normality ...")
-    shapiro_wilk_test(csv_file, dependent_variable)
-    plot_histogram(csv_file, dependent_variable)
-    shapiro_wilk_test(csv_file, independent_variable)
-    plot_histogram(csv_file, independent_variable) 
+    shapiro_wilk_test(df, dependent_variable)
+    plot_histogram(df, dependent_variable)
+    shapiro_wilk_test(df, independent_variable)
+    plot_histogram(df, independent_variable) 
+
+csv_file = "cleaned.csv"
+data = read_csv(csv_file)
 
 print("Testing parametric assumptions RQ2 ...")
-test_rq_for_masters("PROG_EXP_COMPOSITE", "MOTIVATION_MEAN")
+test_rq_for_masters(data, "PROG_EXP_COMPOSITE", "MOTIVATION_MEAN")
