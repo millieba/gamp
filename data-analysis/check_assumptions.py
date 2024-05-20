@@ -25,7 +25,7 @@ def plot_linearity(df, x_column, y_column):
     plt.title(f'Scatter Plot and Regression Line\n {y_column} vs. {x_column}')
     plt.xlabel(x_column)
     plt.ylabel(y_column)
-    plt.legend()
+    plt.legend(loc='lower right')  # Place the legend in the bottom right corner
     plt.show()
 
 def normalize_value(value, min_value, max_value):
@@ -102,8 +102,7 @@ def plot_histogram(df, column_name):
 
 
 ######################################################### Check each RQ #################################################################
-
-def test_rq_for_masters(df, independent_variable, dependent_variable):
+def test_rq(df, independent_variable, dependent_variable):
     print("Testing for linearity ...")
     plot_linearity(df, independent_variable, dependent_variable)
     print("Testing for homoscedasticity ...")
@@ -118,13 +117,12 @@ def test_rq_for_masters(df, independent_variable, dependent_variable):
 csv_file = "dataset.csv"
 df = read_csv(csv_file)
 
+df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.25 + df['PROG_EXP_HOUR']*0.25 # Make a composite variable
 
-df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.3 + df['PROG_EXP_HOUR']*0.2 # Make a composite variable
-
-df['PROG_EXP_COMP_NORM'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(1)
+# Normalise the variables
+df['PROG_EXP_COMP'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(1)
 df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
 
 print(df)
-
 print("Testing parametric assumptions RQ2 ...")
-test_rq_for_masters(df, "PROG_EXP_COMP_NORM", "MOT_MEAN")
+test_rq(df, "PROG_EXP_COMP", "MOT_MEAN")
