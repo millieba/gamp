@@ -114,8 +114,8 @@ def test_rq_for_masters(df, independent_variable, dependent_variable):
     shapiro_wilk_test(df, independent_variable)
     plot_histogram(df, independent_variable) 
 
-csv_file = "cleaned.csv"
+csv_file = "dataset.csv"
 data = read_csv(csv_file)
 
 print("Testing parametric assumptions RQ2 ...")
-test_rq_for_masters(data, "PROG_EXP_COMPOSITE", "MOTIVATION_MEAN")
+test_rq_for_masters(data, "PROG_EXP_COMP", "MOT_MEAN")
