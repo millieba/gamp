@@ -119,13 +119,12 @@ csv_file = "dataset.csv"
 df = read_csv(csv_file)
 
 
-df['PROG_EXP_COMP'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / 
-                            (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(2)
-df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / 
-                            (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
-# df['PROG_EXP_COMPOSITE'] = (df['PROG_EXP_COMPOSITE'] - df['PROG_EXP_COMPOSITE'].mean()) / df['PROG_EXP_COMPOSITE'].std()
+df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.3 + df['PROG_EXP_HOUR']*0.2 # Make a composite variable
+
+df['PROG_EXP_COMP_NORM'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(1)
+df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
 
 print(df)
 
 print("Testing parametric assumptions RQ2 ...")
-test_rq_for_masters(df, "PROG_EXP_COMP", "MOT_MEAN")
+test_rq_for_masters(df, "PROG_EXP_COMP_NORM", "MOT_MEAN")
