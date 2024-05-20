@@ -117,12 +117,17 @@ def test_rq(df, independent_variable, dependent_variable):
 csv_file = "dataset.csv"
 df = read_csv(csv_file)
 
-df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.25 + df['PROG_EXP_HOUR']*0.25 # Make a composite variable
+# Make composite variables
+df['GAME_EXP_COMP'] = df['GAME_EXP']*0.75 + df['GAME_EXP_HOUR']*0.25
+df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.25 + df['PROG_EXP_HOUR']*0.25 
 
 # Normalise the variables
 df['PROG_EXP_COMP'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(1)
 df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
-
+df['GAME_EXP_COMP'] = ((df['GAME_EXP_COMP'] - df['GAME_EXP_COMP'].min()) / (df['GAME_EXP_COMP'].max() - df['GAME_EXP_COMP'].min())).round(1)
 print(df)
+
 print("Testing parametric assumptions RQ2 ...")
-test_rq(df, "PROG_EXP_COMP", "MOT_MEAN")
+# test_rq(df, "PROG_EXP_COMP", "MOT_MEAN")
+# test_rq(df, "STATEMENT", "MOT_MEAN")
+test_rq(df, "GAME_EXP_COMP", "MOT_MEAN")
