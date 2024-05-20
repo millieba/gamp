@@ -28,6 +28,9 @@ def plot_linearity(df, x_column, y_column):
     plt.legend()
     plt.show()
 
+def normalize_value(value, min_value, max_value):
+    return (value - min_value) / (max_value - min_value)
+
 
 ######################################################### Check homoscedasticity ########################################################
 def levene_test(df, group_column, value_column):
@@ -99,13 +102,11 @@ def plot_histogram(df, column_name):
 
 
 ######################################################### Check each RQ #################################################################
+
 def test_rq_for_masters(df, independent_variable, dependent_variable):
     print("Testing for linearity ...")
     plot_linearity(df, independent_variable, dependent_variable)
-    print("Testing for homoscedasticity with dependent variable as independent variable ...")
-    levene_test(df, dependent_variable, independent_variable)
-    plot_homoscedasticity(df, dependent_variable, independent_variable)
-    print("Testing for homoscedasticity as normal ...")
+    print("Testing for homoscedasticity ...")
     levene_test(df, independent_variable, dependent_variable)
     plot_homoscedasticity(df, independent_variable, dependent_variable)
     print("Testing for normality ...")
@@ -115,7 +116,16 @@ def test_rq_for_masters(df, independent_variable, dependent_variable):
     plot_histogram(df, independent_variable) 
 
 csv_file = "dataset.csv"
-data = read_csv(csv_file)
+df = read_csv(csv_file)
+
+
+df['PROG_EXP_COMP'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / 
+                            (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(2)
+df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / 
+                            (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
+# df['PROG_EXP_COMPOSITE'] = (df['PROG_EXP_COMPOSITE'] - df['PROG_EXP_COMPOSITE'].mean()) / df['PROG_EXP_COMPOSITE'].std()
+
+print(df)
 
 print("Testing parametric assumptions RQ2 ...")
-test_rq_for_masters(data, "PROG_EXP_COMP", "MOT_MEAN")
+test_rq_for_masters(df, "PROG_EXP_COMP", "MOT_MEAN")
