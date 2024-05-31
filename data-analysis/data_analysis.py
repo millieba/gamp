@@ -131,7 +131,7 @@ def mann_whitney_test(df, column1, column2):
     plt.title("Mann-Whitney U Test")
     # sns.swarmplot(x=column1, y=column2, data=df, color=".25") # This causes a lot of warnings
     plt.show()
-    
+
 
 ######################################################### Check each RQ #################################################################
 def test_rq(df, independent_variable, dependent_variable, method='pearson', check_assumptions=False):
@@ -167,8 +167,7 @@ df['GAME_EXP_COMP'] = df['GAME_EXP']*0.75 + df['GAME_EXP_HOUR']*0.25
 df['PROG_EXP_COMP'] = df['PROG_EXP']*0.5 + df['PROG_EXP_YEAR']*0.25 + df['PROG_EXP_HOUR']*0.25 
 
 # Normalise the variables
-df['MOT_MEAN_NOT_NORMALISED'] = df['MOT_MEAN']
-df['MOT_MEAN'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
+df['MOT_MEAN_NORM'] = ((df['MOT_MEAN'] - df['MOT_MEAN'].min()) / (df['MOT_MEAN'].max() - df['MOT_MEAN'].min())).round(1)
 df['PROG_EXP_COMP'] = ((df['PROG_EXP_COMP'] - df['PROG_EXP_COMP'].min()) / (df['PROG_EXP_COMP'].max() - df['PROG_EXP_COMP'].min())).round(1)
 df['GAME_EXP_COMP'] = ((df['GAME_EXP_COMP'] - df['GAME_EXP_COMP'].min()) / (df['GAME_EXP_COMP'].max() - df['GAME_EXP_COMP'].min())).round(1)
 df['USE_FREQ'] = ((df['USE_FREQ'] - df['USE_FREQ'].min()) / (df['USE_FREQ'].max() - df['USE_FREQ'].min())).round(1)
@@ -176,13 +175,13 @@ df['CONTRIB_DIFF'] = ((df['CONTRIB_DIFF'] - df['CONTRIB_DIFF'].min()) / (df['CON
 print(df)
 
 print("\n############ RQ2 ############")
-print("***** PROG_EXP_COMP vs. MOT_MEAN *****")
-test_rq(df, "PROG_EXP_COMP", "MOT_MEAN")
-print("\n***** GAME_EXP_COMP vs. MOT_MEAN *****")
-test_rq(df, "GAME_EXP_COMP", "MOT_MEAN")
+print("***** PROG_EXP_COMP vs. MOT_MEAN_NORM *****")
+test_rq(df, "PROG_EXP_COMP", "MOT_MEAN_NORM")
+print("\n***** GAME_EXP_COMP vs. MOT_MEAN_NORM *****")
+test_rq(df, "GAME_EXP_COMP", "MOT_MEAN_NORM")
 
 print("\n############ RQ4 ############")
 test_rq(df, "USE_FREQ", "CONTRIB_DIFF", method='kendall')
 
 print("\n############ RQ5 ############")
-test_rq(df, "STATEMENT", "MOT_MEAN_NOT_NORMALISED", method='mann_whitney')
+test_rq(df, "STATEMENT", "MOT_MEAN", method='mann_whitney')
