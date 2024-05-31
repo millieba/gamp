@@ -1,5 +1,5 @@
 import pandas as pd
-from scipy.stats import levene, linregress, shapiro, jarque_bera, kendalltau, spearmanr, mannwhitneyu
+from scipy.stats import levene, linregress, shapiro, jarque_bera, kendalltau, spearmanr, mannwhitneyu, pearsonr
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -102,15 +102,18 @@ def plot_histogram(df, column_name):
 
 def kendall_correlation(df, column1, column2): # Non-parametric correlation, better than Spearman for small sample sizes
     tau_value, p_value = kendalltau(df[column1], df[column2])
+    print("Kendall p-value: {:.4f}".format(p_value))
     return tau_value, p_value
 
 def spearman_correlation(df, column1, column2):
     rho_value, p_value = spearmanr(df[column1], df[column2])
+    print("Spearman p-value: {:.4f}".format(p_value))
     return rho_value, p_value
 
 def pearson_correlation(df, column1, column2):
-    pearsoncorr = df[[column1, column2]].corr(method='pearson')
-    return pearsoncorr
+    pearson_value, p_value = pearsonr(df[column1], df[column2])
+    print("Pearson p-value: {:.4f}".format(p_value))
+    return pearson_value
 
 def mann_whitney_test(df, column1, column2):
     group1 = df[column2][df[column1] == 1]
