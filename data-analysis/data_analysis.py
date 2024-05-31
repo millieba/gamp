@@ -110,24 +110,20 @@ def spearman_correlation(df, column1, column2):
 
 def pearson_correlation(df, column1, column2):
     pearsoncorr = df[[column1, column2]].corr(method='pearson')
-    print(pearsoncorr)
+    return pearsoncorr
 
 def mann_whitney_test(df, column1, column2):
     group1 = df[column2][df[column1] == 1]
     group2 = df[column2][df[column1] == 2]
-    print(group1)
-    print(group2)
 
     stat, p_value = mannwhitneyu(group1, group2)
-    print('Mann-Whitney U test statistic:', stat)
-    print('p-value:', p_value)
+    print("Mann-Whitney U test: {:.4f}, p-value: {:.4f}".format(stat, p_value))
     alpha = 0.05
     if p_value < alpha:
         print('Reject the null hypothesis: There is a significant difference between the groups.')
     else:
-        print('Fail to reject the null hypothesis: There is no significant difference between the groups.')
+        print('Failed to reject the null hypothesis: There is no significant difference between the groups.')
     
-    # Plot the data
     plt.figure(figsize=(8, 6))
     sns.boxplot(x=column1, y=column2, data=df)
     plt.xlabel(column1)
@@ -135,9 +131,10 @@ def mann_whitney_test(df, column1, column2):
     plt.title("Mann-Whitney U Test")
     # sns.swarmplot(x=column1, y=column2, data=df, color=".25") # This causes a lot of warnings
     plt.show()
+    
 
 ######################################################### Check each RQ #################################################################
-def test_rq(df, independent_variable, dependent_variable, parametric=True, check_assumptions=False):
+def test_rq(df, independent_variable, dependent_variable, method='pearson', check_assumptions=False):
     if check_assumptions:
         print("Testing for linearity ...")
         plot_linearity(df, independent_variable, dependent_variable)
@@ -149,14 +146,18 @@ def test_rq(df, independent_variable, dependent_variable, parametric=True, check
         plot_histogram(df, dependent_variable)
         shapiro_wilk_test(df, independent_variable)
         plot_histogram(df, independent_variable)
+        print("Testing for correlation ...")
 
-    print("Testing for correlation ...")
-    if parametric:
-        pearson_correlation(df, independent_variable, dependent_variable)
-    else:
+    if method == 'pearson':
+        pearson_result = pearson_correlation(df, independent_variable, dependent_variable)
+        print(pearson_result)
+    elif method == 'kendall':
         tau_value, p_value = kendall_correlation(df, independent_variable, dependent_variable)
         print("Kendall's Tau value: {:.4f}, p-value: {:.4f}".format(tau_value, p_value))
-
+    elif method == 'mann_whitney':
+        mann_whitney_test(df, independent_variable, dependent_variable)
+    else:
+        print("Invalid method. Choose from 'pearson', 'kendall', or 'mann_whitney'.")
 
 csv_file = "dataset.csv"
 df = read_csv(csv_file)
@@ -174,15 +175,14 @@ df['USE_FREQ'] = ((df['USE_FREQ'] - df['USE_FREQ'].min()) / (df['USE_FREQ'].max(
 df['CONTRIB_DIFF'] = ((df['CONTRIB_DIFF'] - df['CONTRIB_DIFF'].min()) / (df['CONTRIB_DIFF'].max() - df['CONTRIB_DIFF'].min())).round(1)
 print(df)
 
-print("############ RQ2 ############")
-print("* PROG_EXP_COMP vs. MOT_MEAN *")
+print("\n############ RQ2 ############")
+print("***** PROG_EXP_COMP vs. MOT_MEAN *****")
 test_rq(df, "PROG_EXP_COMP", "MOT_MEAN")
-print("* GAME_EXP_COMP vs. MOT_MEAN *")
+print("\n***** GAME_EXP_COMP vs. MOT_MEAN *****")
 test_rq(df, "GAME_EXP_COMP", "MOT_MEAN")
-# test_rq(df, "STATEMENT", "MOT_MEAN")
 
-print("############ RQ4 ############")
-test_rq(df, "USE_FREQ", "CONTRIB_DIFF", parametric=False)
+print("\n############ RQ4 ############")
+test_rq(df, "USE_FREQ", "CONTRIB_DIFF", method='kendall')
 
-print("############ RQ5 ############")
-mann_whitney_test(df, "STATEMENT", "MOT_MEAN_NOT_NORMALISED")
+print("\n############ RQ5 ############")
+test_rq(df, "STATEMENT", "MOT_MEAN_NOT_NORMALISED", method='mann_whitney')
