@@ -102,25 +102,42 @@ def plot_histogram(df, column_name):
 
 def kendall_correlation(df, column1, column2): # Non-parametric correlation, better than Spearman for small sample sizes
     tau_value, p_value = kendalltau(df[column1], df[column2])
-    print("Kendall p-value: {:.4f}".format(p_value))
+
+    alpha = 0.05
+    if p_value < alpha:
+        print('Reject the null hypothesis: There is a significant correlation between the variables.')
+    else:
+        print('Failed to reject the null hypothesis: There is no significant correlation between the variables.')
+
     return tau_value, p_value
 
 def spearman_correlation(df, column1, column2):
     rho_value, p_value = spearmanr(df[column1], df[column2])
-    print("Spearman p-value: {:.4f}".format(p_value))
+
+    alpha = 0.05
+    if p_value < alpha:
+        print('Reject the null hypothesis: There is a significant correlation between the variables.')
+    else:
+        print('Failed to reject the null hypothesis: There is no significant correlation between the variables.')
+
     return rho_value, p_value
 
 def pearson_correlation(df, column1, column2):
     pearson_value, p_value = pearsonr(df[column1], df[column2])
-    print("Pearson p-value: {:.4f}".format(p_value))
-    return pearson_value
+
+    alpha = 0.05
+    if p_value < alpha:
+        print('Reject the null hypothesis: There is a significant correlation between the variables.')
+    else:
+        print('Failed to reject the null hypothesis: There is no significant correlation between the variables.')
+
+    return pearson_value, p_value
 
 def mann_whitney_test(df, column1, column2):
     group1 = df[column2][df[column1] == 1]
     group2 = df[column2][df[column1] == 2]
 
     stat, p_value = mannwhitneyu(group1, group2)
-    print("Mann-Whitney U test: {:.4f}, p-value: {:.4f}".format(stat, p_value))
     alpha = 0.05
     if p_value < alpha:
         print('Reject the null hypothesis: There is a significant difference between the groups.')
@@ -134,6 +151,8 @@ def mann_whitney_test(df, column1, column2):
     plt.title("Mann-Whitney U Test")
     # sns.swarmplot(x=column1, y=column2, data=df, color=".25") # This causes a lot of warnings
     plt.show()
+
+    return stat, p_value
 
 
 ######################################################### Check each RQ #################################################################
@@ -152,13 +171,14 @@ def test_rq(df, independent_variable, dependent_variable, method='pearson', chec
         print("Testing for correlation ...")
 
     if method == 'pearson':
-        pearson_result = pearson_correlation(df, independent_variable, dependent_variable)
-        print(pearson_result)
+        pearson_result, p_value = pearson_correlation(df, independent_variable, dependent_variable)
+        print("Pearson correlation value: {:.4f}, p-value: {:.4f}".format(pearson_result, p_value))
     elif method == 'kendall':
         tau_value, p_value = kendall_correlation(df, independent_variable, dependent_variable)
         print("Kendall's Tau value: {:.4f}, p-value: {:.4f}".format(tau_value, p_value))
     elif method == 'mann_whitney':
-        mann_whitney_test(df, independent_variable, dependent_variable)
+        mann_whitney_result, p_value = mann_whitney_test(df, independent_variable, dependent_variable)
+        print("Mann-Whitney U value: {:.4f}, p-value: {:.4f}".format(mann_whitney_result, p_value))
     else:
         print("Invalid method. Choose from 'pearson', 'kendall', or 'mann_whitney'.")
 
