@@ -108,6 +108,13 @@ def spearman_correlation(df, column1, column2):
     rho_value, p_value = spearmanr(df[column1], df[column2])
     return rho_value, p_value
 
+def pearson_correlation(df, column1, column2):
+    pearsoncorr = df[[column1, column2]].corr(method='pearson')
+    print(pearsoncorr)
+    plt.matshow(pearsoncorr)
+    plt.show()
+
+
 ######################################################### Check each RQ #################################################################
 def test_rq(df, independent_variable, dependent_variable, parametric=True, check_assumptions=False):
     if check_assumptions:
@@ -124,8 +131,7 @@ def test_rq(df, independent_variable, dependent_variable, parametric=True, check
 
     print("Testing for correlation ...")
     if parametric:
-        # TODO: Use Pearson correlation
-        pass
+        pearson_correlation(df, independent_variable, dependent_variable)
     else:
         tau_value, p_value = kendall_correlation(df, independent_variable, dependent_variable)
         print("Kendall's Tau value: {:.4f}, p-value: {:.4f}".format(tau_value, p_value))
