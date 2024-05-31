@@ -1,5 +1,5 @@
 import pandas as pd
-from scipy.stats import levene, linregress, shapiro, jarque_bera
+from scipy.stats import levene, linregress, shapiro, jarque_bera, kendalltau, spearmanr
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -100,19 +100,36 @@ def plot_histogram(df, column_name):
     plt.ylabel('Frequency')
     plt.show()
 
+def kendall_correlation(df, column1, column2): # Non-parametric correlation, better than Spearman for small sample sizes
+    tau_value, p_value = kendalltau(df[column1], df[column2])
+    return tau_value, p_value
+
+def spearman_correlation(df, column1, column2):
+    rho_value, p_value = spearmanr(df[column1], df[column2])
+    return rho_value, p_value
 
 ######################################################### Check each RQ #################################################################
-def test_rq(df, independent_variable, dependent_variable):
-    print("Testing for linearity ...")
-    plot_linearity(df, independent_variable, dependent_variable)
-    print("Testing for homoscedasticity ...")
-    levene_test(df, independent_variable, dependent_variable)
-    plot_homoscedasticity(df, independent_variable, dependent_variable)
-    print("Testing for normality ...")
-    shapiro_wilk_test(df, dependent_variable)
-    plot_histogram(df, dependent_variable)
-    shapiro_wilk_test(df, independent_variable)
-    plot_histogram(df, independent_variable) 
+def test_rq(df, independent_variable, dependent_variable, parametric=True, check_assumptions=False):
+    if check_assumptions:
+        print("Testing for linearity ...")
+        plot_linearity(df, independent_variable, dependent_variable)
+        print("Testing for homoscedasticity ...")
+        levene_test(df, independent_variable, dependent_variable)
+        plot_homoscedasticity(df, independent_variable, dependent_variable)
+        print("Testing for normality ...")
+        shapiro_wilk_test(df, dependent_variable)
+        plot_histogram(df, dependent_variable)
+        shapiro_wilk_test(df, independent_variable)
+        plot_histogram(df, independent_variable)
+
+    print("Testing for correlation ...")
+    if parametric:
+        # TODO: Use Pearson correlation
+        pass
+    else:
+        tau_value, p_value = kendall_correlation(df, independent_variable, dependent_variable)
+        print("Kendall's Tau value: {:.4f}, p-value: {:.4f}".format(tau_value, p_value))
+
 
 csv_file = "dataset.csv"
 df = read_csv(csv_file)
@@ -137,4 +154,4 @@ test_rq(df, "GAME_EXP_COMP", "MOT_MEAN")
 # test_rq(df, "STATEMENT", "MOT_MEAN")
 
 print("############ RQ4 ############")
-test_rq(df, "USE_FREQ", "CONTRIB_DIFF")
+test_rq(df, "USE_FREQ", "CONTRIB_DIFF", parametric=False)
