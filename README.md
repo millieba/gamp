@@ -1,4 +1,4 @@
-# Karen & Millie's Preparatory Project
+# Gamified Achievement Manager for Programmers (Gamp)
 ## Running the web dashboard
 1. Ensure that your system has Node.js and pnpm before proceeding, e.g. by checking their versions, `node -v` and `pnpm -v`. If you don't have pnpm, install it by running `npm install -g pnpm`. For Node.js installation, refer to https://nodejs.org.
 2. Complete the instructions [here](https://github.com/millieba/master-preparatory-project/tree/main/web-dashboard#readme)
